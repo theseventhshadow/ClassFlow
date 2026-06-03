@@ -1,0 +1,10 @@
+export * from './api.service';
+export * from './user.service';
+export * from './auth.service';
+export * from './dashboard.service';
+export * from './course.service';
+export { userService } from './user.service';
+export { authService } from './auth.service';
+export { mediaService } from './media.service';
+export { dashboardService } from './dashboard.service';
+export { courseService } from './course.service';
