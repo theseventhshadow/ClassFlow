@@ -3,12 +3,12 @@ $env:JAVA_HOME = "C:\Program Files\Java\jdk-25.0.2"
 $workspaceRoot = "C:\Users\pv-alumno\Downloads\ClassFlow-Back"
 
 $services = @(
-    @{name = "auth-service"; port = 8081},
-    @{name = "academic-service"; port = 8082},
-    @{name = "assistance-service"; port = 8083},
-    @{name = "message-service"; port = 8084},
-    @{name = "notification-service"; port = 8085},
-    @{name = "gateway-service"; port = 8080}
+    @{name = "ms-auth"; port = 8081},
+    @{name = "ms-academic"; port = 8082},
+    @{name = "ms-assistance"; port = 8083},
+    @{name = "ms-service"; port = 8084},
+    @{name = "ms-notification"; port = 8085},
+    @{name = "api-gateway"; port = 8080}
 )
 
 Write-Host "=== INICIANDO PRUEBA DE MICROSERVICIOS ===" -ForegroundColor Cyan

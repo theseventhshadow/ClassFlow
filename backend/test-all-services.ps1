@@ -1,4 +1,4 @@
-$dirs = @('academic-service', 'assistance-service', 'auth-service', 'gateway-service', 'message-service', 'notification-service')
+$dirs = @('ms-academic', 'ms-assistance', 'ms-auth', 'api-gateway', 'ms-service', 'ms-notification')
 $results = @()
 
 foreach($dir in $dirs) {

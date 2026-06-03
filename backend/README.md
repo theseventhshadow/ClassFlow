@@ -14,13 +14,13 @@ Ambos proyectos son necesarios para ejecutar ClassFlow completo.
 
 Arquitectura y servicios
 ------------------------
-- [gateway-service](gateway-service/README.md) (puerto 8080): API Gateway (Spring Cloud Gateway).
-- [auth-service](auth-service/README.md) (puerto 8081): Autenticación y gestión de usuarios (JWT + Spring Security).
-- [academic-service](academic-service/README.md) (puerto 8082): Cursos, asignaturas, evaluaciones, notas.
-- [assistance-service](assistance-service/README.md) (puerto 8083): Asistencia y anotaciones.
-- [message-service](message-service/README.md) (puerto 8084): Mensajes y anuncios.
-- [notification-service](notification-service/README.md) (puerto 8085): Envío de emails/alertas.
-- [bff-service](bff-service/README.md) (puerto 8086): Backend-for-Frontend con endpoints agregados (dashboard).
+- [api-gateway](api-gateway/README.md) (puerto 8080): API Gateway (Spring Cloud Gateway).
+- [ms-auth](ms-auth/README.md) (puerto 8081): Autenticación y gestión de usuarios (JWT + Spring Security).
+- [ms-academic](ms-academic/README.md) (puerto 8082): Cursos, asignaturas, evaluaciones, notas.
+- [ms-assistance](ms-assistance/README.md) (puerto 8083): Asistencia y anotaciones.
+- [ms-service](ms-service/README.md) (puerto 8084): Mensajes y anuncios.
+- [ms-notification](ms-notification/README.md) (puerto 8085): Envío de emails/alertas.
+- [bff](bff/README.md) (puerto 8086): Backend-for-Frontend con endpoints agregados (dashboard).
 
 Estructura de Carpetas
 ---------------------
@@ -31,7 +31,7 @@ ClassFlow-Back/
 ├── docs/
 │   └── README.md                       # Documentación complementaria
 │
-├── gateway-service/                    # API Gateway (Spring Cloud Gateway)
+├── api-gateway/                    # API Gateway (Spring Cloud Gateway)
 │   ├── pom.xml
 │   ├── Dockerfile
 │   ├── mvnw / mvnw.cmd
@@ -46,7 +46,7 @@ ClassFlow-Back/
 │       │       └── application-docker.yml
 │       └── test/
 │
-├── auth-service/                       # Autenticación, Usuarios, JWT
+├── ms-auth/                       # Autenticación, Usuarios, JWT
 │   ├── pom.xml
 │   ├── Dockerfile
 │   ├── mvnw / mvnw.cmd
@@ -69,7 +69,7 @@ ClassFlow-Back/
 │       │           └── V5__encrypt_seed_passwords.sql
 │       └── test/
 │
-├── academic-service/                   # Cursos, Asignaturas, Evaluaciones, Notas
+├── ms-academic/                   # Cursos, Asignaturas, Evaluaciones, Notas
 │   ├── pom.xml
 │   ├── Dockerfile
 │   ├── mvnw / mvnw.cmd
@@ -88,7 +88,7 @@ ClassFlow-Back/
 │       │       └── db/migration/
 │       └── test/
 │
-├── assistance-service/                 # Asistencia, Anotaciones
+├── ms-assistance/                 # Asistencia, Anotaciones
 │   ├── pom.xml
 │   ├── Dockerfile
 │   └── src/
@@ -98,7 +98,7 @@ ClassFlow-Back/
 │       │   └── repository/
 │       └── main/resources/db/migration/
 │
-├── message-service/                    # Mensajes, Anuncios
+├── ms-service/                    # Mensajes, Anuncios
 │   ├── pom.xml
 │   ├── Dockerfile
 │   └── src/
@@ -108,7 +108,7 @@ ClassFlow-Back/
 │       │   └── repository/
 │       └── main/resources/db/migration/
 │
-├── notification-service/               # Notificaciones, Emails/Alertas
+├── ms-notification/               # Notificaciones, Emails/Alertas
 │   ├── pom.xml
 │   ├── Dockerfile
 │   └── src/
@@ -118,7 +118,7 @@ ClassFlow-Back/
 │       │   └── repository/
 │       └── main/resources/db/migration/
 │
-└── bff-service/                        # Backend-for-Frontend, Dashboard
+└── bff/                        # Backend-for-Frontend, Dashboard
     ├── pom.xml
     ├── Dockerfile
     └── src/
@@ -163,7 +163,7 @@ cd ClassFlow-Back
 
 Inicio rápido (desarrollo con Maven)
 ----------------------------------
-Desde la raíz de cada servicio (ej. `auth-service`) ejecutar:
+Desde la raíz de cada servicio (ej. `ms-auth`) ejecutar:
 
 ```bash
 ./mvnw spring-boot:run
@@ -200,7 +200,7 @@ Build y creación de imágenes Docker
 - Ejemplo (desde la raíz):
 
 ```bash
-docker build -t auth-service:local ./auth-service
+docker build -t ms-auth:local ./ms-auth
 ```
 
 Pruebas
@@ -213,8 +213,8 @@ Pruebas
 
 Consideraciones de seguridad y configuración
 -------------------------------------------
-- `auth-service` usa JWT (clave en `application.yml` para desarrollo).
-- `notification-service` incluye parámetros SMTP de ejemplo en `application.properties` — no dejar credenciales en claro.
+- `ms-auth` usa JWT (clave en `application.yml` para desarrollo).
+- `ms-notification` incluye parámetros SMTP de ejemplo en `application.properties` — no dejar credenciales en claro.
 
 Archivos y referencias rápidas
 -----------------------------
@@ -245,8 +245,8 @@ Comandos útiles:
 # Ejecutar todos los servicios en contenedores
 docker compose up --build
 
-# Ejecutar un servicio localmente (ej. auth-service)
-cd auth-service
+# Ejecutar un servicio localmente (ej. ms-auth)
+cd ms-auth
 ../mvnw spring-boot:run
 ```
 

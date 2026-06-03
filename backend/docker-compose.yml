@@ -79,20 +79,20 @@ services:
     networks:
       - classflow-back-net
 
-  gateway:
-    build: ./gateway-service  # 🔥 Ruta al Dockerfile
-    image: gateway-service:local
+  api-gateway:
+    build: ./api-gateway  # 🔥 Ruta al Dockerfile
+    image: api-gateway:local
     ports:
       - "8080:8080"
     environment:
       - SPRING_PROFILES_ACTIVE=docker
     depends_on:
       - bff
-      - auth
-      - academic
-      - assistance
-      - message
-      - notification
+      - ms-auth
+      - ms-academic
+      - ms-assistance
+      - ms-service
+      - ms-notification
     healthcheck:
       test: ["CMD", "curl", "-f", "http://localhost:8080/actuator/health"]
       interval: 10s
@@ -102,18 +102,18 @@ services:
       - classflow-back-net
 
   bff:
-    build: ./bff-service
-    image: bff-service:local
+    build: ./bff
+    image: bff:local
     ports:
       - "8086:8086"
     environment:
       - SPRING_PROFILES_ACTIVE=docker
     depends_on:
-      - auth
-      - academic
-      - assistance
-      - message
-      - notification
+      - ms-auth
+      - ms-academic
+      - ms-assistance
+      - ms-service
+      - ms-notification
     healthcheck:
       test: ["CMD", "curl", "-f", "http://localhost:8086/actuator/health"]
       interval: 10s
@@ -122,9 +122,9 @@ services:
     networks:
       - classflow-back-net
 
-  auth:
-    build: ./auth-service  # 🔥 Ruta al Dockerfile
-    image: auth-service:local
+  ms-auth:
+    build: ./ms-auth  # 🔥 Ruta al Dockerfile
+    image: ms-auth:local
     ports:
       - "8081:8081"
     environment:
@@ -140,9 +140,9 @@ services:
     networks:
       - classflow-back-net
 
-  academic:
-    build: ./academic-service  # 🔥 Ruta al Dockerfile
-    image: academic-service:local
+  ms-academic:
+    build: ./ms-academic  # 🔥 Ruta al Dockerfile
+    image: ms-academic:local
     ports:
       - "8082:8082"
     environment:
@@ -158,9 +158,9 @@ services:
     networks:
       - classflow-back-net
 
-  assistance:
-    build: ./assistance-service  # 🔥 Ruta al Dockerfile
-    image: assistance-service:local
+  ms-assistance:
+    build: ./ms-assistance  # 🔥 Ruta al Dockerfile
+    image: ms-assistance:local
     ports:
       - "8083:8083"
     environment:
@@ -176,9 +176,9 @@ services:
     networks:
       - classflow-back-net
 
-  message:
-    build: ./message-service  # 🔥 Ruta al Dockerfile
-    image: message-service:local
+  ms-service:
+    build: ./ms-service  # 🔥 Ruta al Dockerfile
+    image: ms-service:local
     ports:
       - "8084:8084"
     environment:
@@ -194,9 +194,9 @@ services:
     networks:
       - classflow-back-net
 
-  notification:
-    build: ./notification-service  # 🔥 Ruta al Dockerfile
-    image: notification-service:local
+  ms-notification:
+    build: ./ms-notification  # 🔥 Ruta al Dockerfile
+    image: ms-notification:local
     ports:
       - "8085:8085"
     environment:
