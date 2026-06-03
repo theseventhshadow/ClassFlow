@@ -1,0 +1,225 @@
+services:
+  auth-db:
+    image: postgres:15-alpine
+    environment:
+      POSTGRES_DB: auth_db
+      POSTGRES_USER: auth_user
+      POSTGRES_PASSWORD: auth_pass
+    volumes:
+      - auth-postgres-data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U auth_user -d auth_db"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - classflow-back-net
+
+  academic-db:
+    image: postgres:15-alpine
+    environment:
+      POSTGRES_DB: academic_db
+      POSTGRES_USER: academic_user
+      POSTGRES_PASSWORD: academic_pass
+    volumes:
+      - academic-postgres-data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U academic_user -d academic_db"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - classflow-back-net
+
+  assistance-db:
+    image: postgres:15-alpine
+    environment:
+      POSTGRES_DB: assistance_db
+      POSTGRES_USER: assistance_user
+      POSTGRES_PASSWORD: assistance_pass
+    volumes:
+      - assistance-postgres-data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U assistance_user -d assistance_db"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - classflow-back-net
+
+  message-db:
+    image: postgres:15-alpine
+    environment:
+      POSTGRES_DB: message_db
+      POSTGRES_USER: message_user
+      POSTGRES_PASSWORD: message_pass
+    volumes:
+      - message-postgres-data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U message_user -d message_db"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - classflow-back-net
+
+  notification-db:
+    image: postgres:15-alpine
+    environment:
+      POSTGRES_DB: notification_db
+      POSTGRES_USER: notification_user
+      POSTGRES_PASSWORD: notification_pass
+    volumes:
+      - notification-postgres-data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U notification_user -d notification_db"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - classflow-back-net
+
+  gateway:
+    build: ./gateway-service  # 🔥 Ruta al Dockerfile
+    image: gateway-service:local
+    ports:
+      - "8080:8080"
+    environment:
+      - SPRING_PROFILES_ACTIVE=docker
+    depends_on:
+      - bff
+      - auth
+      - academic
+      - assistance
+      - message
+      - notification
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8080/actuator/health"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - classflow-back-net
+
+  bff:
+    build: ./bff-service
+    image: bff-service:local
+    ports:
+      - "8086:8086"
+    environment:
+      - SPRING_PROFILES_ACTIVE=docker
+    depends_on:
+      - auth
+      - academic
+      - assistance
+      - message
+      - notification
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8086/actuator/health"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - classflow-back-net
+
+  auth:
+    build: ./auth-service  # 🔥 Ruta al Dockerfile
+    image: auth-service:local
+    ports:
+      - "8081:8081"
+    environment:
+      - SPRING_PROFILES_ACTIVE=docker
+    depends_on:
+      auth-db:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8081/actuator/health"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - classflow-back-net
+
+  academic:
+    build: ./academic-service  # 🔥 Ruta al Dockerfile
+    image: academic-service:local
+    ports:
+      - "8082:8082"
+    environment:
+      - SPRING_PROFILES_ACTIVE=docker
+    depends_on:
+      academic-db:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8082/actuator/health"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - classflow-back-net
+
+  assistance:
+    build: ./assistance-service  # 🔥 Ruta al Dockerfile
+    image: assistance-service:local
+    ports:
+      - "8083:8083"
+    environment:
+      - SPRING_PROFILES_ACTIVE=docker
+    depends_on:
+      assistance-db:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8083/actuator/health"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - classflow-back-net
+
+  message:
+    build: ./message-service  # 🔥 Ruta al Dockerfile
+    image: message-service:local
+    ports:
+      - "8084:8084"
+    environment:
+      - SPRING_PROFILES_ACTIVE=docker
+    depends_on:
+      message-db:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8084/actuator/health"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - classflow-back-net
+
+  notification:
+    build: ./notification-service  # 🔥 Ruta al Dockerfile
+    image: notification-service:local
+    ports:
+      - "8085:8085"
+    environment:
+      - SPRING_PROFILES_ACTIVE=docker
+    depends_on:
+      notification-db:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8085/actuator/health"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - classflow-back-net
+
+networks:
+  classflow-back-net:
+    name: classflow-back-net
+    driver: bridge
+
+volumes:
+  auth-postgres-data:
+  academic-postgres-data:
+  assistance-postgres-data:
+  message-postgres-data:
+  notification-postgres-data:

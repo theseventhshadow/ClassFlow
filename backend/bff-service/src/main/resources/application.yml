@@ -1,0 +1,27 @@
+server:
+  port: 8086
+
+spring:
+  application:
+    name: bff-service
+
+services:
+  auth:
+    base-url: http://localhost:8081
+  academic:
+    base-url: http://localhost:8082
+  assistance:
+    base-url: http://localhost:8083
+  message:
+    base-url: http://localhost:8084
+  notification:
+    base-url: http://localhost:8085
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info
+  endpoint:
+    health:
+      show-details: always
