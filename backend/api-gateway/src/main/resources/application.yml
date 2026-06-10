@@ -32,8 +32,8 @@ spring:
           filters:
             - StripPrefix=0
         
-        # Asistencia Service
-        - id: asistencia-service
+        # Assistance Service
+        - id: ms-assistance
           uri: http://ms-assistance:8083
           predicates:
             - Path=/api/attendance/**,/api/annotations/**
@@ -48,8 +48,8 @@ spring:
           filters:
             - StripPrefix=0
         
-        # Notificaciones Service
-        - id: notificaciones-service
+        # Notification Service
+        - id: ms-notification
           uri: http://ms-notification:8085
           predicates:
             - Path=/api/notifications/**

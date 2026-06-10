@@ -21,10 +21,10 @@ spring:
     console:
       enabled: false
   mail:
-    host: smtp.gmail.com
-    port: 587
-    username: tu_email@gmail.com
-    password: tu_contraseña
+    host: ${MAIL_HOST:smtp.gmail.com}
+    port: ${MAIL_PORT:587}
+    username: ${MAIL_USERNAME}
+    password: ${MAIL_PASSWORD}
     properties:
       mail:
         smtp:

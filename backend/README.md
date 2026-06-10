@@ -18,7 +18,7 @@ Arquitectura y servicios
 - [ms-auth](ms-auth/README.md) (puerto 8081): Autenticación y gestión de usuarios (JWT + Spring Security).
 - [ms-academic](ms-academic/README.md) (puerto 8082): Cursos, asignaturas, evaluaciones, notas.
 - [ms-assistance](ms-assistance/README.md) (puerto 8083): Asistencia y anotaciones.
-- [ms-service](ms-service/README.md) (puerto 8084): Mensajes y anuncios.
+- [ms-message](ms-message/README.md) (puerto 8084): Mensajes y anuncios.
 - [ms-notification](ms-notification/README.md) (puerto 8085): Envío de emails/alertas.
 - [bff](bff/README.md) (puerto 8086): Backend-for-Frontend con endpoints agregados (dashboard).
 
@@ -98,7 +98,7 @@ ClassFlow-Back/
 │       │   └── repository/
 │       └── main/resources/db/migration/
 │
-├── ms-service/                    # Mensajes, Anuncios
+├── ms-message/                    # Mensajes, Anuncios
 │   ├── pom.xml
 │   ├── Dockerfile
 │   └── src/

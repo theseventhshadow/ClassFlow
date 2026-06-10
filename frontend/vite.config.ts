@@ -21,8 +21,6 @@ export default defineConfig({
   },
   server: {
     port: 3000,
-    open: true,
-    allowedHosts: ['payphone-external-large.ngrok-free.dev'],
     proxy: {
       '/api': {
         target: 'http://localhost:8080',
