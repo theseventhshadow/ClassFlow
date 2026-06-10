@@ -1,0 +1,19 @@
+# Rutas protegidas del API Gateway — Traefik v2
+# Usar este archivo si tu cluster tiene Traefik v2 instalado.
+# NO aplicar junto con ingress-traefik-v3-gateway-auth.yml
+#
+# Verificar versión: kubectl exec -n traefik deploy/traefik -- traefik version
+apiVersion: traefik.containo.us/v1alpha1
+kind: IngressRoute
+metadata:
+  name: classflow-api-gateway-v2
+  namespace: classflow
+spec:
+  entryPoints:
+    - web
+  routes:
+    - match: Host(`classflow.local`) && PathPrefix(`/api`)
+      kind: Rule
+      services:
+        - name: api-gateway
+          port: 8080

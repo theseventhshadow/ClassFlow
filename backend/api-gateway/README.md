@@ -24,8 +24,8 @@ Servicio de enrutamiento basado en **Spring Cloud Gateway**. Actúa como punto d
 | `/api/grades/**` | ms-academic:8082 | Calificaciones |
 | `/api/attendance/**` | ms-assistance:8083 | Asistencia |
 | `/api/annotations/**` | ms-assistance:8083 | Anotaciones |
-| `/api/messages/**` | ms-service:8084 | Mensajes |
-| `/api/announcements/**` | ms-service:8084 | Anuncios |
+| `/api/messages/**` | ms-message:8084 | Mensajes |
+| `/api/announcements/**` | ms-message:8084 | Anuncios |
 | `/api/notifications/**` | ms-notification:8085 | Notificaciones |
 | `/api/bff/**` | bff:8086 | Dashboard y agregados |
 

@@ -38,8 +38,8 @@ Maneja mensajes directo entre usuarios y anuncios distribuidos a grupos de estud
 ./mvnw spring-boot:run
 
 # Con Docker (PostgreSQL)
-docker build -t ms-service:local .
-docker run -p 8084:8084 -e SPRING_PROFILES_ACTIVE=docker ms-service:local
+docker build -t ms-message:local .
+docker run -p 8084:8084 -e SPRING_PROFILES_ACTIVE=docker ms-message:local
 ```
 
 ## Configuración
