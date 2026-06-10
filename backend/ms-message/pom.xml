@@ -9,7 +9,7 @@
 		<relativePath/> <!-- lookup parent from repository -->
 	</parent>
 	<groupId>cl.colegio.ohiggins</groupId>
-	<artifactId>ms-service</artifactId>
+	<artifactId>ms-message</artifactId>
 	<version>0.0.1-SNAPSHOT</version>
 	<name/>
 	<description/>

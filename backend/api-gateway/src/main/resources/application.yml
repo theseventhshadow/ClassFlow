@@ -41,8 +41,8 @@ spring:
             - StripPrefix=0
         
         # Mensajeria Service
-        - id: mensajeria-service
-          uri: http://ms-service:8084
+        - id: ms-message
+          uri: http://ms-message:8084
           predicates:
             - Path=/api/messages/**,/api/announcements/**
           filters:

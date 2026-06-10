@@ -13,7 +13,7 @@ services:
   assistance:
     base-url: http://ms-assistance:8083
   message:
-    base-url: http://ms-service:8084
+    base-url: http://ms-message:8084
   notification:
     base-url: http://ms-notification:8085
 

@@ -91,7 +91,7 @@ services:
       - ms-auth
       - ms-academic
       - ms-assistance
-      - ms-service
+      - ms-message
       - ms-notification
     healthcheck:
       test: ["CMD", "curl", "-f", "http://localhost:8080/actuator/health"]
@@ -112,7 +112,7 @@ services:
       - ms-auth
       - ms-academic
       - ms-assistance
-      - ms-service
+      - ms-message
       - ms-notification
     healthcheck:
       test: ["CMD", "curl", "-f", "http://localhost:8086/actuator/health"]
@@ -176,9 +176,9 @@ services:
     networks:
       - classflow-back-net
 
-  ms-service:
-    build: ./ms-service  # 🔥 Ruta al Dockerfile
-    image: ms-service:local
+  ms-message:
+    build: ./ms-message
+    image: ms-message:local
     ports:
       - "8084:8084"
     environment:
