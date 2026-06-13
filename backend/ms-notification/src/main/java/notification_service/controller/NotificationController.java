@@ -1,5 +1,9 @@
 package notification_service.controller;
 
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
@@ -15,12 +19,17 @@ import java.util.List;
 @RequestMapping("/api/notifications")
 @RequiredArgsConstructor
 @CrossOrigin(origins = "*")
+@Tag(name = "Notificaciones", description = "Envío de emails y alertas internas del sistema")
 public class NotificationController {
 
     private final NotificationService notificationService;
 
-    // Enviar email
     @PostMapping("/email")
+    @Operation(summary = "Enviar email", description = "Envía un correo electrónico al destinatario indicado")
+    @ApiResponses({
+        @ApiResponse(responseCode = "200", description = "Email enviado"),
+        @ApiResponse(responseCode = "400", description = "Datos inválidos")
+    })
     public ResponseEntity<NotificationResponseDTO> sendEmail(@Valid @RequestBody EmailRequestDTO request) {
         NotificationResponseDTO response = notificationService.sendEmailNotification(
                 request.getTo(),
@@ -30,40 +39,50 @@ public class NotificationController {
         return ResponseEntity.ok(response);
     }
 
-    // Enviar alerta (ABSENCE, NEW_GRADE, ANNOTATION, MESSAGE, ANNOUNCEMENT)
     @PostMapping("/alert")
+    @Operation(summary = "Enviar alerta", description = "Tipos: ABSENCE, NEW_GRADE, ANNOTATION, MESSAGE, ANNOUNCEMENT")
+    @ApiResponses({
+        @ApiResponse(responseCode = "200", description = "Alerta enviada"),
+        @ApiResponse(responseCode = "400", description = "Datos inválidos")
+    })
     public ResponseEntity<NotificationResponseDTO> sendAlert(@Valid @RequestBody AlertRequestDTO request) {
-        NotificationResponseDTO response = notificationService.sendAlert(request);
-        return ResponseEntity.ok(response);
+        return ResponseEntity.ok(notificationService.sendAlert(request));
     }
 
-    // Crear notificación (sin enviar aún)
     @PostMapping("/create")
+    @Operation(summary = "Crear notificación sin enviar")
+    @ApiResponse(responseCode = "200", description = "Notificación creada en estado pendiente")
     public ResponseEntity<NotificationResponseDTO> createNotification(@Valid @RequestBody AlertRequestDTO request) {
-        NotificationResponseDTO response = notificationService.createNotification(request);
-        return ResponseEntity.ok(response);
+        return ResponseEntity.ok(notificationService.createNotification(request));
     }
 
-    // Notificaciones de un usuario
     @GetMapping("/user/{userId}")
+    @Operation(summary = "Notificaciones de un usuario")
+    @ApiResponse(responseCode = "200", description = "Lista de notificaciones del usuario")
     public ResponseEntity<List<NotificationResponseDTO>> getUserNotifications(@PathVariable Long userId) {
         return ResponseEntity.ok(notificationService.getNotificationsByUser(userId));
     }
 
-    // Notificaciones pendientes de un usuario
     @GetMapping("/user/{userId}/pending")
+    @Operation(summary = "Notificaciones pendientes de un usuario")
+    @ApiResponse(responseCode = "200", description = "Notificaciones aún no enviadas del usuario")
     public ResponseEntity<List<NotificationResponseDTO>> getUserPendingNotifications(@PathVariable Long userId) {
         return ResponseEntity.ok(notificationService.getPendingNotifications(userId));
     }
 
-    // Todas las notificaciones pendientes (sistema)
     @GetMapping("/pending")
+    @Operation(summary = "Todas las notificaciones pendientes del sistema")
+    @ApiResponse(responseCode = "200", description = "Lista global de notificaciones pendientes")
     public ResponseEntity<List<NotificationResponseDTO>> getAllPendingNotifications() {
         return ResponseEntity.ok(notificationService.getAllPendingNotifications());
     }
 
-    // Marcar como enviada
     @PutMapping("/{id}/sent")
+    @Operation(summary = "Marcar notificación como enviada")
+    @ApiResponses({
+        @ApiResponse(responseCode = "200", description = "Notificación marcada como enviada"),
+        @ApiResponse(responseCode = "404", description = "Notificación no encontrada")
+    })
     public ResponseEntity<NotificationResponseDTO> markAsSent(@PathVariable Long id) {
         return ResponseEntity.ok(notificationService.markAsSent(id));
     }
