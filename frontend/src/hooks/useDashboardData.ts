@@ -59,17 +59,17 @@ interface UseDashboardDataResult extends DashboardData {
 }
 
 const ROLE_LABEL: Record<UserRole, string> = {
-  ADMINISTRADOR: 'Administrador',
-  DOCENTE: 'Docente',
-  APODERADO: 'Apoderado',
-  ESTUDIANTE: 'Estudiante',
+  ADMINISTRATOR: 'Administrador',
+  TEACHER: 'Docente',
+  GUARDIAN: 'Apoderado',
+  STUDENT: 'Estudiante',
 };
 
 const ROLE_CLASS: Record<UserRole, string> = {
-  ADMINISTRADOR: 'badge--administrador',
-  DOCENTE: 'badge--docente',
-  APODERADO: 'badge--apoderado',
-  ESTUDIANTE: 'badge--estudiante',
+  ADMINISTRATOR: 'badge--administrador',
+  TEACHER: 'badge--docente',
+  GUARDIAN: 'badge--apoderado',
+  STUDENT: 'badge--estudiante',
 };
 
 const STATUS_CLASS: Record<'activo' | 'inactivo' | 'pendiente', string> = {
@@ -80,17 +80,17 @@ const STATUS_CLASS: Record<'activo' | 'inactivo' | 'pendiente', string> = {
 
 function humanizeRole(role?: string): string {
   switch (role) {
-    case 'ADMINISTRADOR':
+    case 'ADMINISTRATOR':
     case 'ADMIN':
       return 'Administrador';
-    case 'DOCENTE':
     case 'TEACHER':
+    case 'DOCENTE':
       return 'Docente';
-    case 'APODERADO':
     case 'GUARDIAN':
+    case 'APODERADO':
       return 'Apoderado';
-    case 'ESTUDIANTE':
     case 'STUDENT':
+    case 'ESTUDIANTE':
       return 'Estudiante';
     default:
       return role ?? '';
@@ -332,12 +332,12 @@ async function buildUsers(response: DashboardResponse, adminUserId?: string): Pr
       id: String(id),
       nombre: `Usuario #${id}`,
       email: `usuario${id}@classflow.local`,
-      rol: 'ESTUDIANTE' as UserRole,
+      rol: 'STUDENT' as UserRole,
       activo: true,
       createdAt: lastAccess ?? new Date().toISOString(),
     };
     const status = getUserStatus(resolvedUser, lastAccess);
-    const role = resolvedUser.rol ?? 'ESTUDIANTE';
+    const role = resolvedUser.rol ?? 'STUDENT';
 
     return {
       name: resolvedUser.nombre,

@@ -16,7 +16,7 @@ const AppRouter: React.FC = () => {
         <Route
           path="/admin"
           element={
-            <ProtectedRoute allowedRoles={['ADMINISTRADOR']}>
+            <ProtectedRoute allowedRoles={['ADMINISTRATOR']}>
               <AdminDashboard />
             </ProtectedRoute>
           }
@@ -25,7 +25,7 @@ const AppRouter: React.FC = () => {
         <Route
           path={ROUTES.TEACHER_ACCOUNT}
           element={
-            <ProtectedRoute allowedRoles={['DOCENTE']}>
+            <ProtectedRoute allowedRoles={['TEACHER']}>
               <TeacherAccountPage />
             </ProtectedRoute>
           }

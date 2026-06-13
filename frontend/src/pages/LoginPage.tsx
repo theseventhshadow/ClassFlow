@@ -14,9 +14,9 @@ export const LoginPage: React.FC = () => {
     e.preventDefault();
     try {
       const loggedUser = await login(email, password);
-      if (loggedUser.rol === 'ADMINISTRADOR') {
+      if (loggedUser.rol === 'ADMINISTRATOR') {
         navigate('/admin', { replace: true });
-      } else if (loggedUser.rol === 'DOCENTE') {
+      } else if (loggedUser.rol === 'TEACHER') {
         navigate('/cuenta-docente', { replace: true });
       } else {
         navigate('/dashboard', { replace: true });

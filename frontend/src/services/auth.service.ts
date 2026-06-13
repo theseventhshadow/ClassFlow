@@ -134,20 +134,20 @@ class AuthService {
 
   private normalizeRole(role?: string): User['rol'] {
     switch (role) {
-      case 'ADMINISTRADOR':
-      case 'ADMIN':
       case 'ADMINISTRATOR':
-        return 'ADMINISTRADOR';
+      case 'ADMIN':
+      case 'ADMINISTRADOR':
+        return 'ADMINISTRATOR';
       case 'TEACHER':
       case 'DOCENTE':
-        return 'DOCENTE';
+        return 'TEACHER';
       case 'GUARDIAN':
       case 'APODERADO':
-        return 'APODERADO';
+        return 'GUARDIAN';
       case 'STUDENT':
       case 'ESTUDIANTE':
       default:
-        return 'ESTUDIANTE';
+        return 'STUDENT';
     }
   }
 }

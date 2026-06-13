@@ -16,17 +16,17 @@ type TableUser = {
 };
 
 const ROL_LABEL: Record<UserRole, string> = {
-  ADMINISTRADOR: 'Administrador',
-  DOCENTE: 'Docente',
-  APODERADO: 'Apoderado',
-  ESTUDIANTE: 'Estudiante',
+  ADMINISTRATOR: 'Administrador',
+  TEACHER: 'Docente',
+  GUARDIAN: 'Apoderado',
+  STUDENT: 'Estudiante',
 };
 
 const ROL_CLASS: Record<UserRole, string> = {
-  ADMINISTRADOR: 'badge--administrador',
-  DOCENTE: 'badge--docente',
-  APODERADO: 'badge--apoderado',
-  ESTUDIANTE: 'badge--estudiante',
+  ADMINISTRATOR: 'badge--administrador',
+  TEACHER: 'badge--docente',
+  GUARDIAN: 'badge--apoderado',
+  STUDENT: 'badge--estudiante',
 };
 
 const navSections = [
@@ -70,23 +70,23 @@ const EMPTY_FORM: FormState = {
   apellidos: '',
   email: '',
   password: '',
-  rol: 'DOCENTE',
+  rol: 'TEACHER',
   idNumber: '',
 };
 
 function humanizeRole(role?: string): string {
   switch (role) {
-    case 'ADMINISTRADOR':
+    case 'ADMINISTRATOR':
     case 'ADMIN':
       return 'Administrador';
-    case 'DOCENTE':
     case 'TEACHER':
+    case 'DOCENTE':
       return 'Docente';
-    case 'APODERADO':
     case 'GUARDIAN':
+    case 'APODERADO':
       return 'Apoderado';
-    case 'ESTUDIANTE':
     case 'STUDENT':
+    case 'ESTUDIANTE':
       return 'Estudiante';
     default:
       return role ?? '';
@@ -160,19 +160,7 @@ export const AdminDashboard: React.FC = () => {
     const { name, value } = e.target as HTMLInputElement;
     setCourseForm((prev) => ({ ...prev, [name]: value }));
   };
-  const mapRoleToBackend = (role: UserRole): string => {
-    switch (role) {
-      case 'ADMINISTRADOR':
-        return 'ADMINISTRATOR';
-      case 'DOCENTE':
-        return 'TEACHER';
-      case 'APODERADO':
-        return 'GUARDIAN';
-      case 'ESTUDIANTE':
-      default:
-        return 'STUDENT';
-    }
-  };
+  const mapRoleToBackend = (role: UserRole): string => role;
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -607,10 +595,10 @@ export const AdminDashboard: React.FC = () => {
                     onChange={handleFormChange}
                     disabled={isSubmitting}
                   >
-                    <option value="ADMINISTRADOR">Administrador</option>
-                    <option value="DOCENTE">Docente</option>
-                    <option value="APODERADO">Apoderado</option>
-                    <option value="ESTUDIANTE">Estudiante</option>
+                    <option value="ADMINISTRATOR">Administrador</option>
+                    <option value="TEACHER">Docente</option>
+                    <option value="GUARDIAN">Apoderado</option>
+                    <option value="STUDENT">Estudiante</option>
                   </select>
                 </div>
               </div>
