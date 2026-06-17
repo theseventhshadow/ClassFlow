@@ -50,7 +50,7 @@ export const AccessDeniedPage: React.FC = () => {
             : `No tienes permisos para acceder a esta sección. Tu rol actual es: ${user?.rol || 'Usuario'}`}
         </p>
 
-        {!isNotAuthenticated && user?.rol === 'ESTUDIANTE' && (
+        {!isNotAuthenticated && user?.rol === 'STUDENT' && (
           <p style={styles.hint}>
             💡 Solo los administradores pueden acceder a esta área.
           </p>

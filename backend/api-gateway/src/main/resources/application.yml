@@ -1,0 +1,75 @@
+server:
+  port: 8080
+
+spring:
+  application:
+    name: api-gateway
+  
+  cloud:
+    gateway:
+      routes:
+        # BFF Service
+        - id: bff
+          uri: http://localhost:8086
+          predicates:
+            - Path=/api/bff/**
+          filters:
+            - StripPrefix=0
+
+        # Auth Service
+        - id: ms-auth
+          uri: http://localhost:8081
+          predicates:
+            - Path=/api/auth/**
+          filters:
+            - StripPrefix=0
+        
+        # Academic Service (Courses)
+        - id: ms-academic-courses
+          uri: http://localhost:8082
+          predicates:
+            - Path=/api/courses/**,/api/subjects/**,/api/evaluations/**,/api/grades/**
+          filters:
+            - StripPrefix=0
+        
+        # Assistance Service
+        - id: ms-assistance
+          uri: http://localhost:8083
+          predicates:
+            - Path=/api/attendance/**,/api/annotations/**
+          filters:
+            - StripPrefix=0
+        
+        # Mensajeria Service
+        - id: ms-message
+          uri: http://localhost:8084
+          predicates:
+            - Path=/api/messages/**,/api/announcements/**
+          filters:
+            - StripPrefix=0
+        
+        # Notification Service
+        - id: ms-notification
+          uri: http://localhost:8085
+          predicates:
+            - Path=/api/notifications/**
+          filters:
+            - StripPrefix=0
+
+# Actuator endpoints
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info,gateway
+  endpoint:
+    gateway:
+      enabled: true
+    health:
+      show-details: always
+
+# Logging
+logging:
+  level:
+    gateway_service: DEBUG
+    org.springframework.cloud.gateway: TRACE

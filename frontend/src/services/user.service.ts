@@ -1,7 +1,7 @@
 import { apiService } from './api.service';
 import { ApiResponse, PaginatedResponse } from '@types';
 
-export type UserRole = 'ADMINISTRADOR' | 'DOCENTE' | 'APODERADO' | 'ESTUDIANTE';
+export type UserRole = 'ADMINISTRATOR' | 'TEACHER' | 'GUARDIAN' | 'STUDENT';
 
 export interface User {
   id: string;

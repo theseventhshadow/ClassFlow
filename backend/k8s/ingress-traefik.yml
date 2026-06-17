@@ -1,0 +1,44 @@
+# Rutas públicas — frontend y endpoints de auth sin token
+# Compatible con Traefik v2 y v3 (usa Kubernetes Ingress estándar)
+#
+# Instalar Traefik vía Helm:
+#   helm repo add traefik https://traefik.github.io/charts
+#   helm install traefik traefik/traefik -n traefik --create-namespace
+#
+# Agregar al archivo hosts de Windows:
+#   C:\Windows\System32\drivers\etc\hosts
+#   127.0.0.1  classflow.local
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: classflow-public
+  namespace: classflow
+  annotations:
+    traefik.ingress.kubernetes.io/router.entrypoints: web
+spec:
+  ingressClassName: traefik
+  rules:
+    - host: classflow.local
+      http:
+        paths:
+          - path: /api/auth/login
+            pathType: Prefix
+            backend:
+              service:
+                name: api-gateway
+                port:
+                  number: 8080
+          - path: /api/auth/register
+            pathType: Prefix
+            backend:
+              service:
+                name: api-gateway
+                port:
+                  number: 8080
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: frontend
+                port:
+                  number: 80

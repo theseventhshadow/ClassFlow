@@ -1,0 +1,37 @@
+server:
+  port: 8085
+
+spring:
+  datasource:
+    url: jdbc:postgresql://notification-db:5432/notification_db
+    driver-class-name: org.postgresql.Driver
+    username: notification_user
+    password: notification_pass
+  jpa:
+    hibernate:
+      ddl-auto: validate
+    show-sql: true
+    defer-datasource-initialization: false
+  flyway:
+    locations: classpath:db/migration
+    enabled: true
+    baseline-on-migrate: false
+    out-of-order: false
+  h2:
+    console:
+      enabled: false
+  mail:
+    host: ${MAIL_HOST:smtp.gmail.com}
+    port: ${MAIL_PORT:587}
+    username: ${MAIL_USERNAME}
+    password: ${MAIL_PASSWORD}
+    properties:
+      mail:
+        smtp:
+          auth: true
+          starttls:
+            enable: true
+
+logging:
+  level:
+    notificaciones_service: DEBUG

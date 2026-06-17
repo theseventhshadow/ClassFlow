@@ -191,17 +191,17 @@ function getProgressClass(pct: number): string {
 
 function humanizeRole(role?: string): string {
   switch (role) {
-    case 'ADMINISTRADOR':
+    case 'ADMINISTRATOR':
     case 'ADMIN':
       return 'Administrador';
-    case 'DOCENTE':
     case 'TEACHER':
+    case 'DOCENTE':
       return 'Docente';
-    case 'APODERADO':
     case 'GUARDIAN':
+    case 'APODERADO':
       return 'Apoderado';
-    case 'ESTUDIANTE':
     case 'STUDENT':
+    case 'ESTUDIANTE':
       return 'Estudiante';
     default:
       return role ?? '';
