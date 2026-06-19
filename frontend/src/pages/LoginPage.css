@@ -131,7 +131,6 @@
   color: #9ca3af;
 }
 
-<<<<<<< HEAD
 .login-roles-section {
   display: flex;
   flex-direction: column;
@@ -181,8 +180,6 @@
   font-size: 1.5rem;
 }
 
-=======
->>>>>>> b199a3c (feat: alinear rama con modelo admin y rediseñar portal docente)
 .login-error {
   background: #fee2e2;
   color: #dc2626;
@@ -231,7 +228,6 @@
   text-align: center;
 }
 
-<<<<<<< HEAD
 .login-recover-divider::before,
 .login-recover-divider::after {
   content: '';
@@ -245,8 +241,6 @@
 .login-recover-divider::before { left: 0; }
 .login-recover-divider::after  { right: 0; }
 
-=======
->>>>>>> b199a3c (feat: alinear rama con modelo admin y rediseñar portal docente)
 .login-recover-link {
   color: #e9d5ff;
   font-size: 0.875rem;
