@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { useAuth } from '@context';
 
 type NavKey = 'dashboard' | 'courses' | 'attendance' | 'annotations' | 'grades' | 'messages';
@@ -50,8 +51,10 @@ const STATUS_CLASS: Record<string, string> = {
 };
 
 export const TeacherAccountPage: React.FC = () => {
-  const { user } = useAuth();
+  const { user, logout } = useAuth();
+  const navigate = useNavigate();
   const [activeNav, setActiveNav] = useState<NavKey>('dashboard');
+  const [showLogoutModal, setShowLogoutModal] = useState(false);
 
   const teacherName = user?.nombre || 'Docente';
   const firstName = teacherName.split(' ')[0];
@@ -71,6 +74,16 @@ export const TeacherAccountPage: React.FC = () => {
   });
   const hour = today.getHours();
   const greeting = hour < 12 ? '¡Buenos días' : hour < 18 ? '¡Buenas tardes' : '¡Buenas noches';
+
+  const handleLogout = () => {
+    logout();
+    localStorage.clear();
+    sessionStorage.clear();
+    document.cookie.split(';').forEach((c) => {
+      document.cookie = c.replace(/^ +/, '').replace(/=.*/, `=;expires=${new Date().toUTCString()};path=/`);
+    });
+    navigate('/login', { replace: true });
+  };
 
   return (
     <div className="tp-portal">
@@ -111,6 +124,9 @@ export const TeacherAccountPage: React.FC = () => {
             <span className="tp-user-name">{teacherName}</span>
             <span className="tp-user-role">DOCENTE</span>
           </div>
+          <button className="tp-logout-btn" onClick={() => setShowLogoutModal(true)} title="Cerrar sesión">
+            ⏻
+          </button>
         </div>
       </aside>
 
@@ -286,6 +302,66 @@ export const TeacherAccountPage: React.FC = () => {
           </div>
         </div>
       </main>
+
+      {showLogoutModal && (
+        <div
+          style={{
+            position: 'fixed',
+            top: 0,
+            left: 0,
+            right: 0,
+            bottom: 0,
+            backgroundColor: 'rgba(0, 0, 0, 0.5)',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            zIndex: 9999,
+          }}
+        >
+          <div
+            style={{
+              backgroundColor: 'white',
+              borderRadius: '8px',
+              padding: '2rem',
+              minWidth: '300px',
+              boxShadow: '0 4px 6px rgba(0, 0, 0, 0.1)',
+              textAlign: 'center',
+            }}
+          >
+            <h2 style={{ marginTop: 0, color: '#333' }}>¿Cerrar sesión?</h2>
+            <p style={{ color: '#666', marginBottom: '1.5rem' }}>
+              Se cerrará tu sesión y deberás iniciar sesión nuevamente para acceder a la plataforma.
+            </p>
+            <div style={{ display: 'flex', gap: '1rem', justifyContent: 'center' }}>
+              <button
+                onClick={() => setShowLogoutModal(false)}
+                style={{
+                  padding: '0.75rem 1.5rem',
+                  backgroundColor: '#f0f0f0',
+                  border: '1px solid #ddd',
+                  borderRadius: '4px',
+                  cursor: 'pointer',
+                }}
+              >
+                No, cancelar
+              </button>
+              <button
+                onClick={handleLogout}
+                style={{
+                  padding: '0.75rem 1.5rem',
+                  backgroundColor: '#dc2626',
+                  color: 'white',
+                  border: 'none',
+                  borderRadius: '4px',
+                  cursor: 'pointer',
+                }}
+              >
+                Sí, cerrar sesión
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };

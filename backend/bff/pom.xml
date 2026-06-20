@@ -11,7 +11,7 @@
         <relativePath/>
     </parent>
 
-    <groupId>cl.colegio.ohiggins</groupId>
+    <groupId>com.ohiggins.classflow</groupId>
     <artifactId>bff</artifactId>
     <version>0.0.1-SNAPSHOT</version>
 

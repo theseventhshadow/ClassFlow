@@ -4,8 +4,13 @@
 
 export const ROUTES = {
   HOME: '/',
+  LOGIN: '/login',
   DASHBOARD: '/dashboard',
-  TEACHER_ACCOUNT: '/cuenta-docente',
+  DASHBOARD_ADMIN: '/dashboard/admin',
+  DASHBOARD_TEACHER: '/dashboard/teacher',
+  DASHBOARD_STUDENT: '/dashboard/student',
+  DASHBOARD_GUARDIAN: '/dashboard/guardian',
+  ACCESS_DENIED: '/access-denied',
   PROFILE: '/profile',
   SETTINGS: '/settings',
   NOT_FOUND: '*',
