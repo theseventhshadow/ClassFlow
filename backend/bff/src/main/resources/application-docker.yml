@@ -17,6 +17,10 @@ services:
   notification:
     base-url: http://ms-notification:8085
 
+logging:
+  level:
+    com.ohiggins.classflow.bff: DEBUG
+
 management:
   endpoints:
     web:

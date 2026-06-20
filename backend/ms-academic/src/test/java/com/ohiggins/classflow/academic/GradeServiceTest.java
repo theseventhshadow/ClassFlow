@@ -71,7 +71,7 @@ class GradeServiceTest {
         grade2.setScore(92.0);
         grade2.setEvaluation(evaluation);
 
-        when(gradeRepository.findAll()).thenReturn(Arrays.asList(grade, grade2));
+        when(gradeRepository.findAllWithDetails()).thenReturn(Arrays.asList(grade, grade2));
 
         // When
         List<GradeDTO> result = gradeService.findAll();
@@ -82,14 +82,14 @@ class GradeServiceTest {
                 .extracting(GradeDTO::getStudentId)
                 .containsExactly(101L, 102L);
 
-        verify(gradeRepository, times(1)).findAll();
+        verify(gradeRepository, times(1)).findAllWithDetails();
     }
 
     @Test
     @DisplayName("Should find grades by student id")
     void testFindByStudentId() {
         // Given
-        when(gradeRepository.findByStudentId(101L)).thenReturn(Arrays.asList(grade));
+        when(gradeRepository.findByStudentIdWithDetails(101L)).thenReturn(Arrays.asList(grade));
 
         // When
         List<GradeDTO> result = gradeService.findByStudentId(101L);
@@ -100,7 +100,7 @@ class GradeServiceTest {
                 .extracting(GradeDTO::getStudentId)
                 .containsExactly(101L);
 
-        verify(gradeRepository, times(1)).findByStudentId(101L);
+        verify(gradeRepository, times(1)).findByStudentIdWithDetails(101L);
     }
 
     @Test

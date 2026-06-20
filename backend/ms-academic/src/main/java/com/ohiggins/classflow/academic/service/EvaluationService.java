@@ -18,7 +18,7 @@ public class EvaluationService {
     private final SubjectRepository subjectRepository;
     
     public List<EvaluationDTO> findAll() {
-        return evaluationRepository.findAll().stream()
+        return evaluationRepository.findAllWithDetails().stream()
                 .map(this::convertToDTO)
                 .collect(Collectors.toList());
     }
