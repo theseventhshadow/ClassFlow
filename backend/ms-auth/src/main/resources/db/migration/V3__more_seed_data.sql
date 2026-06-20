@@ -1,14 +1,25 @@
 -- Auth Service - More Seed Data (V3)
-INSERT INTO users (first_name, last_name, id_number, email, password, role, course, guardian_id, active)
-VALUES
-('Luis', 'Martín', '10000004', 'luis.martin@example.com', 'password', 'STUDENT', '1º ESO', NULL, TRUE),
-('Sofía', 'Ramírez', '10000005', 'sofia.ramirez@example.com', 'password', 'STUDENT', '1º ESO', NULL, TRUE),
-('Carlos', 'Díaz', '10000006', 'carlos.diaz@example.com', 'password', 'TEACHER', 'Física', NULL, TRUE),
-('Lucía', 'Fernández', '10000007', 'lucia.fernandez@example.com', 'password', 'GUARDIAN', NULL, NULL, TRUE),
-('Diego', 'Santos', '10000008', 'diego.santos@example.com', 'password', 'STUDENT', '2º ESO', NULL, TRUE);
+-- Vincular apoderados con estudiantes (guardian_id)
+UPDATE users SET guardian_id = (SELECT id FROM users WHERE email = 'patricia.vega@classflow.cl')
+WHERE email IN ('benjamin.araya@classflow.cl', 'antonia.cifuentes@classflow.cl');
 
--- Añadimos algunos usuarios con roles mixtos para demo
-INSERT INTO users (first_name, last_name, id_number, email, password, role, course, guardian_id, active)
-VALUES
-('Marta', 'Suárez', '10000009', 'marta.suarez@example.com', 'password', 'TEACHER', 'Matemáticas', NULL, TRUE),
-('Pablo', 'Ruiz', '10000010', 'pablo.ruiz@example.com', 'password', 'STUDENT', '2º ESO', NULL, TRUE);
+UPDATE users SET guardian_id = (SELECT id FROM users WHERE email = 'hector.araya@classflow.cl')
+WHERE email = 'matias.sepulveda@classflow.cl';
+
+UPDATE users SET guardian_id = (SELECT id FROM users WHERE email = 'marcela.ruiz@classflow.cl')
+WHERE email IN ('florencia.valenzuela@classflow.cl', 'sebastian.pizarro@classflow.cl');
+
+UPDATE users SET guardian_id = (SELECT id FROM users WHERE email = 'raul.sepulveda@classflow.cl')
+WHERE email IN ('isidora.fuentes@classflow.cl', 'vicente.tapia@classflow.cl');
+
+UPDATE users SET guardian_id = (SELECT id FROM users WHERE email = 'carolina.mora@classflow.cl')
+WHERE email = 'emilia.gutierrez@classflow.cl';
+
+UPDATE users SET guardian_id = (SELECT id FROM users WHERE email = 'pablo.pizarro@classflow.cl')
+WHERE email IN ('joaquin.contreras@classflow.cl', 'martina.vega@classflow.cl');
+
+UPDATE users SET guardian_id = (SELECT id FROM users WHERE email = 'angelica.cardenas@classflow.cl')
+WHERE email = 'gaspar.bravo@classflow.cl';
+
+UPDATE users SET guardian_id = (SELECT id FROM users WHERE email = 'ricardo.lagos@classflow.cl')
+WHERE email IN ('amanda.rivas@classflow.cl', 'maximiliano.figueroa@classflow.cl');
