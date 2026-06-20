@@ -1,13 +1,9 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import './DashboardPage.css';
 import { useAuth } from '@context';
-
-const mockActivity = [
-  { id: 1, type: 'success', text: 'Su hijo(a) asistió a todas las clases', time: 'Hoy' },
-  { id: 2, type: 'warning', text: 'Anotación negativa registrada', time: 'Ayer' },
-  { id: 3, type: 'info', text: 'Nuevo material disponible en plataforma', time: 'Hace 2 días' },
-];
+import { dashboardService, DashboardResponse, DashboardGrade, DashboardAttendance } from '@services';
+import { Loading } from '@components/common';
 
 const Icon = {
   Grid: () => (
@@ -135,8 +131,20 @@ function humanizeRole(role?: string): string {
 
 export const GuardianDashboardPage: React.FC = () => {
   const [showLogoutModal, setShowLogoutModal] = useState(false);
+  const [dashboard, setDashboard] = useState<DashboardResponse | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
   const { user, logout } = useAuth();
   const navigate = useNavigate();
+
+  useEffect(() => {
+    if (!user?.id) return;
+    setLoading(true);
+    dashboardService.getDashboard(user.id)
+      .then(setDashboard)
+      .catch((err) => setError(err instanceof Error ? err.message : 'Error al cargar datos'))
+      .finally(() => setLoading(false));
+  }, [user?.id]);
 
   const initials = user?.nombre
     ? user.nombre.split(' ').map(n => n[0]).join('').slice(0, 2).toUpperCase()
@@ -144,6 +152,47 @@ export const GuardianDashboardPage: React.FC = () => {
   const displayName = user?.nombre ?? 'Apoderado';
   const displayEmail = user?.email ?? '';
   const displayRole = humanizeRole(user?.rol);
+
+  const grades = dashboard?.grades ?? [];
+  const attendances = dashboard?.attendances ?? [];
+  const annotations = dashboard?.annotations ?? [];
+  const courses = dashboard?.courses ?? [];
+
+  const studentIds = [...new Set([
+    ...grades.map((g: DashboardGrade) => g.studentId),
+    ...attendances.map((a: DashboardAttendance) => a.studentId),
+    ...annotations.map((a: { studentId: number }) => a.studentId),
+  ])];
+
+  const totalStudents = studentIds.length;
+  const totalAttendances = attendances.length;
+  const presentCount = attendances.filter((a: DashboardAttendance) => a.present).length;
+  const attendanceRate = totalAttendances > 0 ? Math.round((presentCount / totalAttendances) * 100) : 0;
+  const totalAnnotations = annotations.length;
+
+  const studentsByCourse = studentIds.map((sid) => {
+    const studentGrades = grades.filter((g: DashboardGrade) => g.studentId === sid);
+    const studentAttendances = attendances.filter((a: DashboardAttendance) => a.studentId === sid);
+    const attPct = studentAttendances.length > 0
+      ? Math.round((studentAttendances.filter((a: DashboardAttendance) => a.present).length / studentAttendances.length) * 100)
+      : 0;
+    const avg = studentGrades.length > 0
+      ? (studentGrades.reduce((sum: number, g: DashboardGrade) => sum + (g.score ?? 0), 0) / studentGrades.length).toFixed(1)
+      : '—';
+    return { id: sid, attPct, avg };
+  });
+
+  const novedades: Array<{ type: 'success' | 'warning' | 'info'; text: string; time: string }> = [];
+  annotations.slice(0, 3).forEach((a: { type: string; description: string; date: string }) => {
+    novedades.push({
+      type: a.type === 'POSITIVE' ? 'success' : 'warning',
+      text: `Anotación: ${a.description}`,
+      time: a.date ? new Date(a.date).toLocaleDateString('es-CL') : '',
+    });
+  });
+  if (novedades.length === 0) {
+    novedades.push({ type: 'info', text: 'Sin novedades recientes', time: '' });
+  }
 
   const handleLogout = () => {
     logout();
@@ -158,6 +207,9 @@ export const GuardianDashboardPage: React.FC = () => {
   const handleLogoutCancel = () => {
     setShowLogoutModal(false);
   };
+
+  if (loading) return <Loading size="lg" message="Cargando datos del apoderado..." />;
+  if (error) return <div className="dashboard-layout"><div className="dashboard-main"><p style={{ padding: '2rem', color: '#dc2626' }}>{error}</p></div></div>;
 
   return (
     <div className="dashboard-layout">
@@ -218,8 +270,8 @@ export const GuardianDashboardPage: React.FC = () => {
             <div className="stat-card">
               <div className="stat-card-left">
                 <span className="stat-label">Pupilos a cargo</span>
-                <span className="stat-value">2</span>
-                <span className="stat-change positive">Activos</span>
+                <span className="stat-value">{totalStudents}</span>
+                <span className="stat-change positive">{totalStudents > 0 ? 'Activos' : 'Sin registro'}</span>
               </div>
               <div className="stat-icon-wrap stat-icon-blue"><Icon.Users /></div>
             </div>
@@ -227,10 +279,10 @@ export const GuardianDashboardPage: React.FC = () => {
             <div className="stat-card">
               <div className="stat-card-left">
                 <span className="stat-label">Promedio general</span>
-                <span className="stat-value">6.0</span>
+                <span className="stat-value">{studentsByCourse.length > 0 ? studentsByCourse.map(s => Number(s.avg)).filter(n => !isNaN(n)).reduce((a, b) => a + b, 0) / studentsByCourse.filter(s => s.avg !== '—').length || '—' : '—'}</span>
                 <span className="stat-change positive">
                   <span className="stat-change-icon"><Icon.TrendUp /></span>
-                  +0.2 este mes
+                  Basado en notas reales
                 </span>
               </div>
               <div className="stat-icon-wrap stat-icon-green"><Icon.BarChart /></div>
@@ -239,8 +291,8 @@ export const GuardianDashboardPage: React.FC = () => {
             <div className="stat-card">
               <div className="stat-card-left">
                 <span className="stat-label">Asistencia</span>
-                <span className="stat-value">94%</span>
-                <span className="stat-change positive">Excelente</span>
+                <span className="stat-value">{attendanceRate}%</span>
+                <span className="stat-change positive">{attendanceRate >= 80 ? 'Excelente' : attendanceRate >= 60 ? 'Regular' : 'Preocupante'}</span>
               </div>
               <div className="stat-icon-wrap stat-icon-teal"><Icon.Percent /></div>
             </div>
@@ -248,8 +300,8 @@ export const GuardianDashboardPage: React.FC = () => {
             <div className="stat-card">
               <div className="stat-card-left">
                 <span className="stat-label">Anotaciones</span>
-                <span className="stat-value">1</span>
-                <span className="stat-change warning">Revisar</span>
+                <span className="stat-value">{totalAnnotations}</span>
+                <span className="stat-change warning">{totalAnnotations > 0 ? 'Revisar' : 'Sin novedades'}</span>
               </div>
               <div className="stat-icon-wrap stat-icon-orange"><Icon.Bell /></div>
             </div>
@@ -265,25 +317,23 @@ export const GuardianDashboardPage: React.FC = () => {
                 <table className="users-table">
                   <thead>
                     <tr>
-                      <th>NOMBRE</th>
-                      <th>CURSO</th>
+                      <th>ESTUDIANTE #</th>
+                      <th>PROMEDIO</th>
                       <th>ASISTENCIA</th>
                       <th>ESTADO</th>
                     </tr>
                   </thead>
                   <tbody>
-                    <tr>
-                      <td><div className="user-cell"><div className="user-initials">JP</div><span className="user-name">Juan Pérez</span></div></td>
-                      <td>1° Medio A</td>
-                      <td><span className="role-badge role-docente">96%</span></td>
-                      <td><span className="status-badge status-activo">Activo</span></td>
-                    </tr>
-                    <tr>
-                      <td><div className="user-cell"><div className="user-initials">MP</div><span className="user-name">María Pérez</span></div></td>
-                      <td>3° Básico C</td>
-                      <td><span className="role-badge role-docente">92%</span></td>
-                      <td><span className="status-badge status-activo">Activo</span></td>
-                    </tr>
+                    {studentsByCourse.length > 0 ? studentsByCourse.map((s) => (
+                      <tr key={s.id}>
+                        <td><div className="user-cell"><div className="user-initials">{`S${s.id}`}</div><span className="user-name">Estudiante #{s.id}</span></div></td>
+                        <td><span className="role-badge role-docente">{s.avg}</span></td>
+                        <td><span className="role-badge role-docente">{s.attPct}%</span></td>
+                        <td><span className="status-badge status-activo">{s.attPct >= 80 ? 'Activo' : 'Precaución'}</span></td>
+                      </tr>
+                    )) : (
+                      <tr><td colSpan={4} style={{ textAlign: 'center', padding: '1rem', color: '#666' }}>No hay estudiantes vinculados</td></tr>
+                    )}
                   </tbody>
                 </table>
               </div>
@@ -296,14 +346,14 @@ export const GuardianDashboardPage: React.FC = () => {
                   <button className="dash-card-link">Ver todas</button>
                 </div>
                 <div className="activity-list">
-                  {mockActivity.map((a) => (
-                    <div key={a.id} className="activity-item">
-                      <div className={`activity-dot dot-${a.type}`}>
-                        {a.type === 'success' ? <Icon.CheckCircle /> : <Icon.AlertTriangle />}
+                  {novedades.map((n, i) => (
+                    <div key={i} className="activity-item">
+                      <div className={`activity-dot dot-${n.type}`}>
+                        {n.type === 'success' ? <Icon.CheckCircle /> : <Icon.AlertTriangle />}
                       </div>
                       <div className="activity-content">
-                        <span className="activity-text">{a.text}</span>
-                        <span className="activity-time">{a.time}</span>
+                        <span className="activity-text">{n.text}</span>
+                        <span className="activity-time">{n.time}</span>
                       </div>
                     </div>
                   ))}

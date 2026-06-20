@@ -1,37 +1,9 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import './DashboardPage.css';
 import { useAuth } from '@context';
-
-const mockUsers = [
-  { id: 1, name: 'Elena Arenas', role: 'Docente', status: 'Activo', lastAccess: 'Hoy' },
-  { id: 2, name: 'María González', role: 'Apoderado', status: 'Activo', lastAccess: 'Hoy' },
-  { id: 3, name: 'Joaquín Neira', role: 'Estudiante', status: 'Inactivo', lastAccess: 'Ayer 12:28' },
-  { id: 4, name: 'Carmen Zúñiga', role: 'Apoderado', status: 'Activo', lastAccess: 'Hace 3 días 07:35' },
-  { id: 5, name: 'Pedro Soto', role: 'Apoderado', status: 'Inactivo', lastAccess: 'Hace 3 días' },
-];
-
-const mockAttendance = [
-  { course: '1° Medio A', percentage: 52 },
-  { course: '1° Básico 6', percentage: 65 },
-  { course: '2° Básico 1', percentage: 78 },
-  { course: '3° Básico 3', percentage: 55 },
-  { course: 'Básico 6', percentage: 67 },
-];
-
-const mockActivity = [
-  { id: 1, type: 'success', text: 'Usuario Carmen Díaz clasificado como Docente', time: 'Hace 31 min' },
-  { id: 2, type: 'warning', text: 'Asistencia crítica en 1° Básico 6 (31%)', time: 'Hace 1h' },
-  { id: 3, type: 'info', text: 'Informe mensual generado automáticamente', time: 'Hace 2h' },
-  { id: 4, type: 'danger', text: 'Acceso fallido de usuario desconocido', time: 'Hace 3h' },
-];
-
-const mockAlerts = [
-  { id: 1, type: 'warning', text: 'Estudiante con 3+ inasistencias consecutivas', detail: 'Hace 2h' },
-  { id: 2, type: 'info', text: '2 anotaciones negativas pendientes de revisión', detail: 'Hace 4h' },
-  { id: 3, type: 'info', text: '3 mensajes sin respuesta de apoderados', detail: 'Hace 6h' },
-  { id: 4, type: 'danger', text: 'Intento de acceso no autorizado registrado', detail: 'Hace 8h' },
-];
+import { dashboardService, DashboardResponse } from '@services';
+import { Loading } from '@components/common';
 
 const Icon = {
   Grid: () => (
@@ -167,25 +139,6 @@ const Icon = {
   ),
 };
 
-function getRoleBadgeClass(role: string): string {
-  const map: Record<string, string> = {
-    Docente: 'role-badge role-docente',
-    Apoderado: 'role-badge role-apoderado',
-    Estudiante: 'role-badge role-estudiante',
-  };
-  return map[role] ?? 'role-badge';
-}
-
-function getStatusBadgeClass(status: string): string {
-  return status === 'Activo' ? 'status-badge status-activo' : 'status-badge status-inactivo';
-}
-
-function getProgressClass(pct: number): string {
-  if (pct < 60) return 'progress-bar-fill progress-low';
-  if (pct < 75) return 'progress-bar-fill progress-mid';
-  return 'progress-bar-fill progress-high';
-}
-
 function humanizeRole(role?: string): string {
   switch (role) {
     case 'ADMINISTRATOR':
@@ -205,55 +158,23 @@ function humanizeRole(role?: string): string {
   }
 }
 
-const activityIconMap: Record<string, React.ReactNode> = {
-  success: <Icon.CheckCircle />,
-  warning: <Icon.AlertTriangle />,
-  info: <Icon.FileDown />,
-  danger: <Icon.Lock />,
-};
-
-const alertIconMap: Record<string, React.ReactNode> = {
-  warning: <Icon.AlertTriangle />,
-  info: <Icon.Edit />,
-  danger: <Icon.Lock />,
-};
-
-const alertIconForId: Record<number, React.ReactNode> = {
-  1: <Icon.AlertTriangle />,
-  2: <Icon.Edit />,
-  3: <Icon.Mail />,
-  4: <Icon.Lock />,
-};
-
-const navSections = [
-  {
-    section: 'GESTIÓN',
-    items: [
-      { label: 'Dashboard', icon: <Icon.Grid />, badge: null },
-      { label: 'Usuarios', icon: <Icon.Users />, badge: '1' },
-      { label: 'Gestión Académica', icon: <Icon.Academic />, badge: null },
-      { label: 'Asistencia', icon: <Icon.Check />, badge: null },
-      { label: 'Mensajería', icon: <Icon.Chat />, badge: '3' },
-    ],
-  },
-  {
-    section: 'REPORTES',
-    items: [
-      { label: 'Informes', icon: <Icon.FileText />, badge: null },
-      { label: 'Rendimiento', icon: <Icon.BarChart />, badge: null },
-    ],
-  },
-  {
-    section: 'SISTEMA',
-    items: [{ label: 'Configuración', icon: <Icon.Settings />, badge: null }],
-  },
-];
-
 export const StudentDashboardPage: React.FC = () => {
   const [activeNav, setActiveNav] = useState('Dashboard');
   const [showLogoutModal, setShowLogoutModal] = useState(false);
+  const [dashboard, setDashboard] = useState<DashboardResponse | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
   const { user, logout } = useAuth();
   const navigate = useNavigate();
+
+  useEffect(() => {
+    if (!user?.id) return;
+    setLoading(true);
+    dashboardService.getDashboard(user.id)
+      .then(setDashboard)
+      .catch((err) => setError(err instanceof Error ? err.message : 'Error al cargar datos'))
+      .finally(() => setLoading(false));
+  }, [user?.id]);
 
   const initials = user?.nombre
     ? user.nombre.split(' ').map(n => n[0]).join('').slice(0, 2).toUpperCase()
@@ -261,6 +182,19 @@ export const StudentDashboardPage: React.FC = () => {
   const displayName = user?.nombre ?? 'Usuario';
   const displayEmail = user?.email ?? '';
   const displayRole = humanizeRole(user?.rol);
+
+  const studentId = Number(user?.id);
+  const myCourses = dashboard?.courses ?? [];
+  const myGrades = dashboard?.grades.filter(g => g.studentId === studentId) ?? [];
+  const myEvaluations = dashboard?.evaluations ?? [];
+  const myAttendances = dashboard?.attendances.filter(a => a.studentId === studentId) ?? [];
+
+  const avgScore = myGrades.length > 0
+    ? (myGrades.reduce((sum, g) => sum + (g.score ?? 0), 0) / myGrades.length).toFixed(1)
+    : '—';
+  const attendancePct = myAttendances.length > 0
+    ? Math.round((myAttendances.filter(a => a.present).length / myAttendances.length) * 100)
+    : 0;
 
   const handleLogout = () => {
     logout();
@@ -276,6 +210,9 @@ export const StudentDashboardPage: React.FC = () => {
     setShowLogoutModal(false);
   };
 
+  if (loading) return <Loading size="lg" message="Cargando datos del estudiante..." />;
+  if (error) return <div className="dashboard-layout"><div className="dashboard-main"><p style={{ padding: '2rem', color: '#dc2626' }}>{error}</p></div></div>;
+
   return (
     <div className="dashboard-layout">
       <aside className="dashboard-sidebar">
@@ -289,22 +226,17 @@ export const StudentDashboardPage: React.FC = () => {
         </div>
 
         <nav className="sidebar-nav">
-          {navSections.map(({ section, items }) => (
-            <div key={section}>
-              <div className="sidebar-section-label">{section}</div>
-              {items.map((item) => (
-                <button
-                  key={item.label}
-                  className={`sidebar-nav-item${activeNav === item.label ? ' active' : ''}`}
-                  onClick={() => setActiveNav(item.label)}
-                >
-                  <span className="nav-icon">{item.icon}</span>
-                  <span className="nav-label">{item.label}</span>
-                  {item.badge && <span className="nav-badge">{item.badge}</span>}
-                </button>
-              ))}
-            </div>
-          ))}
+          <div>
+            <div className="sidebar-section-label">GESTIÓN</div>
+            <button className="sidebar-nav-item active"><span className="nav-icon"><Icon.Grid /></span><span className="nav-label">Dashboard</span></button>
+            <button className="sidebar-nav-item"><span className="nav-icon"><Icon.Academic /></span><span className="nav-label">Mis cursos</span></button>
+            <button className="sidebar-nav-item"><span className="nav-icon"><Icon.Check /></span><span className="nav-label">Asistencia</span></button>
+            <button className="sidebar-nav-item"><span className="nav-icon"><Icon.Chat /></span><span className="nav-label">Mensajería</span></button>
+          </div>
+          <div>
+            <div className="sidebar-section-label">SISTEMA</div>
+            <button className="sidebar-nav-item"><span className="nav-icon"><Icon.Settings /></span><span className="nav-label">Configuración</span></button>
+          </div>
         </nav>
 
         <div className="sidebar-footer">
@@ -346,7 +278,7 @@ export const StudentDashboardPage: React.FC = () => {
             <div className="stat-card">
               <div className="stat-card-left">
                 <span className="stat-label">Mis cursos</span>
-                <span className="stat-value">5</span>
+                <span className="stat-value">{myCourses.length}</span>
                 <span className="stat-change positive">Activos</span>
               </div>
               <div className="stat-icon-wrap stat-icon-blue"><Icon.Book /></div>
@@ -355,10 +287,9 @@ export const StudentDashboardPage: React.FC = () => {
             <div className="stat-card">
               <div className="stat-card-left">
                 <span className="stat-label">Promedio general</span>
-                <span className="stat-value">6.2</span>
+                <span className="stat-value">{avgScore}</span>
                 <span className="stat-change positive">
-                  <span className="stat-change-icon"><Icon.TrendUp /></span>
-                  +0.3 este mes
+                  {myGrades.length > 0 && <><span className="stat-change-icon"><Icon.TrendUp /></span> {myGrades.length} notas</>}
                 </span>
               </div>
               <div className="stat-icon-wrap stat-icon-green"><Icon.BarChart /></div>
@@ -367,17 +298,17 @@ export const StudentDashboardPage: React.FC = () => {
             <div className="stat-card">
               <div className="stat-card-left">
                 <span className="stat-label">Asistencia</span>
-                <span className="stat-value">91%</span>
-                <span className="stat-change positive">Excelente</span>
+                <span className="stat-value">{attendancePct}%</span>
+                <span className="stat-change positive">{attendancePct >= 80 ? 'Excelente' : attendancePct >= 60 ? 'Regular' : 'Preocupante'}</span>
               </div>
               <div className="stat-icon-wrap stat-icon-teal"><Icon.Percent /></div>
             </div>
 
             <div className="stat-card">
               <div className="stat-card-left">
-                <span className="stat-label">Tareas pendientes</span>
-                <span className="stat-value">3</span>
-                <span className="stat-change warning">Próxima: mañana</span>
+                <span className="stat-label">Evaluaciones</span>
+                <span className="stat-value">{myEvaluations.length}</span>
+                <span className="stat-change warning">{myEvaluations.filter(e => e.date && new Date(e.date) > new Date()).length} próximas</span>
               </div>
               <div className="stat-icon-wrap stat-icon-orange"><Icon.Bell /></div>
             </div>
@@ -399,10 +330,19 @@ export const StudentDashboardPage: React.FC = () => {
                     </tr>
                   </thead>
                   <tbody>
-                    <tr><td><div className="user-cell"><span className="user-name">Matemáticas</span></div></td><td><span className="role-badge role-docente">6.5</span></td><td><span className="status-badge status-activo">Aprobado</span></td></tr>
-                    <tr><td><div className="user-cell"><span className="user-name">Lenguaje</span></div></td><td><span className="role-badge role-docente">5.8</span></td><td><span className="status-badge status-activo">Aprobado</span></td></tr>
-                    <tr><td><div className="user-cell"><span className="user-name">Ciencias</span></div></td><td><span className="role-badge role-docente">6.2</span></td><td><span className="status-badge status-activo">Aprobado</span></td></tr>
-                    <tr><td><div className="user-cell"><span className="user-name">Historia</span></div></td><td><span className="role-badge role-docente">5.0</span></td><td><span className="status-badge status-activo">Aprobado</span></td></tr>
+                    {myGrades.length > 0 ? myGrades.map((g) => {
+                      const evalName = myEvaluations.find(e => e.id === g.evaluationId)?.name ?? `Evaluación #${g.evaluationId}`;
+                      const score = g.score ?? 0;
+                      return (
+                        <tr key={g.id}>
+                          <td><div className="user-cell"><span className="user-name">{evalName}</span></div></td>
+                          <td><span className="role-badge role-docente">{score}</span></td>
+                          <td><span className="status-badge status-activo">{score >= 4 ? 'Aprobado' : 'Reprobado'}</span></td>
+                        </tr>
+                      );
+                    }) : (
+                      <tr><td colSpan={3} className="admin-table-muted" style={{ textAlign: 'center', padding: '1rem' }}>Sin calificaciones registradas</td></tr>
+                    )}
                   </tbody>
                 </table>
               </div>
@@ -415,27 +355,17 @@ export const StudentDashboardPage: React.FC = () => {
                   <button className="dash-card-link">Ver calendario</button>
                 </div>
                 <div className="activity-list">
-                  <div className="activity-item">
-                    <div className="activity-dot dot-info"><Icon.FileText /></div>
-                    <div className="activity-content">
-                      <span className="activity-text">Prueba de Matemáticas</span>
-                      <span className="activity-time">Viernes 26 de junio</span>
+                  {myEvaluations.length > 0 ? myEvaluations.slice(0, 5).map((ev) => (
+                    <div key={ev.id} className="activity-item">
+                      <div className="activity-dot dot-info"><Icon.FileText /></div>
+                      <div className="activity-content">
+                        <span className="activity-text">{ev.name}</span>
+                        <span className="activity-time">{ev.date ? new Date(ev.date).toLocaleDateString('es-CL') : 'Sin fecha'}</span>
+                      </div>
                     </div>
-                  </div>
-                  <div className="activity-item">
-                    <div className="activity-dot dot-info"><Icon.FileText /></div>
-                    <div className="activity-content">
-                      <span className="activity-text">Trabajo de Ciencias</span>
-                      <span className="activity-time">Martes 30 de junio</span>
-                    </div>
-                  </div>
-                  <div className="activity-item">
-                    <div className="activity-dot dot-info"><Icon.FileText /></div>
-                    <div className="activity-content">
-                      <span className="activity-text">Control de Lenguaje</span>
-                      <span className="activity-time">Jueves 2 de julio</span>
-                    </div>
-                  </div>
+                  )) : (
+                    <p style={{ padding: '1rem', textAlign: 'center', color: '#666' }}>No hay evaluaciones próximas</p>
+                  )}
                 </div>
               </div>
             </div>

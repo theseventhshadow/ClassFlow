@@ -9,10 +9,13 @@ import com.ohiggins.classflow.bff.dto.RecentActivityDTO;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.web.reactive.function.client.WebClient;
+import org.springframework.web.reactive.function.client.WebClientResponseException;
 import reactor.core.publisher.Mono;
 
+import java.util.Collections;
 import java.util.List;
 
 @Service
@@ -42,44 +45,57 @@ public class DashboardService {
         Mono<List<JsonNode>> coursesMono = fetchList(academicWebClient, "/api/courses");
         Mono<List<JsonNode>> subjectsMono = fetchList(academicWebClient, "/api/subjects");
         Mono<List<JsonNode>> evaluationsMono = fetchList(academicWebClient, "/api/evaluations");
-        Mono<List<JsonNode>> gradesMono = fetchList(academicWebClient, "/api/grades/student/{userId}", userId);
-        Mono<List<JsonNode>> attendancesMono = fetchList(assistanceWebClient, "/api/attendance/student/{userId}", userId);
-        Mono<List<JsonNode>> annotationsMono = fetchList(assistanceWebClient, "/api/annotations/student/{userId}", userId);
-        Mono<List<JsonNode>> messagesMono = fetchList(messageWebClient, "/api/messages/receiver/{userId}", userId);
-        Mono<List<JsonNode>> unreadMessagesMono = fetchList(messageWebClient, "/api/messages/receiver/{userId}/unread", userId);
-        Mono<List<JsonNode>> announcementsMono = fetchList(messageWebClient, "/api/announcements/active");
-        Mono<List<JsonNode>> notificationsMono = fetchList(notificationWebClient, "/api/notifications/user/{userId}", userId);
-        Mono<List<JsonNode>> pendingNotificationsMono = fetchList(notificationWebClient, "/api/notifications/user/{userId}/pending", userId);
 
-        return userMono.flatMap(user ->
-                Mono.zip(objects -> new DashboardResponse(
-                                user,
-                                user.path("role").asText("UNKNOWN"),
-                                (List<JsonNode>) objects[0],
-                                (List<JsonNode>) objects[1],
-                                (List<JsonNode>) objects[2],
-                                (List<JsonNode>) objects[3],
-                                (List<JsonNode>) objects[4],
-                                (List<JsonNode>) objects[5],
-                                (List<JsonNode>) objects[6],
-                                (List<JsonNode>) objects[7],
-                                (List<JsonNode>) objects[8],
-                                (List<JsonNode>) objects[9],
-                                (List<JsonNode>) objects[10]
-                        ),
-                        coursesMono,
-                        subjectsMono,
-                        evaluationsMono,
-                        gradesMono,
-                        attendancesMono,
-                        annotationsMono,
-                        messagesMono,
-                        unreadMessagesMono,
-                        announcementsMono,
-                        notificationsMono,
-                        pendingNotificationsMono
-                )
-        );
+        return userMono.flatMap(user -> {
+            String role = user.path("role").asText("UNKNOWN");
+            boolean isStudent = "STUDENT".equals(role);
+
+            Mono<List<JsonNode>> gradesMono = isStudent
+                ? fetchList(academicWebClient, "/api/grades/student/{userId}", userId)
+                : fetchList(academicWebClient, "/api/grades");
+
+            Mono<List<JsonNode>> attendancesMono = isStudent
+                ? fetchList(assistanceWebClient, "/api/attendance/student/{userId}", userId)
+                : fetchList(assistanceWebClient, "/api/attendance");
+
+            Mono<List<JsonNode>> annotationsMono = isStudent
+                ? fetchList(assistanceWebClient, "/api/annotations/student/{userId}", userId)
+                : fetchList(assistanceWebClient, "/api/annotations");
+
+            Mono<List<JsonNode>> messagesMono = fetchList(messageWebClient, "/api/messages/receiver/{userId}", userId);
+            Mono<List<JsonNode>> unreadMessagesMono = fetchList(messageWebClient, "/api/messages/receiver/{userId}/unread", userId);
+            Mono<List<JsonNode>> announcementsMono = fetchList(messageWebClient, "/api/announcements/active");
+            Mono<List<JsonNode>> notificationsMono = fetchList(notificationWebClient, "/api/notifications/user/{userId}", userId);
+            Mono<List<JsonNode>> pendingNotificationsMono = fetchList(notificationWebClient, "/api/notifications/user/{userId}/pending", userId);
+
+            return Mono.zip(objects -> new DashboardResponse(
+                            user,
+                            role,
+                            (List<JsonNode>) objects[0],
+                            (List<JsonNode>) objects[1],
+                            (List<JsonNode>) objects[2],
+                            (List<JsonNode>) objects[3],
+                            (List<JsonNode>) objects[4],
+                            (List<JsonNode>) objects[5],
+                            (List<JsonNode>) objects[6],
+                            (List<JsonNode>) objects[7],
+                            (List<JsonNode>) objects[8],
+                            (List<JsonNode>) objects[9],
+                            (List<JsonNode>) objects[10]
+                    ),
+                    coursesMono,
+                    subjectsMono,
+                    evaluationsMono,
+                    gradesMono,
+                    attendancesMono,
+                    annotationsMono,
+                    messagesMono,
+                    unreadMessagesMono,
+                    announcementsMono,
+                    notificationsMono,
+                    pendingNotificationsMono
+            );
+        });
     }
 
     // En DashboardService.java, agregar:
@@ -172,7 +188,13 @@ public class DashboardService {
         return client.get()
                 .uri(uri, uriVariables)
                 .retrieve()
-                .bodyToMono(JsonNode.class);
+                .bodyToMono(JsonNode.class)
+                .onErrorResume(WebClientResponseException.class, e -> {
+                    if (e.getStatusCode() == HttpStatus.NOT_FOUND) {
+                        return Mono.empty();
+                    }
+                    return Mono.error(e);
+                });
     }
 
     private Mono<List<JsonNode>> fetchList(WebClient client, String uri, Object... uriVariables) {
@@ -180,6 +202,12 @@ public class DashboardService {
                 .uri(uri, uriVariables)
                 .retrieve()
                 .bodyToFlux(JsonNode.class)
-                .collectList();
+                .collectList()
+                .onErrorResume(WebClientResponseException.class, e -> {
+                    if (e.getStatusCode() == HttpStatus.NOT_FOUND) {
+                        return Mono.just(Collections.emptyList());
+                    }
+                    return Mono.error(e);
+                });
     }
 }

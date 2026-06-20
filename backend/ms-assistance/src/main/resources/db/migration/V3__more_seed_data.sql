@@ -1,12 +1,50 @@
 -- Assistance Service - More Seed Data (V3)
--- Asistencias adicionales
+-- Más asistencias para completar la semana
 INSERT INTO attendances (student_id, course_id, date, present, justification)
-VALUES (3, 1, CURRENT_DATE - INTERVAL '3 days', TRUE, NULL),
-       (4, 2, CURRENT_DATE - INTERVAL '4 days', FALSE, 'Cita médica'),
-       (5, 1, CURRENT_DATE - INTERVAL '5 days', TRUE, NULL),
-       (6, 2, CURRENT_DATE - INTERVAL '6 days', TRUE, NULL);
+VALUES (16, 4, '2026-04-01', TRUE, NULL),
+       (16, 4, '2026-04-02', TRUE, NULL),
+       (16, 4, '2026-04-03', TRUE, NULL),
+       (16, 4, '2026-04-04', FALSE, 'Enfermedad'),
+       (17, 4, '2026-04-01', TRUE, NULL),
+       (17, 4, '2026-04-02', TRUE, NULL),
+       (17, 4, '2026-04-03', TRUE, NULL),
+       (17, 4, '2026-04-04', TRUE, NULL),
+       (18, 5, '2026-04-01', TRUE, NULL),
+       (18, 5, '2026-04-02', FALSE, 'Cita médica'),
+       (18, 5, '2026-04-03', TRUE, NULL),
+       (18, 5, '2026-04-04', TRUE, NULL),
+       (19, 5, '2026-04-01', TRUE, NULL),
+       (19, 5, '2026-04-02', TRUE, NULL),
+       (19, 5, '2026-04-03', TRUE, NULL),
+       (19, 5, '2026-04-04', TRUE, NULL),
+       (20, 6, '2026-04-01', FALSE, 'Problemas de transporte'),
+       (20, 6, '2026-04-02', TRUE, NULL),
+       (20, 6, '2026-04-03', TRUE, NULL),
+       (21, 6, '2026-04-01', TRUE, NULL),
+       (21, 6, '2026-04-02', TRUE, NULL),
+       (21, 6, '2026-04-03', TRUE, NULL),
+       (24, 8, '2026-04-01', TRUE, NULL),
+       (24, 8, '2026-04-02', TRUE, NULL),
+       (25, 8, '2026-04-01', TRUE, NULL),
+       (25, 8, '2026-04-02', TRUE, NULL),
+       (26, 9, '2026-04-01', TRUE, NULL),
+       (26, 9, '2026-04-02', FALSE, 'Actividad extracurricular'),
+       (27, 9, '2026-04-01', TRUE, NULL),
+       (27, 9, '2026-04-02', TRUE, NULL),
+       (28, 10, '2026-04-01', TRUE, NULL),
+       (28, 10, '2026-04-02', TRUE, NULL),
+       (29, 10, '2026-04-01', TRUE, NULL),
+       (29, 10, '2026-04-02', TRUE, NULL);
 
--- Anotaciones adicionales
+-- Más anotaciones
 INSERT INTO annotations (student_id, teacher_id, type, description, date, active)
-VALUES (3, 2, 'NOTICE', 'Participa activamente en clase', CURRENT_TIMESTAMP - INTERVAL '1 day', TRUE),
-       (5, 6, 'WARNING', 'Falta de entrega', CURRENT_TIMESTAMP - INTERVAL '7 days', TRUE);
+VALUES (11, 2, 'POSITIVE', 'Excelente caligrafía y orden', '2026-04-03 10:30:00', TRUE),
+       (13, 2, 'POSITIVE', 'Muy responsable con sus tareas', '2026-04-02 14:15:00', TRUE),
+       (16, 4, 'POSITIVE', 'Destacó en la prueba de Lenguaje', '2026-04-04 09:00:00', TRUE),
+       (18, 2, 'NEGATIVE', 'Copió en la prueba de Matemáticas', '2026-04-03 11:00:00', TRUE),
+       (20, 4, 'NEGATIVE', 'Llegó atrasado 3 veces esta semana', '2026-04-04 08:00:00', TRUE),
+       (22, 3, 'POSITIVE', 'Ayudó a organizar la feria científica', '2026-04-03 15:00:00', TRUE),
+       (24, 5, 'NEGATIVE', 'No realizó la tarea de Historia', '2026-04-02 09:30:00', TRUE),
+       (27, 2, 'POSITIVE', 'Excelente rendimiento en Matemáticas', '2026-04-04 11:30:00', TRUE),
+       (29, 7, 'POSITIVE', 'Líder en el trabajo grupal', '2026-04-03 12:00:00', TRUE),
+       (26, 2, 'NEGATIVE', 'Fue sorprendido fumando en el baño', '2026-04-02 10:00:00', TRUE);
