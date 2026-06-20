@@ -1,4 +1,4 @@
-package com.ohiggins.classflow.auth.config;
+package com.ohiggins.classflow.gateway.config;
 
 import io.swagger.v3.oas.models.Components;
 import io.swagger.v3.oas.models.OpenAPI;
@@ -20,9 +20,10 @@ public class SwaggerConfig {
     public OpenAPI openAPI() {
         return new OpenAPI()
                 .info(new Info()
-                        .title("ClassFlow - Servicio de Autenticación")
+                        .title("ClassFlow - API Gateway")
                         .version("1.0")
-                        .description("API para autenticación de usuarios, registro, validación JWT y gestión de cuentas.")
+                        .description("API Gateway centralizado que enruta peticiones a los microservicios del sistema ClassFlow." +
+                                " Puertos: Auth (8081), Academic (8082), Assistance (8083), Message (8084), Notification (8085), BFF (8086).")
                         .contact(new Contact()
                                 .name("ClassFlow Team")
                                 .email("team@classflow.cl"))
@@ -30,8 +31,7 @@ public class SwaggerConfig {
                                 .name("MIT")
                                 .url("https://opensource.org/licenses/MIT")))
                 .servers(List.of(
-                        new Server().url("http://localhost:8081").description("Desarrollo local"),
-                        new Server().url("http://ms-auth:8081").description("Docker")
+                        new Server().url("http://localhost:8080").description("Desarrollo local")
                 ))
                 .components(new Components()
                         .addSecuritySchemes("bearer-jwt", new SecurityScheme()
