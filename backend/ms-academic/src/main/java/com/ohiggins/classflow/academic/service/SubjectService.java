@@ -18,7 +18,7 @@ public class SubjectService {
     private final CourseRepository courseRepository;
     
     public List<SubjectDTO> findAll() {
-        return subjectRepository.findAll().stream()
+        return subjectRepository.findAllWithCourse().stream()
                 .map(this::convertToDTO)
                 .collect(Collectors.toList());
     }

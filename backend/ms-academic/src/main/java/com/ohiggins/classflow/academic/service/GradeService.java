@@ -18,13 +18,13 @@ public class GradeService {
     private final EvaluationRepository evaluationRepository;
     
     public List<GradeDTO> findAll() {
-        return gradeRepository.findAll().stream()
+        return gradeRepository.findAllWithDetails().stream()
                 .map(this::convertToDTO)
                 .collect(Collectors.toList());
     }
     
     public List<GradeDTO> findByStudentId(Long studentId) {
-        return gradeRepository.findByStudentId(studentId).stream()
+        return gradeRepository.findByStudentIdWithDetails(studentId).stream()
                 .map(this::convertToDTO)
                 .collect(Collectors.toList());
     }

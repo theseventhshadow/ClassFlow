@@ -8,6 +8,8 @@ import com.ohiggins.classflow.bff.dto.DashboardUserDTO;
 import com.ohiggins.classflow.bff.dto.RecentActivityDTO;
 
 import com.fasterxml.jackson.databind.JsonNode;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
@@ -20,6 +22,8 @@ import java.util.List;
 
 @Service
 public class DashboardService {
+
+    private static final Logger log = LoggerFactory.getLogger(DashboardService.class);
 
     private final WebClient authWebClient;
     private final WebClient academicWebClient;
@@ -46,7 +50,8 @@ public class DashboardService {
         Mono<List<JsonNode>> subjectsMono = fetchList(academicWebClient, "/api/subjects");
         Mono<List<JsonNode>> evaluationsMono = fetchList(academicWebClient, "/api/evaluations");
 
-        return userMono.flatMap(user -> {
+        return userMono.switchIfEmpty(Mono.error(new RuntimeException("User not found: " + userId)))
+                .flatMap(user -> {
             String role = user.path("role").asText("UNKNOWN");
             boolean isStudent = "STUDENT".equals(role);
 
@@ -193,7 +198,12 @@ public class DashboardService {
                     if (e.getStatusCode() == HttpStatus.NOT_FOUND) {
                         return Mono.empty();
                     }
-                    return Mono.error(e);
+                    log.warn("Error fetching from {}: {} {}", uri, e.getStatusCode(), e.getMessage());
+                    return Mono.empty();
+                })
+                .onErrorResume(e -> {
+                    log.warn("Unexpected error fetching from {}: {}", uri, e.getMessage());
+                    return Mono.empty();
                 });
     }
 
@@ -207,7 +217,12 @@ public class DashboardService {
                     if (e.getStatusCode() == HttpStatus.NOT_FOUND) {
                         return Mono.just(Collections.emptyList());
                     }
-                    return Mono.error(e);
+                    log.warn("Error fetching list from {}: {} {}", uri, e.getStatusCode(), e.getMessage());
+                    return Mono.just(Collections.emptyList());
+                })
+                .onErrorResume(e -> {
+                    log.warn("Unexpected error fetching list from {}: {}", uri, e.getMessage());
+                    return Mono.just(Collections.emptyList());
                 });
     }
 }
