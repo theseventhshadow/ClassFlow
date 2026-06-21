@@ -4,6 +4,7 @@ import { useAuth } from '@context';
 import { Loading, Error as ErrorState } from '@components/common';
 import { useDashboardData } from '@hooks';
 import { UserRole, authService, courseService } from '@services';
+import { humanizeRole } from '@utils';
 import './AdminDashboard.css';
 
 type TableUser = {
@@ -73,25 +74,6 @@ const EMPTY_FORM: FormState = {
   rol: 'TEACHER',
   idNumber: '',
 };
-
-function humanizeRole(role?: string): string {
-  switch (role) {
-    case 'ADMINISTRATOR':
-    case 'ADMIN':
-      return 'Administrador';
-    case 'TEACHER':
-    case 'DOCENTE':
-      return 'Docente';
-    case 'GUARDIAN':
-    case 'APODERADO':
-      return 'Apoderado';
-    case 'STUDENT':
-    case 'ESTUDIANTE':
-      return 'Estudiante';
-    default:
-      return role ?? '';
-  }
-}
 
 export const AdminDashboard: React.FC = () => {
   const { user, logout } = useAuth();

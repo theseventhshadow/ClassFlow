@@ -4,6 +4,7 @@ import './DashboardPage.css';
 import { useAuth } from '@context';
 import { dashboardService, DashboardResponse } from '@services';
 import { Loading } from '@components/common';
+import { humanizeRole } from '@utils';
 
 const Icon = {
   Grid: () => (
@@ -139,24 +140,6 @@ const Icon = {
   ),
 };
 
-function humanizeRole(role?: string): string {
-  switch (role) {
-    case 'ADMINISTRATOR':
-    case 'ADMIN':
-      return 'Administrador';
-    case 'TEACHER':
-    case 'DOCENTE':
-      return 'Docente';
-    case 'GUARDIAN':
-    case 'APODERADO':
-      return 'Apoderado';
-    case 'STUDENT':
-    case 'ESTUDIANTE':
-      return 'Estudiante';
-    default:
-      return role ?? '';
-  }
-}
 
 export const StudentDashboardPage: React.FC = () => {
   const [activeNav, setActiveNav] = useState('Dashboard');

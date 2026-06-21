@@ -12,12 +12,10 @@ public class CorsConfig {
     @Bean
 public CorsWebFilter corsWebFilter() {
     CorsConfiguration corsConfig = new CorsConfiguration();
-    // Permite patrones (comodín). Usamos addAllowedOriginPattern en vez de addAllowedOrigin
-    // para que setAllowCredentials(true) funcione con orígenes dinámicos.
     corsConfig.addAllowedOriginPattern("*");
     corsConfig.addAllowedMethod("*");
     corsConfig.addAllowedHeader("*");
-    corsConfig.setAllowCredentials(true);
+    corsConfig.setExposedHeaders(java.util.List.of("Authorization"));
 
     UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
     source.registerCorsConfiguration("/**", corsConfig);

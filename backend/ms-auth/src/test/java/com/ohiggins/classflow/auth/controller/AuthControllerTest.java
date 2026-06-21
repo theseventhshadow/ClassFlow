@@ -15,10 +15,7 @@ import org.springframework.http.MediaType;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
 
-import java.util.List;
-
 import static org.hamcrest.Matchers.equalTo;
-import static org.hamcrest.Matchers.hasSize;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.doNothing;
@@ -57,7 +54,7 @@ class AuthControllerTest {
 
     @BeforeEach
     void setUp() {
-        loginResponseDTO = new LoginResponseDTO("jwt-token", "juan@example.com", "STUDENT", "Juan Pérez");
+        loginResponseDTO = new LoginResponseDTO(1L, "jwt-token", "juan@example.com", "STUDENT", "Juan Pérez");
 
         userResponseDTO = UserResponseDTO.builder()
                 .id(1L)

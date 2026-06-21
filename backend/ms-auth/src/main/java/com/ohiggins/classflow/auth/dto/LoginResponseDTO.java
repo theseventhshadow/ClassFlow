@@ -9,6 +9,9 @@ import lombok.Data;
 @Schema(description = "Respuesta de autenticación con token JWT")
 public class LoginResponseDTO {
 
+    @Schema(description = "ID del usuario autenticado", example = "1")
+    private Long id;
+
     @Schema(description = "Token JWT para autenticación", example = "eyJhbGciOiJIUzI1NiJ9...")
     private String token;
 
@@ -24,7 +27,8 @@ public class LoginResponseDTO {
     @Schema(description = "Nombre completo del usuario", example = "Administrador Root")
     private String fullName;
 
-    public LoginResponseDTO(String token, String email, String role, String fullName) {
+    public LoginResponseDTO(Long id, String token, String email, String role, String fullName) {
+        this.id = id;
         this.token = token;
         this.email = email;
         this.role = role;

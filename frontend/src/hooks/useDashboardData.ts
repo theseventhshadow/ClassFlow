@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useState } from 'react';
 import { useAuth } from '@context';
+import { humanizeRole } from '@utils';
 import {
   dashboardService,
   userService,
@@ -58,13 +59,6 @@ interface UseDashboardDataResult extends DashboardData {
   refetch: () => void;
 }
 
-const ROLE_LABEL: Record<UserRole, string> = {
-  ADMINISTRATOR: 'Administrador',
-  TEACHER: 'Docente',
-  GUARDIAN: 'Apoderado',
-  STUDENT: 'Estudiante',
-};
-
 const ROLE_CLASS: Record<UserRole, string> = {
   ADMINISTRATOR: 'badge--administrador',
   TEACHER: 'badge--docente',
@@ -77,25 +71,6 @@ const STATUS_CLASS: Record<'activo' | 'inactivo' | 'pendiente', string> = {
   inactivo: 'badge--inactivo',
   pendiente: 'badge--pendiente',
 };
-
-function humanizeRole(role?: string): string {
-  switch (role) {
-    case 'ADMINISTRATOR':
-    case 'ADMIN':
-      return 'Administrador';
-    case 'TEACHER':
-    case 'DOCENTE':
-      return 'Docente';
-    case 'GUARDIAN':
-    case 'APODERADO':
-      return 'Apoderado';
-    case 'STUDENT':
-    case 'ESTUDIANTE':
-      return 'Estudiante';
-    default:
-      return role ?? '';
-  }
-}
 
 function formatDateTime(value?: string | null): Date | null {
   if (!value) {
@@ -195,7 +170,7 @@ function buildAttendance(response: DashboardResponse): DashboardAttendanceRow[] 
   return response.courses.map((course) => {
     const attendances = response.attendances.filter((attendance) => attendance.courseId === course.id);
     const presentCount = attendances.filter((attendance) => attendance.present).length;
-    const pct = attendances.length > 0 ? Math.round((presentCount / attendances.length) * 100) : (course.active ? 0 : 0);
+    const pct = attendances.length > 0 ? Math.round((presentCount / attendances.length) * 100) : 0;
 
     return {
       name: course.name,

@@ -21,7 +21,7 @@ export interface ChangePasswordPayload {
 }
 
 class UserService {
-  private readonly endpoint = '/users';
+  private readonly endpoint = '/auth/users';
 
   async getUsers(page = 1, limit = 10): Promise<PaginatedResponse<User>> {
     return apiService.get(`${this.endpoint}?page=${page}&limit=${limit}`);

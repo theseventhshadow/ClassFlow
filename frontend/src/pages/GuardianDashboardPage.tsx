@@ -4,6 +4,7 @@ import './DashboardPage.css';
 import { useAuth } from '@context';
 import { dashboardService, DashboardResponse, DashboardGrade, DashboardAttendance } from '@services';
 import { Loading } from '@components/common';
+import { humanizeRole } from '@utils';
 
 const Icon = {
   Grid: () => (
@@ -110,24 +111,6 @@ const Icon = {
   ),
 };
 
-function humanizeRole(role?: string): string {
-  switch (role) {
-    case 'ADMINISTRATOR':
-    case 'ADMIN':
-      return 'Administrador';
-    case 'TEACHER':
-    case 'DOCENTE':
-      return 'Docente';
-    case 'GUARDIAN':
-    case 'APODERADO':
-      return 'Apoderado';
-    case 'STUDENT':
-    case 'ESTUDIANTE':
-      return 'Estudiante';
-    default:
-      return role ?? '';
-  }
-}
 
 export const GuardianDashboardPage: React.FC = () => {
   const [showLogoutModal, setShowLogoutModal] = useState(false);

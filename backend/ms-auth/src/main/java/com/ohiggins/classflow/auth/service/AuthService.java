@@ -34,7 +34,7 @@ public class AuthService {
         User user = userRepository.findByEmail(request.getEmail()).orElseThrow();
         String fullName = user.getFirstName() + " " + user.getLastName();
 
-        return new LoginResponseDTO(token, user.getEmail(), user.getRole().name(), fullName);
+        return new LoginResponseDTO(user.getId(), token, user.getEmail(), user.getRole().name(), fullName);
     }
 
     public UserResponseDTO register(RegisterRequestDTO request) {
@@ -51,7 +51,11 @@ public class AuthService {
         user.setIdNumber(request.getIdNumber());
         user.setEmail(request.getEmail());
         user.setPassword(passwordEncoder.encode(request.getPassword()));
-        user.setRole(Role.valueOf(request.getRole()));
+        try {
+            user.setRole(Role.valueOf(request.getRole()));
+        } catch (IllegalArgumentException e) {
+            throw new RuntimeException("Rol inválido: " + request.getRole());
+        }
         user.setCourse(request.getCourse());
         user.setGuardianId(request.getGuardianId());
 
