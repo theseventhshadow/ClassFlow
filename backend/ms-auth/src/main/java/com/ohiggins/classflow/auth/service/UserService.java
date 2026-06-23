@@ -38,6 +38,13 @@ public class UserService {
         throw new UnsupportedOperationException("Method to be implemented - add findByRole in repository");
     }
 
+    public List<UserResponseDTO> findByGuardianId(Long guardianId) {
+        List<User> students = userRepository.findByGuardianId(guardianId);
+        return students.stream()
+                .map(this::convertToDTO)
+                .toList();
+    }
+
     public UserResponseDTO update(Long id, UserResponseDTO dto) {
         User user = userRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("User not found"));

@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '@context';
+import { getDashboardRouteByRole } from '@constants';
 
 type DenialReason = 'NOT_AUTHENTICATED' | 'INSUFFICIENT_PERMISSIONS';
 
@@ -26,7 +27,8 @@ export const AccessDeniedPage: React.FC = () => {
   };
 
   const handleGoToDashboard = () => {
-    navigate('/dashboard', { replace: true });
+    const targetRoute = getDashboardRouteByRole(user?.rol);
+    navigate(targetRoute, { replace: true });
   };
 
   const isNotAuthenticated = reason === 'NOT_AUTHENTICATED';

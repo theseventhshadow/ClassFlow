@@ -282,6 +282,25 @@ async function fetchUserProfile(userId: number): Promise<User | null> {
 }
 
 async function buildUsers(response: DashboardResponse, adminUserId?: string): Promise<DashboardUserRow[]> {
+  // Build a name map from the enriched response data (BFF now injects studentName)
+  const nameMap = new Map<number, string>();
+
+  for (const grade of response.grades) {
+    if (grade.studentName && !nameMap.has(grade.studentId)) {
+      nameMap.set(grade.studentId, grade.studentName);
+    }
+  }
+  for (const attendance of response.attendances) {
+    if (attendance.studentName && !nameMap.has(attendance.studentId)) {
+      nameMap.set(attendance.studentId, attendance.studentName);
+    }
+  }
+  for (const annotation of response.annotations) {
+    if (annotation.studentName && !nameMap.has(annotation.studentId)) {
+      nameMap.set(annotation.studentId, annotation.studentName);
+    }
+  }
+
   const candidateIds = new Set<number>([
     ...response.grades.map((grade) => grade.studentId),
     ...response.attendances.map((attendance) => attendance.studentId),
@@ -294,18 +313,31 @@ async function buildUsers(response: DashboardResponse, adminUserId?: string): Pr
   }
 
   const ids = Array.from(candidateIds).slice(0, 5);
-  const profiles = await Promise.all(ids.map(async (id) => ({ id, profile: await fetchUserProfile(id) })));
 
-  return profiles.map(({ id, profile }) => {
+  // Only fetch profiles for IDs that don't have a name yet
+  const idsToFetch = ids.filter((id) => !nameMap.has(id));
+  const fetchedProfiles = await Promise.all(
+    idsToFetch.map(async (id) => ({ id, profile: await fetchUserProfile(id) }))
+  );
+
+  for (const { id, profile } of fetchedProfiles) {
+    if (profile) {
+      nameMap.set(id, profile.nombre);
+    }
+  }
+
+  return ids.map((id) => {
     const userDates = [
       ...response.attendances.filter((attendance) => attendance.studentId === id).map((attendance) => attendance.date),
       ...response.annotations.filter((annotation) => annotation.studentId === id).map((annotation) => annotation.date),
     ];
 
     const lastAccess = getLatestDate(...userDates);
-    const resolvedUser = profile ?? {
+    const name = nameMap.get(id) ?? `Usuario #${id}`;
+
+    const resolvedUser = {
       id: String(id),
-      nombre: `Usuario #${id}`,
+      nombre: name,
       email: `usuario${id}@classflow.local`,
       rol: 'STUDENT' as UserRole,
       activo: true,

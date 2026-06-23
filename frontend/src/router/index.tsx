@@ -1,9 +1,17 @@
 import React from 'react';
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import { Layout } from '@components/layout';
-import { HomePage, DashboardPage, NotFoundPage, LoginPage, AdminDashboard, TeacherAccountPage, StudentDashboardPage, GuardianDashboardPage, AccessDeniedPage } from '@pages';
+import { HomePage, NotFoundPage, LoginPage, AdminDashboard, TeacherAccountPage, StudentDashboardPage, GuardianDashboardPage, AccessDeniedPage } from '@pages';
 import { ProtectedRoute } from '@components/common/ProtectedRoute';
-import { ROUTES } from '@constants';
+import { useAuth } from '@context';
+import { ROUTES, getDashboardRouteByRole } from '@constants';
+
+/** Redirects /dashboard to the correct role-specific dashboard */
+const DashboardRedirect: React.FC = () => {
+  const { user } = useAuth();
+  const target = getDashboardRouteByRole(user?.rol);
+  return <Navigate to={target} replace />;
+};
 
 const AppRouter: React.FC = () => {
   return (
@@ -53,7 +61,7 @@ const AppRouter: React.FC = () => {
           <Route path={ROUTES.HOME} element={<HomePage />} />
           <Route path={ROUTES.NOT_FOUND} element={<NotFoundPage />} />
         </Route>
-        <Route path={ROUTES.DASHBOARD} element={<DashboardPage />} />
+        <Route path={ROUTES.DASHBOARD} element={<DashboardRedirect />} />
       </Routes>
     </BrowserRouter>
   );

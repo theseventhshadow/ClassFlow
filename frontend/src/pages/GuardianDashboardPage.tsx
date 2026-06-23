@@ -153,6 +153,24 @@ export const GuardianDashboardPage: React.FC = () => {
   const attendanceRate = totalAttendances > 0 ? Math.round((presentCount / totalAttendances) * 100) : 0;
   const totalAnnotations = annotations.length;
 
+  // Build name map from enriched BFF data (studentName is injected by BFF)
+  const studentNameMap = new Map<number, string>();
+  for (const grade of grades) {
+    if (grade.studentName && !studentNameMap.has(grade.studentId)) {
+      studentNameMap.set(grade.studentId, grade.studentName);
+    }
+  }
+  for (const attendance of attendances) {
+    if (attendance.studentName && !studentNameMap.has(attendance.studentId)) {
+      studentNameMap.set(attendance.studentId, attendance.studentName);
+    }
+  }
+  for (const annotation of annotations) {
+    if ((annotation as DashboardGrade).studentName && !studentNameMap.has(annotation.studentId)) {
+      studentNameMap.set(annotation.studentId, (annotation as DashboardGrade).studentName!);
+    }
+  }
+
   const studentsByCourse = studentIds.map((sid) => {
     const studentGrades = grades.filter((g: DashboardGrade) => g.studentId === sid);
     const studentAttendances = attendances.filter((a: DashboardAttendance) => a.studentId === sid);
@@ -162,7 +180,8 @@ export const GuardianDashboardPage: React.FC = () => {
     const avg = studentGrades.length > 0
       ? (studentGrades.reduce((sum: number, g: DashboardGrade) => sum + (g.score ?? 0), 0) / studentGrades.length).toFixed(1)
       : '—';
-    return { id: sid, attPct, avg };
+    const name = studentNameMap.get(sid) ?? `Estudiante #${sid}`;
+    return { id: sid, attPct, avg, name };
   });
 
   const novedades: Array<{ type: 'success' | 'warning' | 'info'; text: string; time: string }> = [];
@@ -262,7 +281,7 @@ export const GuardianDashboardPage: React.FC = () => {
             <div className="stat-card">
               <div className="stat-card-left">
                 <span className="stat-label">Promedio general</span>
-                <span className="stat-value">{studentsByCourse.length > 0 ? studentsByCourse.map(s => Number(s.avg)).filter(n => !isNaN(n)).reduce((a, b) => a + b, 0) / studentsByCourse.filter(s => s.avg !== '—').length || '—' : '—'}</span>
+                <span className="stat-value">{studentsByCourse.length > 0 ? (() => { const valid = studentsByCourse.filter(s => s.avg !== '—'); return valid.length > 0 ? (valid.reduce((a, b) => a + Number(b.avg), 0) / valid.length).toFixed(1) : '—'; })() : '—'}</span>
                 <span className="stat-change positive">
                   <span className="stat-change-icon"><Icon.TrendUp /></span>
                   Basado en notas reales
@@ -309,7 +328,7 @@ export const GuardianDashboardPage: React.FC = () => {
                   <tbody>
                     {studentsByCourse.length > 0 ? studentsByCourse.map((s) => (
                       <tr key={s.id}>
-                        <td><div className="user-cell"><div className="user-initials">{`S${s.id}`}</div><span className="user-name">Estudiante #{s.id}</span></div></td>
+                        <td><div className="user-cell"><div className="user-initials">{s.name.split(' ').map(n => n[0]).join('').slice(0, 2).toUpperCase()}</div><span className="user-name">{s.name}</span></div></td>
                         <td><span className="role-badge role-docente">{s.avg}</span></td>
                         <td><span className="role-badge role-docente">{s.attPct}%</span></td>
                         <td><span className="status-badge status-activo">{s.attPct >= 80 ? 'Activo' : 'Precaución'}</span></td>

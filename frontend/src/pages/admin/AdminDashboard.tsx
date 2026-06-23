@@ -197,7 +197,7 @@ export const AdminDashboard: React.FC = () => {
       closeModal();
       await refetch();
     } catch (err: any) {
-      const msg = err?.response?.data?.message ?? err?.message ?? 'Error al crear el usuario';
+      const msg = err?.details?.message ?? err?.message ?? 'Error al crear el usuario';
       setFormError(msg);
     } finally {
       setIsSubmitting(false);
