@@ -3,6 +3,8 @@ package com.ohiggins.classflow.bff.service;
 import com.ohiggins.classflow.bff.dto.DashboardResponse;
 
 import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.node.JsonNodeFactory;
+import com.fasterxml.jackson.databind.node.ObjectNode;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Qualifier;
@@ -12,8 +14,14 @@ import org.springframework.web.reactive.function.client.WebClient;
 import org.springframework.web.reactive.function.client.WebClientResponseException;
 import reactor.core.publisher.Mono;
 
+import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 @Service
 public class DashboardService {
@@ -96,7 +104,177 @@ public class DashboardService {
                             notificationsMono,
                             pendingNotificationsMono
                     );
-                });
+                })
+                .flatMap(response -> {
+                    if ("GUARDIAN".equals(response.role())) {
+                        return filterByGuardian(response, userId);
+                    }
+                    return Mono.just(response);
+                })
+                .flatMap(this::enrichWithStudentNames);
+    }
+
+    /**
+     * Filters the dashboard response to only include data belonging to the guardian's students.
+     * Fetches the student list from the auth service using the guardian's ID.
+     */
+    private Mono<DashboardResponse> filterByGuardian(DashboardResponse response, Long guardianId) {
+        return fetchGuardianStudentIds(guardianId).map(studentIds -> {
+            if (studentIds.isEmpty()) {
+                return response;
+            }
+            Set<Long> validIds = new HashSet<>(studentIds);
+            return new DashboardResponse(
+                    response.user(),
+                    response.role(),
+                    response.courses(),
+                    response.subjects(),
+                    response.evaluations(),
+                    filterListByStudentId(response.grades(), validIds),
+                    filterListByStudentId(response.attendances(), validIds),
+                    filterListByStudentId(response.annotations(), validIds),
+                    response.messages(),
+                    response.unreadMessages(),
+                    response.announcements(),
+                    response.notifications(),
+                    response.pendingNotifications()
+            );
+        });
+    }
+
+    private Mono<List<Long>> fetchGuardianStudentIds(Long guardianId) {
+        return fetchList(authWebClient, "/api/auth/users/guardian/{guardianId}", guardianId)
+                .map(students -> students.stream()
+                        .map(s -> s.get("id").asLong())
+                        .toList())
+                .defaultIfEmpty(Collections.emptyList());
+    }
+
+    private List<JsonNode> filterListByStudentId(List<JsonNode> items, Set<Long> validIds) {
+        return items.stream()
+                .filter(item -> item.has("studentId") && validIds.contains(item.get("studentId").asLong()))
+                .collect(Collectors.toList());
+    }
+
+    /**
+     * Enriches grades, attendances, and annotations with student names fetched from the auth service.
+     * Falls back gracefully if the auth service is unavailable.
+     */
+    private Mono<DashboardResponse> enrichWithStudentNames(DashboardResponse response) {
+        Set<Long> studentIds = collectStudentIds(response);
+        if (studentIds.isEmpty()) {
+            return Mono.just(response);
+        }
+
+        List<Long> idsList = new ArrayList<>(studentIds);
+
+        List<Mono<JsonNode>> fetches = idsList.stream()
+                .map(id -> fetchObject(authWebClient, "/api/auth/users/{id}", id)
+                        .defaultIfEmpty(JsonNodeFactory.instance.objectNode()))
+                .collect(Collectors.toList());
+
+        return Mono.zip(fetches, results -> {
+                    Map<Long, String> nameMap = new HashMap<>();
+                    for (int i = 0; i < results.length; i++) {
+                        JsonNode node = (JsonNode) results[i];
+                        if (node != null && node.has("id")) {
+                            Long userId = idsList.get(i);
+                            String name = extractUserName(node);
+                            if (name != null && !name.isBlank()) {
+                                nameMap.put(userId, name);
+                            }
+                        }
+                    }
+                    return nameMap;
+                })
+                .map(nameMap -> buildEnrichedResponse(response, nameMap));
+    }
+
+    private Set<Long> collectStudentIds(DashboardResponse response) {
+        Set<Long> ids = new HashSet<>();
+        for (JsonNode grade : response.grades()) {
+            if (grade.has("studentId")) {
+                ids.add(grade.get("studentId").asLong());
+            }
+        }
+        for (JsonNode attendance : response.attendances()) {
+            if (attendance.has("studentId")) {
+                ids.add(attendance.get("studentId").asLong());
+            }
+        }
+        for (JsonNode annotation : response.annotations()) {
+            if (annotation.has("studentId")) {
+                ids.add(annotation.get("studentId").asLong());
+            }
+        }
+        return ids;
+    }
+
+    private String extractUserName(JsonNode userNode) {
+        if (userNode.has("nombre") && !userNode.get("nombre").isNull()
+                && !userNode.get("nombre").asText().isBlank()) {
+            return userNode.get("nombre").asText();
+        }
+        if (userNode.has("fullName") && !userNode.get("fullName").isNull()
+                && !userNode.get("fullName").asText().isBlank()) {
+            return userNode.get("fullName").asText();
+        }
+        if (userNode.has("firstName")) {
+            String first = userNode.get("firstName").asText("");
+            String last = userNode.has("lastName") ? userNode.get("lastName").asText("") : "";
+            String name = (first + " " + last).trim();
+            if (!name.isBlank()) {
+                return name;
+            }
+        }
+        return null;
+    }
+
+    private DashboardResponse buildEnrichedResponse(DashboardResponse response, Map<Long, String> nameMap) {
+        List<JsonNode> enrichedGrades = enrichList(response.grades(), "studentId", nameMap);
+        List<JsonNode> enrichedAttendances = enrichList(response.attendances(), "studentId", nameMap);
+        List<JsonNode> enrichedAnnotations = enrichList(response.annotations(), "studentId", nameMap);
+
+        if (enrichedGrades == response.grades()
+                && enrichedAttendances == response.attendances()
+                && enrichedAnnotations == response.annotations()) {
+            return response;
+        }
+
+        return new DashboardResponse(
+                response.user(),
+                response.role(),
+                response.courses(),
+                response.subjects(),
+                response.evaluations(),
+                enrichedGrades,
+                enrichedAttendances,
+                enrichedAnnotations,
+                response.messages(),
+                response.unreadMessages(),
+                response.announcements(),
+                response.notifications(),
+                response.pendingNotifications()
+        );
+    }
+
+    private List<JsonNode> enrichList(List<JsonNode> items, String idField, Map<Long, String> nameMap) {
+        boolean changed = false;
+        List<JsonNode> result = new ArrayList<>(items.size());
+        for (JsonNode item : items) {
+            if (item.has(idField) && item instanceof ObjectNode objectNode) {
+                Long id = item.get(idField).asLong();
+                String name = nameMap.get(id);
+                if (name != null && !item.has("studentName")) {
+                    ObjectNode enriched = objectNode.put("studentName", name);
+                    result.add(enriched);
+                    changed = true;
+                    continue;
+                }
+            }
+            result.add(item);
+        }
+        return changed ? result : items;
     }
 
     private Mono<JsonNode> fetchObject(WebClient client, String uri, Object... uriVariables) {

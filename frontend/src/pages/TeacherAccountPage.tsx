@@ -57,6 +57,19 @@ export const TeacherAccountPage: React.FC = () => {
   const annotations = dashboard?.annotations ?? [];
   const messages = dashboard?.messages ?? [];
   const unreadMessages = dashboard?.unreadMessages ?? [];
+  // Build student name map from enriched BFF data
+  const studentNameMap = new Map<number, string>();
+  for (const att of attendances) {
+    if ((att as any).studentName && !studentNameMap.has(att.studentId)) {
+      studentNameMap.set(att.studentId, (att as any).studentName);
+    }
+  }
+  for (const ann of annotations) {
+    if ((ann as any).studentName && !studentNameMap.has(ann.studentId)) {
+      studentNameMap.set(ann.studentId, (ann as any).studentName);
+    }
+  }
+
   const totalStudents = [...new Set(attendances.map(a => a.studentId))].length;
   const attendanceRate = attendances.length > 0
     ? Math.round((attendances.filter(a => a.present).length / attendances.length) * 100)
@@ -259,15 +272,19 @@ export const TeacherAccountPage: React.FC = () => {
               <button className="tp-link">Ver completo →</button>
             </div>
             <div className="tp-list">
-              {attendances.slice(0, 5).map((att) => (
-                <div key={att.id} className="tp-list-item">
-                  <div className="tp-avatar tp-avatar--sm">{att.studentId}</div>
-                  <span className="tp-list-name">Estudiante #{att.studentId}</span>
-                  <span className={`tp-badge ${att.present ? 'tp-badge--present' : 'tp-badge--absent'}`}>
-                    {att.present ? 'Presente' : 'Ausente'}
-                  </span>
-                </div>
-              ))}
+              {attendances.slice(0, 5).map((att) => {
+                const name = studentNameMap.get(att.studentId) ?? `Estudiante #${att.studentId}`;
+                const initials = name.split(' ').map(n => n[0]).join('').slice(0, 2).toUpperCase();
+                return (
+                  <div key={att.id} className="tp-list-item">
+                    <div className="tp-avatar tp-avatar--sm">{initials}</div>
+                    <span className="tp-list-name">{name}</span>
+                    <span className={`tp-badge ${att.present ? 'tp-badge--present' : 'tp-badge--absent'}`}>
+                      {att.present ? 'Presente' : 'Ausente'}
+                    </span>
+                  </div>
+                );
+              })}
               {attendances.length === 0 && <p style={{ padding: '1rem', color: '#666' }}>Sin asistencias registradas</p>}
             </div>
           </div>
@@ -279,21 +296,25 @@ export const TeacherAccountPage: React.FC = () => {
               <button className="tp-link">Ver todas →</button>
             </div>
             <div className="tp-list">
-              {annotations.slice(0, 4).map((ann) => (
-                <div key={ann.id} className="tp-list-item tp-list-item--annotation">
-                  <div className="tp-avatar tp-avatar--sm">S{ann.studentId}</div>
-                  <div className="tp-annotation-body">
-                    <span className="tp-annotation-name">Estudiante #{ann.studentId}</span>
-                    <span className="tp-annotation-note">{ann.description}</span>
+              {annotations.slice(0, 4).map((ann) => {
+                const name = studentNameMap.get(ann.studentId) ?? `Estudiante #${ann.studentId}`;
+                const initials = name.split(' ').map(n => n[0]).join('').slice(0, 2).toUpperCase();
+                return (
+                  <div key={ann.id} className="tp-list-item tp-list-item--annotation">
+                    <div className="tp-avatar tp-avatar--sm">{initials}</div>
+                    <div className="tp-annotation-body">
+                      <span className="tp-annotation-name">{name}</span>
+                      <span className="tp-annotation-note">{ann.description}</span>
+                    </div>
+                    <div className="tp-annotation-meta">
+                      <span className="tp-annotation-time">{ann.date ? new Date(ann.date).toLocaleDateString('es-CL') : ''}</span>
+                      <span className={ann.type === 'POSITIVE' ? 'tp-icon--positive' : 'tp-icon--negative'}>
+                        {ann.type === 'POSITIVE' ? '✓' : '⚠'}
+                      </span>
+                    </div>
                   </div>
-                  <div className="tp-annotation-meta">
-                    <span className="tp-annotation-time">{ann.date ? new Date(ann.date).toLocaleDateString('es-CL') : ''}</span>
-                    <span className={ann.type === 'POSITIVE' ? 'tp-icon--positive' : 'tp-icon--negative'}>
-                      {ann.type === 'POSITIVE' ? '✓' : '⚠'}
-                    </span>
-                  </div>
-                </div>
-              ))}
+                );
+              })}
               {annotations.length === 0 && <p style={{ padding: '1rem', color: '#666' }}>Sin anotaciones registradas</p>}
             </div>
           </div>

@@ -4,6 +4,7 @@ import com.ohiggins.classflow.auth.dto.*;
 import com.ohiggins.classflow.auth.service.AuthService;
 import com.ohiggins.classflow.auth.service.UserService;
 import io.swagger.v3.oas.annotations.Operation;
+import java.util.List;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -83,6 +84,13 @@ public class AuthController {
     })
     public ResponseEntity<UserResponseDTO> getUserByIdNumber(@PathVariable String idNumber) {
         return ResponseEntity.ok(userService.findByIdNumber(idNumber));
+    }
+
+    @GetMapping("/users/guardian/{guardianId}")
+    @Operation(summary = "Obtener estudiantes por ID del apoderado")
+    @ApiResponse(responseCode = "200", description = "Lista de estudiantes asignados al apoderado")
+    public ResponseEntity<List<UserResponseDTO>> getStudentsByGuardian(@PathVariable Long guardianId) {
+        return ResponseEntity.ok(userService.findByGuardianId(guardianId));
     }
 
     @GetMapping("/me")

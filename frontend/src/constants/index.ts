@@ -16,6 +16,23 @@ export const ROUTES = {
   NOT_FOUND: '*',
 } as const;
 
+export type UserRole = 'ADMINISTRATOR' | 'TEACHER' | 'GUARDIAN' | 'STUDENT';
+
+export function getDashboardRouteByRole(role?: string): string {
+  switch (role) {
+    case 'ADMINISTRATOR':
+      return ROUTES.DASHBOARD_ADMIN;
+    case 'TEACHER':
+      return ROUTES.DASHBOARD_TEACHER;
+    case 'STUDENT':
+      return ROUTES.DASHBOARD_STUDENT;
+    case 'GUARDIAN':
+      return ROUTES.DASHBOARD_GUARDIAN;
+    default:
+      return ROUTES.LOGIN;
+  }
+}
+
 export const HTTP_STATUS = {
   OK: 200,
   CREATED: 201,

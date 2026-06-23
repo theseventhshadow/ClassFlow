@@ -3,6 +3,7 @@ package com.ohiggins.classflow.auth.service;
 import com.ohiggins.classflow.auth.dto.*;
 import com.ohiggins.classflow.auth.entity.Role;
 import com.ohiggins.classflow.auth.entity.User;
+import com.ohiggins.classflow.auth.exception.DuplicateResourceException;
 import com.ohiggins.classflow.auth.repository.UserRepository;
 import com.ohiggins.classflow.auth.security.JwtTokenProvider;
 import lombok.RequiredArgsConstructor;
@@ -39,10 +40,10 @@ public class AuthService {
 
     public UserResponseDTO register(RegisterRequestDTO request) {
         if (userRepository.existsByEmail(request.getEmail())) {
-            throw new RuntimeException("Email already registered");
+            throw new DuplicateResourceException("El correo electrónico '" + request.getEmail() + "' ya está registrado en el sistema.");
         }
         if (userRepository.existsByIdNumber(request.getIdNumber())) {
-            throw new RuntimeException("ID number already registered");
+            throw new DuplicateResourceException("El RUT '" + request.getIdNumber() + "' ya existe en el sistema.");
         }
 
         User user = new User();
