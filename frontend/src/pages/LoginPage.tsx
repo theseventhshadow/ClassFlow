@@ -14,10 +14,14 @@ export const LoginPage: React.FC = () => {
     e.preventDefault();
     try {
       const loggedUser = await login(email, password);
-      if (loggedUser.rol === 'ADMINISTRADOR') {
-        navigate('/admin', { replace: true });
-      } else if (loggedUser.rol === 'DOCENTE') {
-        navigate('/cuenta-docente', { replace: true });
+      if (loggedUser.rol === 'ADMINISTRATOR') {
+        navigate('/dashboard/admin', { replace: true });
+      } else if (loggedUser.rol === 'TEACHER') {
+        navigate('/dashboard/teacher', { replace: true });
+      } else if (loggedUser.rol === 'STUDENT') {
+        navigate('/dashboard/student', { replace: true });
+      } else if (loggedUser.rol === 'GUARDIAN') {
+        navigate('/dashboard/guardian', { replace: true });
       } else {
         navigate('/dashboard', { replace: true });
       }

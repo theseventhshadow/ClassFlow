@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useState } from 'react';
 import { useAuth } from '@context';
+import { humanizeRole } from '@utils';
 import {
   dashboardService,
   userService,
@@ -58,18 +59,11 @@ interface UseDashboardDataResult extends DashboardData {
   refetch: () => void;
 }
 
-const ROLE_LABEL: Record<UserRole, string> = {
-  ADMINISTRADOR: 'Administrador',
-  DOCENTE: 'Docente',
-  APODERADO: 'Apoderado',
-  ESTUDIANTE: 'Estudiante',
-};
-
 const ROLE_CLASS: Record<UserRole, string> = {
-  ADMINISTRADOR: 'badge--administrador',
-  DOCENTE: 'badge--docente',
-  APODERADO: 'badge--apoderado',
-  ESTUDIANTE: 'badge--estudiante',
+  ADMINISTRATOR: 'badge--administrador',
+  TEACHER: 'badge--docente',
+  GUARDIAN: 'badge--apoderado',
+  STUDENT: 'badge--estudiante',
 };
 
 const STATUS_CLASS: Record<'activo' | 'inactivo' | 'pendiente', string> = {
@@ -77,25 +71,6 @@ const STATUS_CLASS: Record<'activo' | 'inactivo' | 'pendiente', string> = {
   inactivo: 'badge--inactivo',
   pendiente: 'badge--pendiente',
 };
-
-function humanizeRole(role?: string): string {
-  switch (role) {
-    case 'ADMINISTRADOR':
-    case 'ADMIN':
-      return 'Administrador';
-    case 'DOCENTE':
-    case 'TEACHER':
-      return 'Docente';
-    case 'APODERADO':
-    case 'GUARDIAN':
-      return 'Apoderado';
-    case 'ESTUDIANTE':
-    case 'STUDENT':
-      return 'Estudiante';
-    default:
-      return role ?? '';
-  }
-}
 
 function formatDateTime(value?: string | null): Date | null {
   if (!value) {
@@ -195,7 +170,7 @@ function buildAttendance(response: DashboardResponse): DashboardAttendanceRow[] 
   return response.courses.map((course) => {
     const attendances = response.attendances.filter((attendance) => attendance.courseId === course.id);
     const presentCount = attendances.filter((attendance) => attendance.present).length;
-    const pct = attendances.length > 0 ? Math.round((presentCount / attendances.length) * 100) : (course.active ? 0 : 0);
+    const pct = attendances.length > 0 ? Math.round((presentCount / attendances.length) * 100) : 0;
 
     return {
       name: course.name,
@@ -307,6 +282,25 @@ async function fetchUserProfile(userId: number): Promise<User | null> {
 }
 
 async function buildUsers(response: DashboardResponse, adminUserId?: string): Promise<DashboardUserRow[]> {
+  // Build a name map from the enriched response data (BFF now injects studentName)
+  const nameMap = new Map<number, string>();
+
+  for (const grade of response.grades) {
+    if (grade.studentName && !nameMap.has(grade.studentId)) {
+      nameMap.set(grade.studentId, grade.studentName);
+    }
+  }
+  for (const attendance of response.attendances) {
+    if (attendance.studentName && !nameMap.has(attendance.studentId)) {
+      nameMap.set(attendance.studentId, attendance.studentName);
+    }
+  }
+  for (const annotation of response.annotations) {
+    if (annotation.studentName && !nameMap.has(annotation.studentId)) {
+      nameMap.set(annotation.studentId, annotation.studentName);
+    }
+  }
+
   const candidateIds = new Set<number>([
     ...response.grades.map((grade) => grade.studentId),
     ...response.attendances.map((attendance) => attendance.studentId),
@@ -319,25 +313,38 @@ async function buildUsers(response: DashboardResponse, adminUserId?: string): Pr
   }
 
   const ids = Array.from(candidateIds).slice(0, 5);
-  const profiles = await Promise.all(ids.map(async (id) => ({ id, profile: await fetchUserProfile(id) })));
 
-  return profiles.map(({ id, profile }) => {
+  // Only fetch profiles for IDs that don't have a name yet
+  const idsToFetch = ids.filter((id) => !nameMap.has(id));
+  const fetchedProfiles = await Promise.all(
+    idsToFetch.map(async (id) => ({ id, profile: await fetchUserProfile(id) }))
+  );
+
+  for (const { id, profile } of fetchedProfiles) {
+    if (profile) {
+      nameMap.set(id, profile.nombre);
+    }
+  }
+
+  return ids.map((id) => {
     const userDates = [
       ...response.attendances.filter((attendance) => attendance.studentId === id).map((attendance) => attendance.date),
       ...response.annotations.filter((annotation) => annotation.studentId === id).map((annotation) => annotation.date),
     ];
 
     const lastAccess = getLatestDate(...userDates);
-    const resolvedUser = profile ?? {
+    const name = nameMap.get(id) ?? `Usuario #${id}`;
+
+    const resolvedUser = {
       id: String(id),
-      nombre: `Usuario #${id}`,
+      nombre: name,
       email: `usuario${id}@classflow.local`,
-      rol: 'ESTUDIANTE' as UserRole,
+      rol: 'STUDENT' as UserRole,
       activo: true,
       createdAt: lastAccess ?? new Date().toISOString(),
     };
     const status = getUserStatus(resolvedUser, lastAccess);
-    const role = resolvedUser.rol ?? 'ESTUDIANTE';
+    const role = resolvedUser.rol ?? 'STUDENT';
 
     return {
       name: resolvedUser.nombre,

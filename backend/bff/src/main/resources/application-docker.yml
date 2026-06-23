@@ -1,0 +1,31 @@
+server:
+  port: 8086
+
+spring:
+  application:
+    name: bff
+
+services:
+  auth:
+    base-url: http://ms-auth:8081
+  academic:
+    base-url: http://ms-academic:8082
+  assistance:
+    base-url: http://ms-assistance:8083
+  message:
+    base-url: http://ms-message:8084
+  notification:
+    base-url: http://ms-notification:8085
+
+logging:
+  level:
+    com.ohiggins.classflow.bff: DEBUG
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info
+  endpoint:
+    health:
+      show-details: always

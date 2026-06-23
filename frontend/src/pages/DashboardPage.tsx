@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import './DashboardPage.css';
 import { useAuth } from '@context';
+import { humanizeRole } from '@utils';
 
 // ── Data ───────────────────────────────────────────────────────────────────────
 const mockUsers = [
@@ -189,24 +190,6 @@ function getProgressClass(pct: number): string {
   return 'progress-bar-fill progress-high';
 }
 
-function humanizeRole(role?: string): string {
-  switch (role) {
-    case 'ADMINISTRADOR':
-    case 'ADMIN':
-      return 'Administrador';
-    case 'DOCENTE':
-    case 'TEACHER':
-      return 'Docente';
-    case 'APODERADO':
-    case 'GUARDIAN':
-      return 'Apoderado';
-    case 'ESTUDIANTE':
-    case 'STUDENT':
-      return 'Estudiante';
-    default:
-      return role ?? '';
-  }
-}
 
 const activityIconMap: Record<string, React.ReactNode> = {
   success: <Icon.CheckCircle />,

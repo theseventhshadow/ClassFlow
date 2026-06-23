@@ -1,0 +1,45 @@
+-- Assistance Service - Seed Data
+-- Asistencias (student_id según ms-auth: 10-29)
+INSERT INTO attendances (student_id, course_id, date, present, justification)
+VALUES (10, 1, '2026-04-01', TRUE, NULL),
+       (10, 1, '2026-04-02', TRUE, NULL),
+       (10, 1, '2026-04-03', FALSE, 'Control médico'),
+       (10, 1, '2026-04-04', TRUE, NULL),
+       (10, 1, '2026-04-07', TRUE, NULL),
+       (11, 1, '2026-04-01', TRUE, NULL),
+       (11, 1, '2026-04-02', TRUE, NULL),
+       (11, 1, '2026-04-03', TRUE, NULL),
+       (11, 1, '2026-04-04', TRUE, NULL),
+       (11, 1, '2026-04-07', TRUE, NULL),
+       (12, 2, '2026-04-01', TRUE, NULL),
+       (12, 2, '2026-04-02', FALSE, 'Enfermedad'),
+       (12, 2, '2026-04-03', TRUE, NULL),
+       (12, 2, '2026-04-04', TRUE, NULL),
+       (13, 2, '2026-04-01', TRUE, NULL),
+       (13, 2, '2026-04-02', TRUE, NULL),
+       (13, 2, '2026-04-03', TRUE, NULL),
+       (14, 3, '2026-04-01', TRUE, NULL),
+       (14, 3, '2026-04-02', TRUE, NULL),
+       (14, 3, '2026-04-03', FALSE, 'Problemas familiares'),
+       (15, 3, '2026-04-01', TRUE, NULL),
+       (15, 3, '2026-04-02', TRUE, NULL),
+       (15, 3, '2026-04-03', TRUE, NULL),
+       (22, 7, '2026-04-01', TRUE, NULL),
+       (22, 7, '2026-04-02', TRUE, NULL),
+       (22, 7, '2026-04-03', TRUE, NULL),
+       (23, 7, '2026-04-01', TRUE, NULL),
+       (23, 7, '2026-04-02', FALSE, 'Cita médica'),
+       (23, 7, '2026-04-03', TRUE, NULL);
+
+-- Anotaciones
+INSERT INTO annotations (student_id, teacher_id, type, description, date, active)
+VALUES (10, 2, 'POSITIVE', 'Excelente participación en clase', '2026-04-02 10:00:00', TRUE),
+       (12, 2, 'NEGATIVE', 'No trajo materiales a la clase', '2026-04-01 11:30:00', TRUE),
+       (14, 2, 'NEGATIVE', 'Interrumpe constantemente la clase', '2026-04-02 09:15:00', TRUE),
+       (15, 2, 'POSITIVE', 'Ayudó a sus compañeros con la tarea', '2026-04-03 14:00:00', TRUE),
+       (22, 3, 'POSITIVE', 'Excelente trabajo en grupo', '2026-04-02 12:00:00', TRUE),
+       (23, 3, 'NEGATIVE', 'No entregó tarea a tiempo', '2026-04-01 16:00:00', TRUE),
+       (24, 5, 'POSITIVE', 'Participó activamente en el debate', '2026-04-03 11:00:00', TRUE),
+       (25, 5, 'POSITIVE', 'Muy buena presentación oral', '2026-04-02 10:30:00', TRUE),
+       (26, 2, 'NEGATIVE', 'Uso indebido del celular en clases', '2026-04-03 09:00:00', TRUE),
+       (28, 7, 'POSITIVE', 'Destacó en la prueba de Matemáticas', '2026-04-04 08:30:00', TRUE);

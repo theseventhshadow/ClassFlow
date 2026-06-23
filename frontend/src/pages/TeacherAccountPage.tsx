@@ -1,35 +1,10 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { useAuth } from '@context';
+import { dashboardService, DashboardResponse } from '@services';
+import { Loading } from '@components/common';
 
 type NavKey = 'dashboard' | 'courses' | 'attendance' | 'annotations' | 'grades' | 'messages';
-
-const COURSES = [
-  { id: 1, name: '1° Medio A', subject: 'Matemáticas', room: 'Sala 12', students: 32, progress: 92, color: '#7C3AED' },
-  { id: 2, name: '2° Medio B', subject: 'Matemáticas', room: 'Sala 08', students: 28, progress: 85, color: '#10B981' },
-  { id: 3, name: '3° Básico C', subject: 'Ciencias', room: 'Sala 04', students: 29, progress: 95, color: '#F59E0B' },
-  { id: 4, name: '4° Básico A', subject: 'Ciencias', room: 'Sala 03', students: 31, progress: 72, color: '#EF4444' },
-];
-
-const UPCOMING_CLASSES = [
-  { id: 1, time: '08:00', course: '1° Medio A', subject: 'Matemáticas', room: 'Sala 12', status: 'En Curso' },
-  { id: 2, time: '10:00', course: '2° Medio B', subject: 'Matemáticas', room: 'Sala 08', status: 'Próxima' },
-  { id: 3, time: '14:00', course: '3° Básico C', subject: 'Ciencias', room: 'Sala 04', status: 'Pendiente' },
-];
-
-const ATTENDANCE_LIST = [
-  { id: 1, initials: 'VM', name: 'Valentina Morales', status: 'Presente' },
-  { id: 2, initials: 'JP', name: 'Joaquín Pérez', status: 'Ausente' },
-  { id: 3, initials: 'DF', name: 'Daniela Fuentes', status: 'Presente' },
-  { id: 4, initials: 'MR', name: 'Matías Rojas', status: 'Tardanza' },
-  { id: 5, initials: 'CS', name: 'Camila Soto', status: 'Presente' },
-];
-
-const ANNOTATIONS_LIST = [
-  { id: 1, initials: 'MR', name: 'Matías Rojas', note: 'Conducta disruptiva en clases', time: 'Hoy', type: 'negative' },
-  { id: 2, initials: 'VM', name: 'Valentina Morales', note: 'Excelente participación', time: 'Hoy', type: 'positive' },
-  { id: 3, initials: 'JP', name: 'Joaquín Pérez', note: '3° inasistencia consecutiva', time: 'Ayer', type: 'negative' },
-  { id: 4, initials: 'CS', name: 'Camila Soto', note: 'Ayuda a compañeros en prueba grupal', time: 'Ayer', type: 'positive' },
-];
 
 const NAV_ITEMS: { key: NavKey; label: string; icon: string; badge?: number }[] = [
   { key: 'dashboard', label: 'Dashboard', icon: '⊞' },
@@ -40,18 +15,23 @@ const NAV_ITEMS: { key: NavKey; label: string; icon: string; badge?: number }[] 
   { key: 'messages', label: 'Mensajería', icon: '💬', badge: 2 },
 ];
 
-const STATUS_CLASS: Record<string, string> = {
-  'En Curso': 'tp-badge--active',
-  Próxima: 'tp-badge--next',
-  Pendiente: 'tp-badge--pending',
-  Presente: 'tp-badge--present',
-  Ausente: 'tp-badge--absent',
-  Tardanza: 'tp-badge--late',
-};
-
 export const TeacherAccountPage: React.FC = () => {
-  const { user } = useAuth();
+  const { user, logout } = useAuth();
+  const navigate = useNavigate();
   const [activeNav, setActiveNav] = useState<NavKey>('dashboard');
+  const [showLogoutModal, setShowLogoutModal] = useState(false);
+  const [dashboard, setDashboard] = useState<DashboardResponse | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+
+  useEffect(() => {
+    if (!user?.id) return;
+    setLoading(true);
+    dashboardService.getDashboard(user.id)
+      .then(setDashboard)
+      .catch((err) => setError(err instanceof Error ? err.message : 'Error al cargar datos'))
+      .finally(() => setLoading(false));
+  }, [user?.id]);
 
   const teacherName = user?.nombre || 'Docente';
   const firstName = teacherName.split(' ')[0];
@@ -71,6 +51,42 @@ export const TeacherAccountPage: React.FC = () => {
   });
   const hour = today.getHours();
   const greeting = hour < 12 ? '¡Buenos días' : hour < 18 ? '¡Buenas tardes' : '¡Buenas noches';
+
+  const courses = dashboard?.courses ?? [];
+  const attendances = dashboard?.attendances ?? [];
+  const annotations = dashboard?.annotations ?? [];
+  const messages = dashboard?.messages ?? [];
+  const unreadMessages = dashboard?.unreadMessages ?? [];
+  // Build student name map from enriched BFF data
+  const studentNameMap = new Map<number, string>();
+  for (const att of attendances) {
+    if ((att as any).studentName && !studentNameMap.has(att.studentId)) {
+      studentNameMap.set(att.studentId, (att as any).studentName);
+    }
+  }
+  for (const ann of annotations) {
+    if ((ann as any).studentName && !studentNameMap.has(ann.studentId)) {
+      studentNameMap.set(ann.studentId, (ann as any).studentName);
+    }
+  }
+
+  const totalStudents = [...new Set(attendances.map(a => a.studentId))].length;
+  const attendanceRate = attendances.length > 0
+    ? Math.round((attendances.filter(a => a.present).length / attendances.length) * 100)
+    : 0;
+
+  const handleLogout = () => {
+    logout();
+    localStorage.clear();
+    sessionStorage.clear();
+    document.cookie.split(';').forEach((c) => {
+      document.cookie = c.replace(/^ +/, '').replace(/=.*/, `=;expires=${new Date().toUTCString()};path=/`);
+    });
+    navigate('/login', { replace: true });
+  };
+
+  if (loading) return <Loading size="lg" message="Cargando portal docente..." />;
+  if (error) return <div className="tp-portal"><main className="tp-main"><p style={{ padding: '2rem', color: '#dc2626' }}>{error}</p></main></div>;
 
   return (
     <div className="tp-portal">
@@ -111,6 +127,9 @@ export const TeacherAccountPage: React.FC = () => {
             <span className="tp-user-name">{teacherName}</span>
             <span className="tp-user-role">DOCENTE</span>
           </div>
+          <button className="tp-logout-btn" onClick={() => setShowLogoutModal(true)} title="Cerrar sesión">
+            ⏻
+          </button>
         </div>
       </aside>
 
@@ -134,19 +153,19 @@ export const TeacherAccountPage: React.FC = () => {
             <h2>
               {greeting}, {firstName}! 👋
             </h2>
-            <p>Tienes 3 clases programadas hoy. La primera comienza a las 08:00.</p>
+            <p>{courses.length} cursos con {totalStudents} estudiantes registrados.</p>
           </div>
           <div className="tp-welcome-stats">
             <div className="tp-welcome-stat">
-              <span className="tp-welcome-stat-value">4</span>
+              <span className="tp-welcome-stat-value">{courses.length}</span>
               <span className="tp-welcome-stat-label">Cursos</span>
             </div>
             <div className="tp-welcome-stat">
-              <span className="tp-welcome-stat-value">128</span>
+              <span className="tp-welcome-stat-value">{totalStudents}</span>
               <span className="tp-welcome-stat-label">Estudiantes</span>
             </div>
             <div className="tp-welcome-stat">
-              <span className="tp-welcome-stat-value">91%</span>
+              <span className="tp-welcome-stat-value">{attendanceRate}%</span>
               <span className="tp-welcome-stat-label">Asistencia</span>
             </div>
           </div>
@@ -156,35 +175,35 @@ export const TeacherAccountPage: React.FC = () => {
         <div className="tp-metrics">
           <div className="tp-metric-card">
             <div className="tp-metric-header">
-              <span className="tp-metric-label">Clases hoy</span>
-              <span className="tp-metric-icon tp-metric-icon--blue">📅</span>
+              <span className="tp-metric-label">Cursos activos</span>
+              <span className="tp-metric-icon tp-metric-icon--blue">📚</span>
             </div>
-            <span className="tp-metric-value">3</span>
-            <span className="tp-metric-sub">Próximo: 08:00</span>
+            <span className="tp-metric-value">{courses.length}</span>
+            <span className="tp-metric-sub">{totalStudents} estudiantes</span>
           </div>
           <div className="tp-metric-card">
             <div className="tp-metric-header">
-              <span className="tp-metric-label">Asistencia hoy</span>
+              <span className="tp-metric-label">Asistencia</span>
               <span className="tp-metric-icon tp-metric-icon--green">✓</span>
             </div>
-            <span className="tp-metric-value">91%</span>
-            <span className="tp-metric-sub tp-metric-sub--up">▲ +2% vs ayer</span>
+            <span className="tp-metric-value">{attendanceRate}%</span>
+            <span className="tp-metric-sub tp-metric-sub--up">{attendances.length} registros</span>
           </div>
           <div className="tp-metric-card">
             <div className="tp-metric-header">
-              <span className="tp-metric-label">Notas pendientes</span>
-              <span className="tp-metric-icon tp-metric-icon--orange">📄</span>
+              <span className="tp-metric-label">Anotaciones</span>
+              <span className="tp-metric-icon tp-metric-icon--orange">📝</span>
             </div>
-            <span className="tp-metric-value">8</span>
-            <span className="tp-metric-sub tp-metric-sub--warn">Sin ingresar</span>
+            <span className="tp-metric-value">{annotations.length}</span>
+            <span className="tp-metric-sub tp-metric-sub--warn">{annotations.filter(a => a.type === 'NEGATIVE').length} negativas</span>
           </div>
           <div className="tp-metric-card">
             <div className="tp-metric-header">
               <span className="tp-metric-label">Mensajes</span>
               <span className="tp-metric-icon tp-metric-icon--purple">💬</span>
             </div>
-            <span className="tp-metric-value">2</span>
-            <span className="tp-metric-sub tp-metric-sub--warn">Sin leer</span>
+            <span className="tp-metric-value">{messages.length}</span>
+            <span className="tp-metric-sub tp-metric-sub--warn">{unreadMessages.length} sin leer</span>
           </div>
         </div>
 
@@ -197,46 +216,49 @@ export const TeacherAccountPage: React.FC = () => {
               <button className="tp-link">Ver todos →</button>
             </div>
             <div className="tp-course-list">
-              {COURSES.map((course) => (
+              {courses.length > 0 ? courses.map((course) => (
                 <div key={course.id} className="tp-course-item">
-                  <div className="tp-course-dot" style={{ backgroundColor: course.color }} />
+                  <div className="tp-course-dot" style={{ backgroundColor: '#7C3AED' }} />
                   <div className="tp-course-info">
                     <div className="tp-course-title">
-                      <span className="tp-course-name">{course.name} — {course.subject}</span>
-                      <span className="tp-course-students">{course.students} estudiantes · {course.room}</span>
-                    </div>
-                    <div className="tp-progress-row">
-                      <div className="tp-progress-bar">
-                        <div
-                          className="tp-progress-fill"
-                          style={{ width: `${course.progress}%`, backgroundColor: course.color }}
-                        />
-                      </div>
-                      <span className="tp-progress-pct">{course.progress}%</span>
+                      <span className="tp-course-name">{course.name}</span>
+                      <span className="tp-course-students">{course.description ?? 'Sin descripción'}</span>
                     </div>
                   </div>
                 </div>
-              ))}
+              )) : (
+                <p style={{ padding: '1rem', color: '#666' }}>No hay cursos asignados</p>
+              )}
             </div>
           </div>
 
           {/* Próximas clases */}
           <div className="tp-card">
             <div className="tp-card-header">
-              <h3>Próximas clases</h3>
-              <button className="tp-link">Horario →</button>
+              <h3>Cursos y asistencias</h3>
+              <button className="tp-link">Ver detalle →</button>
             </div>
             <div className="tp-schedule-list">
-              {UPCOMING_CLASSES.map((cls) => (
-                <div key={cls.id} className="tp-schedule-item">
-                  <span className="tp-schedule-time">{cls.time}</span>
-                  <div className="tp-schedule-info">
-                    <span className="tp-schedule-course">{cls.course}</span>
-                    <span className="tp-schedule-sub">{cls.subject} · {cls.room}</span>
+              {courses.length > 0 ? courses.slice(0, 5).map((course) => {
+                const courseAttendances = attendances.filter(a => a.courseId === course.id);
+                const pct = courseAttendances.length > 0
+                  ? Math.round((courseAttendances.filter(a => a.present).length / courseAttendances.length) * 100)
+                  : 0;
+                return (
+                  <div key={course.id} className="tp-schedule-item">
+                    <span className="tp-schedule-time">{course.name}</span>
+                    <div className="tp-schedule-info">
+                      <span className="tp-schedule-course">{courseAttendances.length} asistencias</span>
+                      <span className="tp-schedule-sub">{pct}% presente</span>
+                    </div>
+                    <span className={`tp-badge ${pct >= 80 ? 'tp-badge--active' : pct >= 60 ? 'tp-badge--next' : 'tp-badge--pending'}`}>
+                      {pct}%
+                    </span>
                   </div>
-                  <span className={`tp-badge ${STATUS_CLASS[cls.status]}`}>{cls.status}</span>
-                </div>
-              ))}
+                );
+              }) : (
+                <p style={{ padding: '1rem', color: '#666' }}>Sin datos de asistencia</p>
+              )}
             </div>
           </div>
         </div>
@@ -246,17 +268,24 @@ export const TeacherAccountPage: React.FC = () => {
           {/* Asistencia */}
           <div className="tp-card">
             <div className="tp-card-header">
-              <h3>Asistencia — 1° Medio A</h3>
+              <h3>Asistencia reciente</h3>
               <button className="tp-link">Ver completo →</button>
             </div>
             <div className="tp-list">
-              {ATTENDANCE_LIST.map((student) => (
-                <div key={student.id} className="tp-list-item">
-                  <div className="tp-avatar tp-avatar--sm">{student.initials}</div>
-                  <span className="tp-list-name">{student.name}</span>
-                  <span className={`tp-badge ${STATUS_CLASS[student.status]}`}>{student.status}</span>
-                </div>
-              ))}
+              {attendances.slice(0, 5).map((att) => {
+                const name = studentNameMap.get(att.studentId) ?? `Estudiante #${att.studentId}`;
+                const initials = name.split(' ').map(n => n[0]).join('').slice(0, 2).toUpperCase();
+                return (
+                  <div key={att.id} className="tp-list-item">
+                    <div className="tp-avatar tp-avatar--sm">{initials}</div>
+                    <span className="tp-list-name">{name}</span>
+                    <span className={`tp-badge ${att.present ? 'tp-badge--present' : 'tp-badge--absent'}`}>
+                      {att.present ? 'Presente' : 'Ausente'}
+                    </span>
+                  </div>
+                );
+              })}
+              {attendances.length === 0 && <p style={{ padding: '1rem', color: '#666' }}>Sin asistencias registradas</p>}
             </div>
           </div>
 
@@ -267,25 +296,90 @@ export const TeacherAccountPage: React.FC = () => {
               <button className="tp-link">Ver todas →</button>
             </div>
             <div className="tp-list">
-              {ANNOTATIONS_LIST.map((ann) => (
-                <div key={ann.id} className="tp-list-item tp-list-item--annotation">
-                  <div className="tp-avatar tp-avatar--sm">{ann.initials}</div>
-                  <div className="tp-annotation-body">
-                    <span className="tp-annotation-name">{ann.name}</span>
-                    <span className="tp-annotation-note">{ann.note}</span>
+              {annotations.slice(0, 4).map((ann) => {
+                const name = studentNameMap.get(ann.studentId) ?? `Estudiante #${ann.studentId}`;
+                const initials = name.split(' ').map(n => n[0]).join('').slice(0, 2).toUpperCase();
+                return (
+                  <div key={ann.id} className="tp-list-item tp-list-item--annotation">
+                    <div className="tp-avatar tp-avatar--sm">{initials}</div>
+                    <div className="tp-annotation-body">
+                      <span className="tp-annotation-name">{name}</span>
+                      <span className="tp-annotation-note">{ann.description}</span>
+                    </div>
+                    <div className="tp-annotation-meta">
+                      <span className="tp-annotation-time">{ann.date ? new Date(ann.date).toLocaleDateString('es-CL') : ''}</span>
+                      <span className={ann.type === 'POSITIVE' ? 'tp-icon--positive' : 'tp-icon--negative'}>
+                        {ann.type === 'POSITIVE' ? '✓' : '⚠'}
+                      </span>
+                    </div>
                   </div>
-                  <div className="tp-annotation-meta">
-                    <span className="tp-annotation-time">{ann.time}</span>
-                    <span className={ann.type === 'positive' ? 'tp-icon--positive' : 'tp-icon--negative'}>
-                      {ann.type === 'positive' ? '✓' : '⚠'}
-                    </span>
-                  </div>
-                </div>
-              ))}
+                );
+              })}
+              {annotations.length === 0 && <p style={{ padding: '1rem', color: '#666' }}>Sin anotaciones registradas</p>}
             </div>
           </div>
         </div>
       </main>
+
+      {showLogoutModal && (
+        <div
+          style={{
+            position: 'fixed',
+            top: 0,
+            left: 0,
+            right: 0,
+            bottom: 0,
+            backgroundColor: 'rgba(0, 0, 0, 0.5)',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            zIndex: 9999,
+          }}
+        >
+          <div
+            style={{
+              backgroundColor: 'white',
+              borderRadius: '8px',
+              padding: '2rem',
+              minWidth: '300px',
+              boxShadow: '0 4px 6px rgba(0, 0, 0, 0.1)',
+              textAlign: 'center',
+            }}
+          >
+            <h2 style={{ marginTop: 0, color: '#333' }}>¿Cerrar sesión?</h2>
+            <p style={{ color: '#666', marginBottom: '1.5rem' }}>
+              Se cerrará tu sesión y deberás iniciar sesión nuevamente para acceder a la plataforma.
+            </p>
+            <div style={{ display: 'flex', gap: '1rem', justifyContent: 'center' }}>
+              <button
+                onClick={() => setShowLogoutModal(false)}
+                style={{
+                  padding: '0.75rem 1.5rem',
+                  backgroundColor: '#f0f0f0',
+                  border: '1px solid #ddd',
+                  borderRadius: '4px',
+                  cursor: 'pointer',
+                }}
+              >
+                No, cancelar
+              </button>
+              <button
+                onClick={handleLogout}
+                style={{
+                  padding: '0.75rem 1.5rem',
+                  backgroundColor: '#dc2626',
+                  color: 'white',
+                  border: 'none',
+                  borderRadius: '4px',
+                  cursor: 'pointer',
+                }}
+              >
+                Sí, cerrar sesión
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };

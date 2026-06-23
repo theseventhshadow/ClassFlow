@@ -1,0 +1,60 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: ms-notification
+  namespace: classflow
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: ms-notification
+  template:
+    metadata:
+      labels:
+        app: ms-notification
+    spec:
+      containers:
+        - name: ms-notification
+          image: ms-notification:local
+          imagePullPolicy: IfNotPresent
+          ports:
+            - containerPort: 8085
+          envFrom:
+            - configMapRef:
+                name: classflow-config
+          env:
+            - name: MAIL_USERNAME
+              valueFrom:
+                secretKeyRef:
+                  name: classflow-mail-secret
+                  key: MAIL_USERNAME
+            - name: MAIL_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: classflow-mail-secret
+                  key: MAIL_PASSWORD
+          readinessProbe:
+            httpGet:
+              path: /actuator/health
+              port: 8085
+            initialDelaySeconds: 30
+            periodSeconds: 10
+          resources:
+            requests:
+              memory: "256Mi"
+              cpu: "250m"
+            limits:
+              memory: "512Mi"
+              cpu: "500m"
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: ms-notification
+  namespace: classflow
+spec:
+  selector:
+    app: ms-notification
+  ports:
+    - port: 8085
+      targetPort: 8085

@@ -30,6 +30,7 @@ export interface DashboardEvaluation {
 export interface DashboardGrade {
   id: number;
   studentId: number;
+  studentName?: string;
   score?: number | null;
   observations?: string | null;
   evaluationId?: number | null;
@@ -38,6 +39,7 @@ export interface DashboardGrade {
 export interface DashboardAttendance {
   id: number;
   studentId: number;
+  studentName?: string;
   courseId: number;
   date: string;
   present: boolean;
@@ -47,6 +49,7 @@ export interface DashboardAttendance {
 export interface DashboardAnnotation {
   id: number;
   studentId: number;
+  studentName?: string;
   teacherId: number;
   type: string;
   description: string;

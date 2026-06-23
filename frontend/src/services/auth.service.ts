@@ -24,9 +24,11 @@ export interface RegisterRequest {
 }
 
 interface BackendUser {
-  id: string;
+  id: string | number;
   first_name?: string;
   last_name?: string;
+  firstName?: string;
+  lastName?: string;
   nombre?: string;
   email?: string;
   role?: string;
@@ -44,9 +46,8 @@ interface BackendUser {
 
 interface BackendLoginResponse {
   token: string;
-  // Some backends return a nested `user` object, others return flattened fields.
+  id?: number;
   user?: BackendUser;
-  // Flattened form
   email?: string;
   role?: string;
   fullName?: string;
@@ -100,7 +101,7 @@ class AuthService {
 
     // Fallback for flattened response from the backend
     const userFallback = {
-      id: '',
+      id: String(response.id ?? ''),
       nombre: response.fullName ?? response.email ?? '',
       email: response.email ?? '',
       rol: this.normalizeRole(response.role),
@@ -115,14 +116,14 @@ class AuthService {
   }
 
   private normalizeUser(user: BackendUser): User {
-    const firstName = user.first_name ?? '';
-    const lastName = user.last_name ?? '';
+    const firstName = user.first_name ?? user.firstName ?? '';
+    const lastName = user.last_name ?? user.lastName ?? '';
     const nombre = user.nombre ?? `${firstName} ${lastName}`.trim();
 
     return {
-      id: user.id,
-      nombre: nombre || user.email,
-      email: user.email,
+      id: String(user.id),
+      nombre: nombre || user.email || '',
+      email: user.email ?? '',
       rol: this.normalizeRole(user.role ?? user.rol),
       activo: user.active ?? user.activo ?? true,
       createdAt: user.createdAt ?? user.created_at ?? new Date().toISOString(),
@@ -134,20 +135,20 @@ class AuthService {
 
   private normalizeRole(role?: string): User['rol'] {
     switch (role) {
-      case 'ADMINISTRADOR':
-      case 'ADMIN':
       case 'ADMINISTRATOR':
-        return 'ADMINISTRADOR';
+      case 'ADMIN':
+      case 'ADMINISTRADOR':
+        return 'ADMINISTRATOR';
       case 'TEACHER':
       case 'DOCENTE':
-        return 'DOCENTE';
+        return 'TEACHER';
       case 'GUARDIAN':
       case 'APODERADO':
-        return 'APODERADO';
+        return 'GUARDIAN';
       case 'STUDENT':
       case 'ESTUDIANTE':
       default:
-        return 'ESTUDIANTE';
+        return 'STUDENT';
     }
   }
 }

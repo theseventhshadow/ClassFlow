@@ -1,0 +1,24 @@
+spring:
+  datasource:
+    url: jdbc:postgresql://academic-db:5432/academic_db
+    driver-class-name: org.postgresql.Driver
+    username: academic_user
+    password: academic_pass
+  jpa:
+    hibernate:
+      ddl-auto: validate
+    open-in-view: false
+    show-sql: true
+    defer-datasource-initialization: false
+  flyway:
+    locations: classpath:db/migration
+    enabled: true
+    baseline-on-migrate: false
+    out-of-order: false
+    encoding: UTF-8
+  h2:
+    console:
+      enabled: false
+
+server:
+  port: 8082

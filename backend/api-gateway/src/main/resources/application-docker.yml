@@ -1,0 +1,48 @@
+server:
+  port: 8080
+
+spring:
+  cloud:
+    gateway:
+      routes:
+        - id: bff
+          uri: http://bff:8086
+          predicates:
+            - Path=/api/bff/**
+          filters:
+            - StripPrefix=0
+
+        - id: ms-auth
+          uri: http://ms-auth:8081  # 🔥 Usa el nombre del servicio
+          predicates:
+            - Path=/api/auth/**
+          filters:
+            - StripPrefix=0
+        
+        - id: ms-academic-courses
+          uri: http://ms-academic:8082  # 🔥 Usa el nombre del servicio
+          predicates:
+            - Path=/api/courses/**,/api/subjects/**,/api/evaluations/**,/api/grades/**
+          filters:
+            - StripPrefix=0
+        
+        - id: ms-assistance
+          uri: http://ms-assistance:8083
+          predicates:
+            - Path=/api/attendance/**,/api/annotations/**
+          filters:
+            - StripPrefix=0
+        
+        - id: ms-message
+          uri: http://ms-message:8084
+          predicates:
+            - Path=/api/messages/**,/api/announcements/**
+          filters:
+            - StripPrefix=0
+        
+        - id: ms-notification
+          uri: http://ms-notification:8085
+          predicates:
+            - Path=/api/notifications/**
+          filters:
+            - StripPrefix=0

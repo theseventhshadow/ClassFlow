@@ -1,7 +1,7 @@
 import { apiService } from './api.service';
 import { ApiResponse, PaginatedResponse } from '@types';
 
-export type UserRole = 'ADMINISTRADOR' | 'DOCENTE' | 'APODERADO' | 'ESTUDIANTE';
+export type UserRole = 'ADMINISTRATOR' | 'TEACHER' | 'GUARDIAN' | 'STUDENT';
 
 export interface User {
   id: string;
@@ -21,7 +21,7 @@ export interface ChangePasswordPayload {
 }
 
 class UserService {
-  private readonly endpoint = '/users';
+  private readonly endpoint = '/auth/users';
 
   async getUsers(page = 1, limit = 10): Promise<PaginatedResponse<User>> {
     return apiService.get(`${this.endpoint}?page=${page}&limit=${limit}`);

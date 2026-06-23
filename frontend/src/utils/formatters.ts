@@ -32,3 +32,22 @@ export const truncateString = (str: string, length: number): string => {
 export const capitalize = (str: string): string => {
   return str.charAt(0).toUpperCase() + str.slice(1);
 };
+
+export function humanizeRole(role?: string): string {
+  switch (role) {
+    case 'ADMINISTRATOR':
+    case 'ADMIN':
+      return 'Administrador';
+    case 'TEACHER':
+    case 'DOCENTE':
+      return 'Docente';
+    case 'GUARDIAN':
+    case 'APODERADO':
+      return 'Apoderado';
+    case 'STUDENT':
+    case 'ESTUDIANTE':
+      return 'Estudiante';
+    default:
+      return role ?? '';
+  }
+}
