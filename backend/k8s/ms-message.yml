@@ -23,10 +23,9 @@ spec:
             - configMapRef:
                 name: classflow-config
           readinessProbe:
-            httpGet:
-              path: /actuator/health
+            tcpSocket:
               port: 8084
-            initialDelaySeconds: 30
+            initialDelaySeconds: 15
             periodSeconds: 10
           resources:
             requests:
