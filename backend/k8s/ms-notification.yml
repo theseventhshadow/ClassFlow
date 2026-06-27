@@ -34,10 +34,9 @@ spec:
                   name: classflow-mail-secret
                   key: MAIL_PASSWORD
           readinessProbe:
-            httpGet:
-              path: /actuator/health
+            tcpSocket:
               port: 8085
-            initialDelaySeconds: 30
+            initialDelaySeconds: 15
             periodSeconds: 10
           resources:
             requests:
