@@ -4,6 +4,9 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Builder;
 import lombok.Data;
 
+/**
+ * Representa un curso academico.
+ */
 @Data
 @Builder
 @Schema(description = "Datos de un curso académico")

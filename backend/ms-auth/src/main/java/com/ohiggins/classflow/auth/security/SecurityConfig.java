@@ -14,6 +14,9 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
+/**
+ * Configura la seguridad HTTP y los componentes basicos de autenticacion.
+ */
 @Configuration
 @EnableWebSecurity
 @RequiredArgsConstructor
@@ -21,6 +24,13 @@ public class SecurityConfig {
 
     private final JwtAuthenticationFilter jwtAuthenticationFilter;
 
+    /**
+     * Define la cadena de filtros y reglas de acceso.
+     *
+     * @param http configuracion HTTP de Spring Security.
+     * @return cadena de filtros de seguridad.
+     * @throws Exception si la configuracion falla.
+     */
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http
@@ -36,11 +46,23 @@ public class SecurityConfig {
         return http.build();
     }
 
+    /**
+     * Expone el AuthenticationManager de Spring Security.
+     *
+     * @param config configuracion de autenticacion.
+     * @return manager de autenticacion.
+     * @throws Exception si no puede resolverse.
+     */
     @Bean
     public AuthenticationManager authenticationManager(AuthenticationConfiguration config) throws Exception {
         return config.getAuthenticationManager();
     }
 
+    /**
+     * Configura el encoder de contrasenas usado por el servicio.
+     *
+     * @return encoder BCrypt.
+     */
     @Bean
     public PasswordEncoder passwordEncoder() {
         return new BCryptPasswordEncoder();

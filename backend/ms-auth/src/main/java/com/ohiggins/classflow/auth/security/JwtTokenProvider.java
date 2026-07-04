@@ -11,6 +11,9 @@ import org.springframework.stereotype.Component;
 import java.security.Key;
 import java.util.Date;
 
+/**
+ * Genera y valida tokens JWT para autenticacion.
+ */
 @Component
 @Slf4j
 public class JwtTokenProvider {
@@ -23,11 +26,20 @@ public class JwtTokenProvider {
 
     private Key key;
 
+    /**
+     * Inicializa la clave de firma a partir del secreto configurado.
+     */
     @PostConstruct
     public void init() {
         this.key = Keys.hmacShaKeyFor(jwtSecret.getBytes());
     }
 
+    /**
+     * Genera un JWT para el usuario autenticado.
+     *
+     * @param authentication autenticacion resuelta por Spring Security.
+     * @return token JWT firmado.
+     */
     public String generateToken(Authentication authentication) {
         UserDetails userDetails = (UserDetails) authentication.getPrincipal();
         Date now = new Date();
@@ -41,6 +53,12 @@ public class JwtTokenProvider {
                 .compact();
     }
 
+    /**
+     * Extrae el correo electronico desde un token JWT.
+     *
+     * @param token token JWT.
+     * @return correo electronico del sujeto.
+     */
     public String getEmailFromToken(String token) {
         return Jwts.parserBuilder()
                 .setSigningKey(key)
@@ -50,6 +68,12 @@ public class JwtTokenProvider {
                 .getSubject();
     }
 
+    /**
+     * Valida la firma y expiracion de un token JWT.
+     *
+     * @param token token JWT.
+     * @return true si el token es valido.
+     */
     public boolean validateToken(String token) {
         try {
             Jwts.parserBuilder().setSigningKey(key).build().parseClaimsJws(token);

@@ -10,6 +10,9 @@ import org.springframework.stereotype.Service;
 import java.util.List;
 import java.util.stream.Collectors;
 
+/**
+ * Contiene la logica de negocio para la gestion de asignaturas.
+ */
 @Service
 @RequiredArgsConstructor
 public class SubjectService {
@@ -17,24 +20,47 @@ public class SubjectService {
     private final SubjectRepository subjectRepository;
     private final CourseRepository courseRepository;
     
+    /**
+     * Obtiene todas las asignaturas disponibles.
+     *
+     * @return lista de asignaturas convertidas a DTO.
+     */
     public List<SubjectDTO> findAll() {
         return subjectRepository.findAllWithCourse().stream()
                 .map(this::convertToDTO)
                 .collect(Collectors.toList());
     }
     
+    /**
+     * Obtiene las asignaturas pertenecientes a un curso.
+     *
+     * @param courseId identificador del curso.
+     * @return lista de asignaturas convertidas a DTO.
+     */
     public List<SubjectDTO> findByCourseId(Long courseId) {
         return subjectRepository.findByCourseId(courseId).stream()
                 .map(this::convertToDTO)
                 .collect(Collectors.toList());
     }
     
+    /**
+     * Busca una asignatura por su identificador.
+     *
+     * @param id identificador de la asignatura.
+     * @return asignatura encontrada convertida a DTO.
+     */
     public SubjectDTO findById(Long id) {
         Subject subject = subjectRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Subject not found"));
         return convertToDTO(subject);
     }
     
+    /**
+     * Crea una nueva asignatura asociada a un curso.
+     *
+     * @param dto datos de la asignatura a crear.
+     * @return asignatura guardada convertida a DTO.
+     */
     public SubjectDTO create(SubjectDTO dto) {
         Course course = courseRepository.findById(dto.getCourseId())
                 .orElseThrow(() -> new RuntimeException("Course not found"));
@@ -49,6 +75,13 @@ public class SubjectService {
         return convertToDTO(saved);
     }
     
+    /**
+     * Actualiza los datos de una asignatura existente.
+     *
+     * @param id identificador de la asignatura.
+     * @param dto datos actualizados de la asignatura.
+     * @return asignatura actualizada convertida a DTO.
+     */
     public SubjectDTO update(Long id, SubjectDTO dto) {
         Subject subject = subjectRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Subject not found"));
@@ -66,6 +99,11 @@ public class SubjectService {
         return convertToDTO(updated);
     }
     
+    /**
+     * Desactiva una asignatura existente.
+     *
+     * @param id identificador de la asignatura.
+     */
     public void delete(Long id) {
         Subject subject = subjectRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Subject not found"));

@@ -13,10 +13,18 @@ import org.springframework.context.annotation.Configuration;
 
 import java.util.List;
 
+/**
+ * Define la documentacion OpenAPI del API Gateway.
+ */
 @Configuration
 public class SwaggerConfig {
 
-    @Bean
+        /**
+         * Construye la configuracion OpenAPI del gateway.
+         *
+         * @return configuracion OpenAPI lista para Swagger UI.
+         */
+        @Bean
     public OpenAPI openAPI() {
         return new OpenAPI()
                 .info(new Info()

@@ -5,6 +5,9 @@ import lombok.Builder;
 import lombok.Data;
 import java.time.LocalDateTime;
 
+/**
+ * Representa la estructura estandar de errores del BFF.
+ */
 @Data
 @Builder
 @AllArgsConstructor

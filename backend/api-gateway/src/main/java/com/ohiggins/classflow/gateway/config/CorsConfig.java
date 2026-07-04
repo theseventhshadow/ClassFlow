@@ -6,20 +6,28 @@ import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.reactive.CorsWebFilter;
 import org.springframework.web.cors.reactive.UrlBasedCorsConfigurationSource;
 
+/**
+ * Configura las politicas CORS del API Gateway.
+ */
 @Configuration
 public class CorsConfig {
 
+    /**
+     * Registra el filtro CORS para permitir peticiones al gateway.
+     *
+     * @return filtro CORS configurado.
+     */
     @Bean
-public CorsWebFilter corsWebFilter() {
-    CorsConfiguration corsConfig = new CorsConfiguration();
-    corsConfig.addAllowedOriginPattern("*");
-    corsConfig.addAllowedMethod("*");
-    corsConfig.addAllowedHeader("*");
-    corsConfig.setExposedHeaders(java.util.List.of("Authorization"));
+    public CorsWebFilter corsWebFilter() {
+        CorsConfiguration corsConfig = new CorsConfiguration();
+        corsConfig.addAllowedOriginPattern("*");
+        corsConfig.addAllowedMethod("*");
+        corsConfig.addAllowedHeader("*");
+        corsConfig.setExposedHeaders(java.util.List.of("Authorization"));
 
-    UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
-    source.registerCorsConfiguration("/**", corsConfig);
+        UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
+        source.registerCorsConfiguration("/**", corsConfig);
 
-    return new CorsWebFilter(source);
-}
+        return new CorsWebFilter(source);
+    }
 }

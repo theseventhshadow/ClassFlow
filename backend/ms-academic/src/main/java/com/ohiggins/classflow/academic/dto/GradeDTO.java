@@ -3,6 +3,9 @@ package com.ohiggins.classflow.academic.dto;
 import lombok.Builder;
 import lombok.Data;
 
+/**
+ * Representa una calificacion de estudiante.
+ */
 @Data
 @Builder
 public class GradeDTO {

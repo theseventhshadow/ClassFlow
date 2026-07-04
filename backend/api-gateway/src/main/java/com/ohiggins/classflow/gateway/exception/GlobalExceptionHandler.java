@@ -7,9 +7,19 @@ import org.springframework.web.bind.annotation.RestControllerAdvice;
 import org.springframework.web.server.ServerWebExchange;
 import java.time.LocalDateTime;
 
+/**
+ * Intercepta excepciones no controladas y responde con un formato uniforme.
+ */
 @RestControllerAdvice
 public class GlobalExceptionHandler {
 
+    /**
+     * Maneja errores de negocio o validacion representados como RuntimeException.
+     *
+     * @param ex excepcion capturada.
+     * @param exchange contexto de la peticion en curso.
+     * @return respuesta HTTP 400 con el detalle del error.
+     */
     @ExceptionHandler(RuntimeException.class)
     public ResponseEntity<ErrorResponse> handleRuntimeException(RuntimeException ex, ServerWebExchange exchange) {
         ErrorResponse error = ErrorResponse.builder()
@@ -22,6 +32,13 @@ public class GlobalExceptionHandler {
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(error);
     }
 
+    /**
+     * Maneja excepciones no previstas y devuelve un error generico.
+     *
+     * @param ex excepcion capturada.
+     * @param exchange contexto de la peticion en curso.
+     * @return respuesta HTTP 500 con el detalle del error.
+     */
     @ExceptionHandler(Exception.class)
     public ResponseEntity<ErrorResponse> handleGenericException(Exception ex, ServerWebExchange exchange) {
         ErrorResponse error = ErrorResponse.builder()

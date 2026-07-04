@@ -11,9 +11,18 @@ import java.time.LocalDateTime;
 import java.util.HashMap;
 import java.util.Map;
 
+/**
+ * Convierte errores del BFF en respuestas uniformes para el frontend.
+ */
 @RestControllerAdvice
 public class GlobalExceptionHandler {
 
+    /**
+     * Convierte errores de validacion en un mapa campo-error.
+     *
+     * @param ex excepcion capturada.
+     * @return respuesta HTTP 400 con los errores por campo.
+     */
     @ExceptionHandler(MethodArgumentNotValidException.class)
     public ResponseEntity<Map<String, String>> handleValidationExceptions(MethodArgumentNotValidException ex) {
         Map<String, String> errors = new HashMap<>();
@@ -25,6 +34,13 @@ public class GlobalExceptionHandler {
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(errors);
     }
 
+    /**
+     * Convierte excepciones de negocio o de flujo en un error estandar.
+     *
+     * @param ex excepcion capturada.
+     * @param exchange contexto de la peticion en curso.
+     * @return respuesta HTTP 400 con el detalle del error.
+     */
     @ExceptionHandler(RuntimeException.class)
     public ResponseEntity<ErrorResponse> handleRuntimeException(RuntimeException ex, ServerWebExchange exchange) {
         ErrorResponse error = ErrorResponse.builder()
@@ -37,6 +53,13 @@ public class GlobalExceptionHandler {
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(error);
     }
 
+    /**
+     * Convierte excepciones inesperadas en un error estandar.
+     *
+     * @param ex excepcion capturada.
+     * @param exchange contexto de la peticion en curso.
+     * @return respuesta HTTP 500 con el detalle del error.
+     */
     @ExceptionHandler(Exception.class)
     public ResponseEntity<ErrorResponse> handleGenericException(Exception ex, ServerWebExchange exchange) {
         ErrorResponse error = ErrorResponse.builder()

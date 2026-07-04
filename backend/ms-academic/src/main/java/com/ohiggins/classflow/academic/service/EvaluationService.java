@@ -10,6 +10,9 @@ import org.springframework.stereotype.Service;
 import java.util.List;
 import java.util.stream.Collectors;
 
+/**
+ * Contiene la logica de negocio para la gestion de evaluaciones.
+ */
 @Service
 @RequiredArgsConstructor
 public class EvaluationService {
@@ -17,24 +20,47 @@ public class EvaluationService {
     private final EvaluationRepository evaluationRepository;
     private final SubjectRepository subjectRepository;
     
+    /**
+     * Obtiene todas las evaluaciones con sus relaciones.
+     *
+     * @return lista de evaluaciones convertidas a DTO.
+     */
     public List<EvaluationDTO> findAll() {
         return evaluationRepository.findAllWithDetails().stream()
                 .map(this::convertToDTO)
                 .collect(Collectors.toList());
     }
     
+    /**
+     * Obtiene las evaluaciones de una asignatura.
+     *
+     * @param subjectId identificador de la asignatura.
+     * @return lista de evaluaciones convertidas a DTO.
+     */
     public List<EvaluationDTO> findBySubjectId(Long subjectId) {
         return evaluationRepository.findBySubjectId(subjectId).stream()
                 .map(this::convertToDTO)
                 .collect(Collectors.toList());
     }
     
+    /**
+     * Busca una evaluacion por su identificador.
+     *
+     * @param id identificador de la evaluacion.
+     * @return evaluacion encontrada convertida a DTO.
+     */
     public EvaluationDTO findById(Long id) {
         Evaluation evaluation = evaluationRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Evaluation not found"));
         return convertToDTO(evaluation);
     }
     
+    /**
+     * Crea una nueva evaluacion asociada a una asignatura.
+     *
+     * @param dto datos de la evaluacion a crear.
+     * @return evaluacion guardada convertida a DTO.
+     */
     public EvaluationDTO create(EvaluationDTO dto) {
         Subject subject = subjectRepository.findById(dto.getSubjectId())
                 .orElseThrow(() -> new RuntimeException("Subject not found"));
@@ -51,6 +77,13 @@ public class EvaluationService {
         return convertToDTO(saved);
     }
     
+    /**
+     * Actualiza una evaluacion existente.
+     *
+     * @param id identificador de la evaluacion.
+     * @param dto datos actualizados de la evaluacion.
+     * @return evaluacion actualizada convertida a DTO.
+     */
     public EvaluationDTO update(Long id, EvaluationDTO dto) {
         Evaluation evaluation = evaluationRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Evaluation not found"));
@@ -71,6 +104,11 @@ public class EvaluationService {
         return convertToDTO(updated);
     }
     
+    /**
+     * Elimina una evaluacion por su identificador.
+     *
+     * @param id identificador de la evaluacion.
+     */
     public void delete(Long id) {
         evaluationRepository.deleteById(id);
     }

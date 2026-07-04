@@ -5,6 +5,9 @@ import lombok.Builder;
 import lombok.Data;
 import java.time.LocalDateTime;
 
+/**
+ * Representa un mensaje privado entre usuarios.
+ */
 @Data
 @Builder
 @Schema(description = "Mensaje privado entre usuarios")

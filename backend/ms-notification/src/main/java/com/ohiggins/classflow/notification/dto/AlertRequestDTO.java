@@ -5,6 +5,9 @@ import jakarta.validation.constraints.NotBlank;
 import lombok.Data;
 import com.ohiggins.classflow.notification.enums.NotificationType;
 
+/**
+ * Datos de entrada para crear o enviar una alerta.
+ */
 @Data
 public class AlertRequestDTO {
     @NotNull
@@ -19,5 +22,5 @@ public class AlertRequestDTO {
     @NotBlank
     private String content;
 
-    private String userEmail; // opcional: para enviar también por email
+    private String userEmail;
 }

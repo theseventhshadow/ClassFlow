@@ -13,9 +13,17 @@ import org.springframework.context.annotation.Configuration;
 
 import java.util.List;
 
+/**
+ * Define la documentacion OpenAPI del BFF.
+ */
 @Configuration
 public class SwaggerConfig {
 
+        /**
+         * Construye la configuracion OpenAPI del BFF.
+         *
+         * @return configuracion OpenAPI lista para Swagger UI.
+         */
     @Bean
     public OpenAPI openAPI() {
         return new OpenAPI()

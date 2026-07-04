@@ -16,6 +16,9 @@ import org.springframework.web.bind.annotation.*;
 import java.time.LocalDate;
 import java.util.List;
 
+/**
+ * Expone los endpoints REST para gestionar asistencia diaria.
+ */
 @RestController
 @RequestMapping("/api/attendance")
 @RequiredArgsConstructor
@@ -24,6 +27,11 @@ public class AttendanceController {
 
     private final AttendanceService attendanceService;
 
+    /**
+     * Obtiene el listado completo de registros de asistencia.
+     *
+     * @return respuesta HTTP con la lista de asistencias.
+     */
     @GetMapping
     @Operation(summary = "Listar todos los registros de asistencia")
     @ApiResponse(responseCode = "200", description = "Lista de asistencias")
@@ -31,6 +39,12 @@ public class AttendanceController {
         return ResponseEntity.ok(attendanceService.findAll());
     }
 
+    /**
+     * Obtiene la asistencia de un estudiante.
+     *
+     * @param studentId identificador del estudiante.
+     * @return respuesta HTTP con los registros del estudiante.
+     */
     @GetMapping("/student/{studentId}")
     @Operation(summary = "Asistencia por estudiante")
     @ApiResponse(responseCode = "200", description = "Registros del estudiante")
@@ -38,6 +52,13 @@ public class AttendanceController {
         return ResponseEntity.ok(attendanceService.findByStudentId(studentId));
     }
 
+    /**
+     * Obtiene la asistencia de un curso en una fecha concreta.
+     *
+     * @param courseId identificador del curso.
+     * @param date fecha de consulta.
+     * @return respuesta HTTP con los registros filtrados.
+     */
     @GetMapping("/course/{courseId}/date/{date}")
     @Operation(summary = "Asistencia por curso y fecha")
     @ApiResponse(responseCode = "200", description = "Registros del curso en la fecha indicada")
@@ -47,6 +68,12 @@ public class AttendanceController {
         return ResponseEntity.ok(attendanceService.findByCourseAndDate(courseId, date));
     }
 
+    /**
+     * Registra un nuevo evento de asistencia.
+     *
+     * @param request datos de la asistencia a registrar.
+     * @return respuesta HTTP con la asistencia creada.
+     */
     @PostMapping("/register")
     @Operation(summary = "Registrar asistencia")
     @ApiResponses({
@@ -57,6 +84,13 @@ public class AttendanceController {
         return new ResponseEntity<>(attendanceService.register(request), HttpStatus.CREATED);
     }
 
+    /**
+     * Actualiza un registro de asistencia.
+     *
+     * @param id identificador del registro.
+     * @param request datos actualizados de la asistencia.
+     * @return respuesta HTTP con la asistencia actualizada.
+     */
     @PutMapping("/{id}")
     @Operation(summary = "Actualizar registro de asistencia")
     @ApiResponses({

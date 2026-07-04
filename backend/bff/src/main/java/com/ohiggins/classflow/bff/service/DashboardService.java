@@ -23,6 +23,9 @@ import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+/**
+ * Agrega y transforma datos provenientes de los microservicios para el dashboard.
+ */
 @Service
 public class DashboardService {
 
@@ -47,6 +50,12 @@ public class DashboardService {
         this.notificationWebClient = notificationWebClient;
     }
 
+    /**
+     * Construye el dashboard consolidado para un usuario.
+     *
+     * @param userId identificador del usuario.
+     * @return dashboard enriquecido con datos de los servicios remotos.
+     */
     @SuppressWarnings("unchecked")
     public Mono<DashboardResponse> getDashboard(Long userId) {
         Mono<JsonNode> userMono = fetchObject(authWebClient, "/api/auth/users/{userId}", userId);
