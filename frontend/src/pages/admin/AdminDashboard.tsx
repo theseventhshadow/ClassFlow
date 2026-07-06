@@ -3,18 +3,18 @@ import { useNavigate } from 'react-router-dom';
 import { useAuth } from '@context';
 import { Loading, Error as ErrorState } from '@components/common';
 import { useDashboardData } from '@hooks';
-import { UserRole, authService, courseService } from '@services';
+import { type UserRole } from '@services';
 import { humanizeRole } from '@utils';
+import {
+  createAdminCourse,
+  registerAdminUser,
+  validateCreateCourseForm,
+  validateCreateUserForm,
+  type CreateCourseFormState,
+  type CreateUserFormState,
+  type DashboardUserRow,
+} from '../../application/admin-dashboard';
 import './AdminDashboard.css';
-
-type TableUser = {
-  name: string;
-  rol: string;
-  rolClass: string;
-  estado: string;
-  estadoClass: string;
-  acceso: string;
-};
 
 const ROL_LABEL: Record<UserRole, string> = {
   ADMINISTRATOR: 'Administrador',
@@ -85,11 +85,11 @@ export const AdminDashboard: React.FC = () => {
   const [showLogoutModal, setShowLogoutModal] = useState(false);
   const [form, setForm] = useState<FormState>(EMPTY_FORM);
   const [formError, setFormError] = useState<string | null>(null);
-  const [localUsers, setLocalUsers] = useState<TableUser[]>([]);
+  const [localUsers, setLocalUsers] = useState<DashboardUserRow[]>([]);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isCreatingCourse, setIsCreatingCourse] = useState(false);
 
-  const [courseForm, setCourseForm] = useState<{ name: string; description: string; academicYear: string }>({
+  const [courseForm, setCourseForm] = useState<CreateCourseFormState>({
     name: '',
     description: '',
     academicYear: '',
@@ -142,30 +142,13 @@ export const AdminDashboard: React.FC = () => {
     const { name, value } = e.target as HTMLInputElement;
     setCourseForm((prev) => ({ ...prev, [name]: value }));
   };
-  const mapRoleToBackend = (role: UserRole): string => role;
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
-    if (!form.nombres.trim() || !form.apellidos.trim() || !form.email.trim() || !form.password.trim() || !form.idNumber.trim()) {
-      setFormError('Todos los campos son obligatorios.');
-      return;
-    }
-
-    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    if (!emailRegex.test(form.email)) {
-      setFormError('Ingresa un correo electrónico válido.');
-      return;
-    }
-
-    if (form.password.length < 6) {
-      setFormError('La contraseña debe tener al menos 6 caracteres.');
-      return;
-    }
-
-    const rutRegex = /^\d{1,2}\.\d{3}\.\d{3}-[0-9kK]$/;
-    if (!rutRegex.test(form.idNumber)) {
-      setFormError('El RUT debe tener formato: 12.345.678-9');
+    const validationError = validateCreateUserForm(form as CreateUserFormState);
+    if (validationError) {
+      setFormError(validationError);
       return;
     }
 
@@ -173,18 +156,9 @@ export const AdminDashboard: React.FC = () => {
     setFormError(null);
 
     try {
-      const backendRole = mapRoleToBackend(form.rol);
+      await registerAdminUser(form as CreateUserFormState);
 
-      await authService.register({
-        firstName: form.nombres.trim(),
-        lastName: form.apellidos.trim(),
-        idNumber: form.idNumber.trim(),
-        email: form.email.trim(),
-        password: form.password,
-        role: backendRole,
-      });
-
-      const newUser: TableUser = {
+      const newUser: DashboardUserRow = {
         name: `${form.nombres.trim()} ${form.apellidos.trim()}`,
         rol: ROL_LABEL[form.rol],
         rolClass: ROL_CLASS[form.rol],
@@ -207,14 +181,9 @@ export const AdminDashboard: React.FC = () => {
   const handleCreateCourse = async (e: React.FormEvent) => {
     e.preventDefault();
 
-    if (!courseForm.name.trim() || !courseForm.academicYear.trim()) {
-      setCourseFormError('Nombre y año académico son obligatorios.');
-      return;
-    }
-
-    const year = Number(courseForm.academicYear);
-    if (!Number.isInteger(year) || year < 2000 || year > 2100) {
-      setCourseFormError('Año académico inválido.');
+    const validationError = validateCreateCourseForm(courseForm);
+    if (validationError) {
+      setCourseFormError(validationError);
       return;
     }
 
@@ -222,11 +191,7 @@ export const AdminDashboard: React.FC = () => {
     setCourseFormError(null);
 
     try {
-      await courseService.createCourse({
-        name: courseForm.name.trim(),
-        description: courseForm.description.trim() || undefined,
-        academicYear: year,
-      });
+      await createAdminCourse(courseForm);
 
       setShowCourseModal(false);
       await refetch();
