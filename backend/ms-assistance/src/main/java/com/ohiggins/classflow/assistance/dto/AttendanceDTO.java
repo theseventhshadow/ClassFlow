@@ -5,6 +5,9 @@ import lombok.Builder;
 import lombok.Data;
 import java.time.LocalDate;
 
+/**
+ * Representa un registro de asistencia de un estudiante.
+ */
 @Data
 @Builder
 @Schema(description = "Registro de asistencia de un estudiante")

@@ -5,6 +5,9 @@ import lombok.Builder;
 import lombok.Data;
 import java.time.LocalDateTime;
 
+/**
+ * Representa una anotacion conductual de un estudiante.
+ */
 @Data
 @Builder
 @Schema(description = "Anotación conductual de un estudiante")

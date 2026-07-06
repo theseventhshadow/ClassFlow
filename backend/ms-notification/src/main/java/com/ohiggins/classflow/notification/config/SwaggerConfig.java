@@ -13,9 +13,17 @@ import org.springframework.context.annotation.Configuration;
 
 import java.util.List;
 
+/**
+ * Define la documentacion OpenAPI del servicio de notificaciones.
+ */
 @Configuration
 public class SwaggerConfig {
 
+        /**
+         * Construye la configuracion OpenAPI del servicio de notificaciones.
+         *
+         * @return configuracion OpenAPI lista para Swagger UI.
+         */
     @Bean
     public OpenAPI openAPI() {
         return new OpenAPI()

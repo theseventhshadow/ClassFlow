@@ -13,6 +13,9 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import reactor.core.publisher.Mono;
 
+/**
+ * Expone los endpoints agregados del dashboard para el frontend.
+ */
 @RestController
 @RequestMapping("/api/bff")
 @Tag(name = "Dashboard BFF", description = "Endpoints agregados que consolidan datos de todos los microservicios para el frontend")
@@ -24,6 +27,12 @@ public class DashboardController {
         this.dashboardService = dashboardService;
     }
 
+    /**
+     * Obtiene el dashboard completo para un usuario.
+     *
+     * @param userId identificador del usuario.
+     * @return respuesta HTTP con el dashboard consolidado.
+     */
     @GetMapping("/dashboard/{userId}")
     @Operation(summary = "Dashboard completo del usuario", description = "Retorna cursos, notas, asistencias, mensajes, anotaciones y notificaciones del usuario")
     @ApiResponse(responseCode = "200", description = "Datos del dashboard")

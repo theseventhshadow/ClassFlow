@@ -13,6 +13,9 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
+/**
+ * Expone los endpoints REST para gestionar calificaciones.
+ */
 @RestController
 @RequestMapping("/api/grades")
 @RequiredArgsConstructor
@@ -21,6 +24,11 @@ public class GradeController {
 
     private final GradeService gradeService;
 
+    /**
+     * Obtiene el listado completo de calificaciones.
+     *
+     * @return respuesta HTTP con la lista de calificaciones.
+     */
     @GetMapping
     @Operation(summary = "Listar todas las notas")
     @ApiResponse(responseCode = "200", description = "Lista de notas")
@@ -28,6 +36,12 @@ public class GradeController {
         return ResponseEntity.ok(gradeService.findAll());
     }
 
+    /**
+     * Obtiene las calificaciones de un estudiante.
+     *
+     * @param studentId identificador del estudiante.
+     * @return respuesta HTTP con las calificaciones del estudiante.
+     */
     @GetMapping("/student/{studentId}")
     @Operation(summary = "Notas por estudiante")
     @ApiResponse(responseCode = "200", description = "Notas del estudiante")
@@ -35,6 +49,12 @@ public class GradeController {
         return ResponseEntity.ok(gradeService.findByStudentId(studentId));
     }
 
+    /**
+     * Obtiene las calificaciones de una evaluacion.
+     *
+     * @param evaluationId identificador de la evaluacion.
+     * @return respuesta HTTP con las calificaciones de la evaluacion.
+     */
     @GetMapping("/evaluation/{evaluationId}")
     @Operation(summary = "Notas por evaluación")
     @ApiResponse(responseCode = "200", description = "Notas de la evaluación")
@@ -42,6 +62,12 @@ public class GradeController {
         return ResponseEntity.ok(gradeService.findByEvaluationId(evaluationId));
     }
 
+    /**
+     * Obtiene una calificacion por su identificador.
+     *
+     * @param id identificador de la calificacion.
+     * @return respuesta HTTP con la calificacion encontrada.
+     */
     @GetMapping("/{id}")
     @Operation(summary = "Obtener nota por ID")
     @ApiResponses({
@@ -52,6 +78,12 @@ public class GradeController {
         return ResponseEntity.ok(gradeService.findById(id));
     }
 
+    /**
+     * Registra una nueva calificacion.
+     *
+     * @param dto datos de la calificacion a crear.
+     * @return respuesta HTTP con la calificacion registrada.
+     */
     @PostMapping
     @Operation(summary = "Registrar nota")
     @ApiResponses({
@@ -62,6 +94,13 @@ public class GradeController {
         return new ResponseEntity<>(gradeService.create(dto), HttpStatus.CREATED);
     }
 
+    /**
+     * Actualiza una calificacion existente.
+     *
+     * @param id identificador de la calificacion.
+     * @param dto datos actualizados de la calificacion.
+     * @return respuesta HTTP con la calificacion actualizada.
+     */
     @PutMapping("/{id}")
     @Operation(summary = "Actualizar nota")
     @ApiResponses({
@@ -72,6 +111,12 @@ public class GradeController {
         return ResponseEntity.ok(gradeService.update(id, dto));
     }
 
+    /**
+     * Elimina una calificacion por su identificador.
+     *
+     * @param id identificador de la calificacion.
+     * @return respuesta HTTP sin contenido.
+     */
     @DeleteMapping("/{id}")
     @Operation(summary = "Eliminar nota")
     @ApiResponses({

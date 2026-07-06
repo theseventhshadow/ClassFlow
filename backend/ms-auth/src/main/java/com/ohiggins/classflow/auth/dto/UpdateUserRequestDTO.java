@@ -4,6 +4,9 @@ import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
 import lombok.Data;
 
+/**
+ * Datos de entrada para actualizar un usuario.
+ */
 @Data
 public class UpdateUserRequestDTO {
     @NotBlank(message = "First name is required")

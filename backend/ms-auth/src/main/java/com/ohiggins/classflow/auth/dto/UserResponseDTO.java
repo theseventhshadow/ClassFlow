@@ -4,6 +4,9 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Builder;
 import lombok.Data;
 
+/**
+ * Representa la informacion de usuario que expone el servicio de autenticacion.
+ */
 @Data
 @Builder
 @Schema(description = "Datos del usuario")

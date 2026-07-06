@@ -13,6 +13,9 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
+/**
+ * Expone los endpoints REST para gestionar asignaturas.
+ */
 @RestController
 @RequestMapping("/api/subjects")
 @RequiredArgsConstructor
@@ -21,6 +24,11 @@ public class SubjectController {
 
     private final SubjectService subjectService;
 
+    /**
+     * Obtiene el listado completo de asignaturas.
+     *
+     * @return respuesta HTTP con la lista de asignaturas.
+     */
     @GetMapping
     @Operation(summary = "Listar todas las asignaturas")
     @ApiResponse(responseCode = "200", description = "Lista de asignaturas")
@@ -28,6 +36,12 @@ public class SubjectController {
         return ResponseEntity.ok(subjectService.findAll());
     }
 
+    /**
+     * Obtiene las asignaturas de un curso.
+     *
+     * @param courseId identificador del curso.
+     * @return respuesta HTTP con las asignaturas del curso.
+     */
     @GetMapping("/course/{courseId}")
     @Operation(summary = "Listar asignaturas por curso")
     @ApiResponse(responseCode = "200", description = "Asignaturas del curso")
@@ -35,6 +49,12 @@ public class SubjectController {
         return ResponseEntity.ok(subjectService.findByCourseId(courseId));
     }
 
+    /**
+     * Obtiene una asignatura por su identificador.
+     *
+     * @param id identificador de la asignatura.
+     * @return respuesta HTTP con la asignatura encontrada.
+     */
     @GetMapping("/{id}")
     @Operation(summary = "Obtener asignatura por ID")
     @ApiResponses({
@@ -45,6 +65,12 @@ public class SubjectController {
         return ResponseEntity.ok(subjectService.findById(id));
     }
 
+    /**
+     * Crea una nueva asignatura.
+     *
+     * @param dto datos de la asignatura a crear.
+     * @return respuesta HTTP con la asignatura creada.
+     */
     @PostMapping
     @Operation(summary = "Crear asignatura")
     @ApiResponses({
@@ -55,6 +81,13 @@ public class SubjectController {
         return new ResponseEntity<>(subjectService.create(dto), HttpStatus.CREATED);
     }
 
+    /**
+     * Actualiza una asignatura existente.
+     *
+     * @param id identificador de la asignatura.
+     * @param dto datos actualizados de la asignatura.
+     * @return respuesta HTTP con la asignatura actualizada.
+     */
     @PutMapping("/{id}")
     @Operation(summary = "Actualizar asignatura")
     @ApiResponses({
@@ -65,6 +98,12 @@ public class SubjectController {
         return ResponseEntity.ok(subjectService.update(id, dto));
     }
 
+    /**
+     * Desactiva una asignatura por su identificador.
+     *
+     * @param id identificador de la asignatura.
+     * @return respuesta HTTP sin contenido.
+     */
     @DeleteMapping("/{id}")
     @Operation(summary = "Eliminar asignatura")
     @ApiResponses({

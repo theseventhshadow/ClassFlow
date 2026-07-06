@@ -13,6 +13,9 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
+/**
+ * Expone los endpoints REST para gestionar cursos academicos.
+ */
 @RestController
 @RequestMapping("/api/courses")
 @RequiredArgsConstructor
@@ -21,6 +24,11 @@ public class CourseController {
 
     private final CourseService courseService;
 
+    /**
+     * Obtiene el listado completo de cursos.
+     *
+     * @return respuesta HTTP con la lista de cursos.
+     */
     @GetMapping
     @Operation(summary = "Listar todos los cursos")
     @ApiResponse(responseCode = "200", description = "Lista de cursos")
@@ -28,6 +36,12 @@ public class CourseController {
         return ResponseEntity.ok(courseService.findAll());
     }
 
+    /**
+     * Obtiene un curso por su identificador.
+     *
+     * @param id identificador del curso.
+     * @return respuesta HTTP con el curso encontrado.
+     */
     @GetMapping("/{id}")
     @Operation(summary = "Obtener curso por ID")
     @ApiResponses({
@@ -38,6 +52,12 @@ public class CourseController {
         return ResponseEntity.ok(courseService.findById(id));
     }
 
+    /**
+     * Crea un nuevo curso.
+     *
+     * @param dto datos del curso a crear.
+     * @return respuesta HTTP con el curso creado.
+     */
     @PostMapping
     @Operation(summary = "Crear curso")
     @ApiResponses({
@@ -48,6 +68,13 @@ public class CourseController {
         return new ResponseEntity<>(courseService.create(dto), HttpStatus.CREATED);
     }
 
+    /**
+     * Actualiza un curso existente.
+     *
+     * @param id identificador del curso.
+     * @param dto datos actualizados del curso.
+     * @return respuesta HTTP con el curso actualizado.
+     */
     @PutMapping("/{id}")
     @Operation(summary = "Actualizar curso")
     @ApiResponses({
@@ -58,6 +85,12 @@ public class CourseController {
         return ResponseEntity.ok(courseService.update(id, dto));
     }
 
+    /**
+     * Desactiva un curso por su identificador.
+     *
+     * @param id identificador del curso.
+     * @return respuesta HTTP sin contenido.
+     */
     @DeleteMapping("/{id}")
     @Operation(summary = "Eliminar curso")
     @ApiResponses({

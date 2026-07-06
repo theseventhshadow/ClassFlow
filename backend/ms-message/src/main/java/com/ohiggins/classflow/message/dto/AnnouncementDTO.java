@@ -4,6 +4,9 @@ import lombok.Builder;
 import lombok.Data;
 import java.time.LocalDateTime;
 
+/**
+ * Representa un anuncio publicado en el sistema.
+ */
 @Data
 @Builder
 public class AnnouncementDTO {

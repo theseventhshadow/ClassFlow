@@ -5,6 +5,9 @@ import lombok.Data;
 import com.ohiggins.classflow.notification.enums.NotificationType;
 import java.time.LocalDateTime;
 
+/**
+ * Representa una notificacion del sistema.
+ */
 @Data
 @Schema(description = "Respuesta de una notificación del sistema")
 public class NotificationResponseDTO {

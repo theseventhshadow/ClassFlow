@@ -3,8 +3,17 @@ package com.ohiggins.classflow.gateway;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 
+/**
+ * Punto de entrada del API Gateway de ClassFlow.
+ */
 @SpringBootApplication
 public class GatewayServiceApplication {
+
+    /**
+     * Arranca la aplicacion del gateway y muestra el mapa de enrutamiento.
+     *
+     * @param args argumentos de linea de comandos.
+     */
     public static void main(String[] args) {
         SpringApplication.run(GatewayServiceApplication.class, args);
         System.out.println("=== API GATEWAY ===");
