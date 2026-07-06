@@ -157,6 +157,10 @@ src/
 │   ├── AuthContext.tsx        # Contexto de autenticación y sesión
 │   ├── ThemeContext.tsx       # Contexto de tema visual
 │   └── index.ts
+├── application/
+│   └── admin-dashboard.ts     # Casos de uso y orquestación del panel administrativo
+├── domain/
+│   └── admin-dashboard.ts     # Reglas puras y mapeos del dashboard
 ├── hooks/
 │   ├── useAsync.ts            # Manejo genérico de operaciones asíncronas
 │   ├── useFetch.ts            # Abstracción de peticiones HTTP con estado de carga
@@ -187,6 +191,8 @@ src/
 ├── main.tsx                   # Entry point de la aplicación
 └── vite-env.d.ts              # Declaraciones de tipos para variables de entorno Vite
 ```
+
+La organización sigue una separación por capas ligera: `pages` y `hooks` quedan en presentación, `application` concentra casos de uso y `domain` reúne lógica pura sin acceso a la red. El dashboard administrativo ya está dividido con ese criterio.
 
 ---
 
