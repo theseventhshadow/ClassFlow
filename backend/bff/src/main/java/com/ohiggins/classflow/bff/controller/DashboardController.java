@@ -9,6 +9,7 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import reactor.core.publisher.Mono;
@@ -36,8 +37,10 @@ public class DashboardController {
     @GetMapping("/dashboard/{userId}")
     @Operation(summary = "Dashboard completo del usuario", description = "Retorna cursos, notas, asistencias, mensajes, anotaciones y notificaciones del usuario")
     @ApiResponse(responseCode = "200", description = "Datos del dashboard")
-    public Mono<ResponseEntity<DashboardResponse>> getDashboard(@PathVariable Long userId) {
-        return dashboardService.getDashboard(userId)
+    public Mono<ResponseEntity<DashboardResponse>> getDashboard(
+            @PathVariable Long userId,
+            @RequestHeader("Authorization") String authorization) {
+        return dashboardService.getDashboard(userId, authorization)
                 .map(ResponseEntity::ok);
     }
 }

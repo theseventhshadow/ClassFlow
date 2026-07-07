@@ -2,6 +2,7 @@ package com.ohiggins.classflow.auth.controller;
 
 import com.ohiggins.classflow.auth.dto.*;
 import com.ohiggins.classflow.auth.service.AuthService;
+import com.ohiggins.classflow.auth.service.PasswordResetService;
 import com.ohiggins.classflow.auth.service.UserService;
 import com.ohiggins.classflow.auth.security.JwtTokenProvider;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -48,6 +49,9 @@ class AuthControllerTest {
 
     @MockitoBean
     private JwtTokenProvider jwtTokenProvider;
+
+    @MockitoBean
+    private PasswordResetService passwordResetService;
 
     private LoginResponseDTO loginResponseDTO;
     private UserResponseDTO userResponseDTO;

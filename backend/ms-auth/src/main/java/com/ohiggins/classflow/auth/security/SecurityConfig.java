@@ -23,6 +23,13 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 @RequiredArgsConstructor
 public class SecurityConfig {
 
+    /** Endpoints POST de autenticacion accesibles sin token, porque el usuario aun no tiene uno en ese punto. */
+    private static final String[] PUBLIC_AUTH_POST_ENDPOINTS = {
+        "/api/auth/login",
+        "/api/auth/forgot-password",
+        "/api/auth/reset-password"
+    };
+
     private final JwtAuthenticationFilter jwtAuthenticationFilter;
 
     /**
@@ -38,7 +45,7 @@ public class SecurityConfig {
             .csrf(AbstractHttpConfigurer::disable)
             .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
             .authorizeHttpRequests(auth -> auth
-                .requestMatchers(HttpMethod.POST, "/api/auth/login").permitAll()
+                .requestMatchers(HttpMethod.POST, PUBLIC_AUTH_POST_ENDPOINTS).permitAll()
                 .requestMatchers(HttpMethod.POST, "/api/auth/register").hasRole("ADMINISTRATOR")
                 .requestMatchers("/swagger-ui/**", "/swagger-ui.html", "/v3/api-docs/**").permitAll()
                 .anyRequest().authenticated()

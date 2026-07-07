@@ -3,6 +3,15 @@
  */
 
 /**
+ * Extrae un mensaje legible de un error de la API, con fallback si no trae ninguno.
+ */
+export const getErrorMessage = (err: unknown, fallback: string): string => {
+  const apiError = err as { details?: unknown; message?: string } | undefined;
+  const detailsMessage = (apiError?.details as { message?: string } | undefined)?.message;
+  return detailsMessage ?? apiError?.message ?? fallback;
+};
+
+/**
  * Retrasa la ejecución de una función (debounce)
  */
 export const debounce = <T extends unknown[]>(
