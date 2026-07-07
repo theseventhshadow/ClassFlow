@@ -34,3 +34,6 @@ jwt:
 sentry:
   dsn: ${SENTRY_DSN:}
   environment: local
+  # Sin esto, el @RestControllerAdvice del servicio resuelve la excepcion antes de que
+  # el resolver de Sentry tenga oportunidad de capturarla, y nunca se reporta nada.
+  exception-resolver-order: -2147483648
