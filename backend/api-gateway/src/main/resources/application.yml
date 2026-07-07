@@ -73,3 +73,7 @@ logging:
   level:
     gateway_service: DEBUG
     org.springframework.cloud.gateway: TRACE
+
+sentry:
+  dsn: ${SENTRY_DSN:}
+  environment: local

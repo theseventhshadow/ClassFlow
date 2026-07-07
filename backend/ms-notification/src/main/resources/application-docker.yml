@@ -48,3 +48,7 @@ management:
       probes:
         enabled: true
       show-details: never
+
+sentry:
+  dsn: ${SENTRY_DSN:}
+  environment: docker

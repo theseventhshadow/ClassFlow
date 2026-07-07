@@ -79,6 +79,50 @@ services:
     networks:
       - classflow-back-net
 
+  glitchtip-db:
+    image: postgres:18
+    environment:
+      POSTGRES_HOST_AUTH_METHOD: "trust"
+    volumes:
+      - glitchtip-postgres-data:/var/lib/postgresql
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - classflow-back-net
+
+  glitchtip-valkey:
+    image: valkey/valkey:9
+    networks:
+      - classflow-back-net
+
+  # Error tracking self-hospedado (compatible con el SDK de Sentry). UI en http://localhost:8000.
+  # La primera vez, crear una cuenta/organizacion/proyecto ahi y copiar el DSN a SENTRY_DSN en .env.
+  glitchtip:
+    image: glitchtip/glitchtip:6
+    ports:
+      - "8000:8000"
+    environment:
+      DATABASE_URL: postgres://postgres:postgres@glitchtip-db:5432/postgres
+      VALKEY_URL: redis://glitchtip-valkey:6379
+      SECRET_KEY: "${GLITCHTIP_SECRET_KEY:?Definir GLITCHTIP_SECRET_KEY en backend/.env (openssl rand -hex 32)}"
+      EMAIL_URL: consolemail://
+      GLITCHTIP_DOMAIN: http://localhost:8000
+      DEFAULT_FROM_EMAIL: glitchtip@classflow.cl
+      ENABLE_ADMIN: "True"
+      SERVER_ROLE: all_in_one
+    depends_on:
+      glitchtip-db:
+        condition: service_healthy
+      glitchtip-valkey:
+        condition: service_started
+    volumes:
+      - glitchtip-uploads:/code/uploads
+    networks:
+      - classflow-back-net
+
   api-gateway:
     build: ./api-gateway
     image: api-gateway:local
@@ -86,6 +130,7 @@ services:
       - "8080:8080"
     environment:
       - SPRING_PROFILES_ACTIVE=docker
+      - SENTRY_DSN=${SENTRY_DSN:-}
     depends_on:
       - bff
       - ms-auth
@@ -108,6 +153,7 @@ services:
       - "8086:8086"
     environment:
       - SPRING_PROFILES_ACTIVE=docker
+      - SENTRY_DSN=${SENTRY_DSN:-}
     depends_on:
       - ms-auth
       - ms-academic
@@ -129,6 +175,7 @@ services:
       - "8081:8081"
     environment:
       - SPRING_PROFILES_ACTIVE=docker
+      - SENTRY_DSN=${SENTRY_DSN:-}
     depends_on:
       auth-db:
         condition: service_healthy
@@ -147,6 +194,7 @@ services:
       - "8082:8082"
     environment:
       - SPRING_PROFILES_ACTIVE=docker
+      - SENTRY_DSN=${SENTRY_DSN:-}
     depends_on:
       academic-db:
         condition: service_healthy
@@ -165,6 +213,7 @@ services:
       - "8083:8083"
     environment:
       - SPRING_PROFILES_ACTIVE=docker
+      - SENTRY_DSN=${SENTRY_DSN:-}
     depends_on:
       assistance-db:
         condition: service_healthy
@@ -183,6 +232,7 @@ services:
       - "8084:8084"
     environment:
       - SPRING_PROFILES_ACTIVE=docker
+      - SENTRY_DSN=${SENTRY_DSN:-}
     depends_on:
       message-db:
         condition: service_healthy
@@ -205,6 +255,7 @@ services:
       - MAIL_PORT=${MAIL_PORT:-587}
       - MAIL_USERNAME=${MAIL_USERNAME}
       - MAIL_PASSWORD=${MAIL_PASSWORD}
+      - SENTRY_DSN=${SENTRY_DSN:-}
     depends_on:
       notification-db:
         condition: service_healthy
@@ -240,3 +291,5 @@ volumes:
   assistance-postgres-data:
   message-postgres-data:
   notification-postgres-data:
+  glitchtip-postgres-data:
+  glitchtip-uploads:

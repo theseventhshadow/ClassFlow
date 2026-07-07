@@ -46,3 +46,7 @@ spring:
             - Path=/api/notifications/**
           filters:
             - StripPrefix=0
+
+sentry:
+  dsn: ${SENTRY_DSN:}
+  environment: docker
