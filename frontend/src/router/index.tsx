@@ -1,7 +1,7 @@
 import React from 'react';
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import { Layout } from '@components/layout';
-import { HomePage, NotFoundPage, LoginPage, AdminDashboard, TeacherAccountPage, StudentDashboardPage, GuardianDashboardPage, AccessDeniedPage } from '@pages';
+import { HomePage, NotFoundPage, LoginPage, ForgotPasswordPage, ResetPasswordPage, AdminDashboard, TeacherAccountPage, StudentDashboardPage, GuardianDashboardPage, AccessDeniedPage } from '@pages';
 import { ProtectedRoute } from '@components/common/ProtectedRoute';
 import { useAuth } from '@context';
 import { ROUTES, getDashboardRouteByRole } from '@constants';
@@ -19,6 +19,8 @@ const AppRouter: React.FC = () => {
       <Routes>
         <Route path="/" element={<Navigate to="/login" replace />} />
         <Route path={ROUTES.LOGIN} element={<LoginPage />} />
+        <Route path={ROUTES.FORGOT_PASSWORD} element={<ForgotPasswordPage />} />
+        <Route path={ROUTES.RESET_PASSWORD} element={<ResetPasswordPage />} />
         <Route path={ROUTES.ACCESS_DENIED} element={<AccessDeniedPage />} />
 
         <Route

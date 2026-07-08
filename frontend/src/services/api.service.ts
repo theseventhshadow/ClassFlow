@@ -46,7 +46,7 @@ class ApiService {
     this.instance.interceptors.request.use((config) => {
       // Aquí puedes agregar el token de autenticación si existe
       // Excepto en endpoints públicos como login, register, etc.
-      const publicEndpoints = ['/auth/login', '/auth/register', '/auth/forgot-password'];
+      const publicEndpoints = ['/auth/login', '/auth/forgot-password'];
       const isPublicEndpoint = publicEndpoints.some((endpoint) => config.url?.includes(endpoint));
 
       if (!isPublicEndpoint) {

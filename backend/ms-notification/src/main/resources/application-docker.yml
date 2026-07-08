@@ -34,6 +34,12 @@ spring:
           starttls:
             enable: true
 
+app:
+  mail:
+    # Sin default anidado a MAIL_USERNAME aqui: EmailService.resolveFromEmail() ya hace
+    # ese fallback en Java, chequeando contenido real (no solo ausencia de la propiedad).
+    from: ${MAIL_FROM:}
+
 logging:
   level:
     notificaciones_service: DEBUG

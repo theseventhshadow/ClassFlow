@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '@context';
 import './LoginPage.css';
 
@@ -90,7 +90,7 @@ export const LoginPage: React.FC = () => {
 
           <div className="login-recover">
             <span className="login-recover-divider">¿Problemas para ingresar?</span>
-            <a href="#" className="login-recover-link">Recuperar contraseña</a>
+            <Link to="/forgot-password" className="login-recover-link">Recuperar contraseña</Link>
           </div>
         </div>
       </div>

@@ -31,6 +31,16 @@ jwt:
   secret: ${JWT_SECRET:404E635266556A586E3272357538782F413F4428472B4B6250645367566B5970}
   expiration: ${JWT_EXPIRATION:86400000}
 
+services:
+  notification:
+    url: ${NOTIFICATION_SERVICE_URL:http://localhost:8085}
+
+app:
+  frontend-url: ${FRONTEND_URL:http://localhost:3000}
+
+password-reset:
+  expiration-minutes: ${PASSWORD_RESET_EXPIRATION_MINUTES:30}
+
 sentry:
   dsn: ${SENTRY_DSN:}
   environment: local
