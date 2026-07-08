@@ -27,3 +27,8 @@ server:
 services:
   notification:
     url: ${NOTIFICATION_SERVICE_URL:http://ms-notification:8085}
+
+sentry:
+  dsn: ${SENTRY_DSN:}
+  environment: docker
+  exception-resolver-order: -2147483648

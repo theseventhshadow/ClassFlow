@@ -46,3 +46,8 @@ spring:
             - Path=/api/notifications/**
           filters:
             - StripPrefix=0
+
+sentry:
+  dsn: ${SENTRY_DSN:}
+  environment: docker
+  exception-resolver-order: -2147483648

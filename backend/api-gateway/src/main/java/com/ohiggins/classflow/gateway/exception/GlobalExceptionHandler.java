@@ -1,5 +1,6 @@
 package com.ohiggins.classflow.gateway.exception;
 
+import io.sentry.Sentry;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.ExceptionHandler;
@@ -9,6 +10,10 @@ import java.time.LocalDateTime;
 
 /**
  * Intercepta excepciones no controladas y responde con un formato uniforme.
+ *
+ * Reporta explicitamente a Sentry/GlitchTip: en WebFlux, un @RestControllerAdvice que
+ * resuelve la excepcion evita que el filtro reactivo de Sentry la vea (limitacion conocida
+ * de Spring WebFlux, distinto al comportamiento en Spring MVC).
  */
 @RestControllerAdvice
 public class GlobalExceptionHandler {
@@ -22,6 +27,7 @@ public class GlobalExceptionHandler {
      */
     @ExceptionHandler(RuntimeException.class)
     public ResponseEntity<ErrorResponse> handleRuntimeException(RuntimeException ex, ServerWebExchange exchange) {
+        Sentry.captureException(ex);
         ErrorResponse error = ErrorResponse.builder()
                 .timestamp(LocalDateTime.now())
                 .status(HttpStatus.BAD_REQUEST.value())
@@ -41,6 +47,7 @@ public class GlobalExceptionHandler {
      */
     @ExceptionHandler(Exception.class)
     public ResponseEntity<ErrorResponse> handleGenericException(Exception ex, ServerWebExchange exchange) {
+        Sentry.captureException(ex);
         ErrorResponse error = ErrorResponse.builder()
                 .timestamp(LocalDateTime.now())
                 .status(HttpStatus.INTERNAL_SERVER_ERROR.value())

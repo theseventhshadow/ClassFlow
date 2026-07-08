@@ -54,3 +54,8 @@ management:
       probes:
         enabled: true
       show-details: never
+
+sentry:
+  dsn: ${SENTRY_DSN:}
+  environment: docker
+  exception-resolver-order: -2147483648

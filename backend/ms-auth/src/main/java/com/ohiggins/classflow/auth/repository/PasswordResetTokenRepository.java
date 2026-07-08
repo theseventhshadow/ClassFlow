@@ -6,12 +6,18 @@ import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Optional;
 
 @Repository
 public interface PasswordResetTokenRepository extends JpaRepository<PasswordResetToken, Long> {
     Optional<PasswordResetToken> findByTokenHash(String tokenHash);
+
+    // A diferencia de save()/findBy...() (heredados de JpaRepository, ya transaccionales),
+    // un delete-by-derivado personalizado necesita su propia transaccion explicita para
+    // ejecutarse, independientemente de si el metodo que lo llama es @Transactional o no.
+    @Transactional
     void deleteByUserId(Long userId);
 
     /**

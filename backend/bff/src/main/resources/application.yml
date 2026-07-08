@@ -25,3 +25,8 @@ management:
   endpoint:
     health:
       show-details: always
+
+sentry:
+  dsn: ${SENTRY_DSN:}
+  environment: local
+  exception-resolver-order: -2147483648

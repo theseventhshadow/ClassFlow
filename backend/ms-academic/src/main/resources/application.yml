@@ -24,3 +24,8 @@ spring:
 
 server:
   port: 8082
+
+sentry:
+  dsn: ${SENTRY_DSN:}
+  environment: local
+  exception-resolver-order: -2147483648
