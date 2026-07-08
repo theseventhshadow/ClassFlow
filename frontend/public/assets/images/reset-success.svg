@@ -1,0 +1,26 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 280" role="img" aria-label="Contraseña actualizada">
+  <circle cx="160" cy="140" r="118" fill="#ffffff" opacity="0.08"/>
+  <circle cx="160" cy="140" r="92" fill="#ffffff" opacity="0.12"/>
+
+  <!-- decorative book stack -->
+  <rect x="46" y="196" width="90" height="16" rx="4" fill="#fb923c"/>
+  <rect x="54" y="180" width="82" height="16" rx="4" fill="#fdba74"/>
+  <rect x="46" y="164" width="90" height="16" rx="4" fill="#f97316"/>
+
+  <!-- decorative laptop -->
+  <g transform="translate(196,168)">
+    <rect x="0" y="0" width="78" height="50" rx="6" fill="#ede9fe"/>
+    <rect x="8" y="8" width="62" height="34" rx="3" fill="#7c3aed"/>
+    <rect x="-6" y="50" width="90" height="10" rx="4" fill="#c4b5fd"/>
+  </g>
+
+  <!-- floating dots -->
+  <circle cx="52" cy="70" r="7" fill="#fb923c"/>
+  <circle cx="266" cy="86" r="5" fill="#c4b5fd"/>
+  <circle cx="240" cy="220" r="6" fill="#fdba74"/>
+  <circle cx="70" cy="230" r="4" fill="#a855f7"/>
+
+  <!-- success badge -->
+  <circle cx="160" cy="120" r="54" fill="#16a34a"/>
+  <path d="M136 121 L153 138 L188 101" stroke="#ffffff" stroke-width="10" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
+</svg>

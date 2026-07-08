@@ -2,6 +2,7 @@ package com.ohiggins.classflow.auth.controller;
 
 import com.ohiggins.classflow.auth.dto.*;
 import com.ohiggins.classflow.auth.service.AuthService;
+import com.ohiggins.classflow.auth.service.PasswordResetService;
 import com.ohiggins.classflow.auth.service.UserService;
 import io.swagger.v3.oas.annotations.Operation;
 import java.util.List;
@@ -25,6 +26,7 @@ public class AuthController {
 
     private final AuthService authService;
     private final UserService userService;
+    private final PasswordResetService passwordResetService;
 
     /**
      * Autentica un usuario y devuelve un token JWT.
@@ -56,6 +58,38 @@ public class AuthController {
     })
     public ResponseEntity<UserResponseDTO> register(@Valid @RequestBody RegisterRequestDTO request) {
         return new ResponseEntity<>(authService.register(request), HttpStatus.CREATED);
+    }
+
+    /**
+     * Solicita el restablecimiento de contrasena mediante un correo con un enlace de un solo uso.
+     *
+     * @param request correo de la cuenta.
+     * @return respuesta HTTP generica, exista o no la cuenta con ese correo.
+     */
+    @PostMapping("/forgot-password")
+    @Operation(summary = "Solicitar restablecimiento de contraseña",
+            description = "Envía un correo con un enlace de recuperación si la cuenta existe")
+    @ApiResponse(responseCode = "200", description = "Solicitud procesada")
+    public ResponseEntity<MessageResponseDTO> forgotPassword(@Valid @RequestBody ForgotPasswordRequestDTO request) {
+        passwordResetService.requestReset(request);
+        return ResponseEntity.ok(new MessageResponseDTO("Si el correo está registrado, recibirás un enlace de recuperación."));
+    }
+
+    /**
+     * Restablece la contrasena a partir de un token valido enviado por correo.
+     *
+     * @param request token recibido por correo y nueva contrasena.
+     * @return respuesta HTTP con el resultado del restablecimiento.
+     */
+    @PostMapping("/reset-password")
+    @Operation(summary = "Restablecer contraseña", description = "Cambia la contraseña usando el token enviado por correo")
+    @ApiResponses({
+        @ApiResponse(responseCode = "200", description = "Contraseña restablecida"),
+        @ApiResponse(responseCode = "400", description = "Token inválido o expirado")
+    })
+    public ResponseEntity<MessageResponseDTO> resetPassword(@Valid @RequestBody ResetPasswordRequestDTO request) {
+        passwordResetService.resetPassword(request);
+        return ResponseEntity.ok(new MessageResponseDTO("Contraseña actualizada correctamente."));
     }
 
     /**

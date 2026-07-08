@@ -88,7 +88,7 @@ class DashboardServiceTest {
         mockFetchList(notificationWebClient, Flux.just());
         mockFetchList(notificationWebClient, Flux.just());
 
-        var result = dashboardService.getDashboard(10L).block();
+        var result = dashboardService.getDashboard(10L, "Bearer test-token").block();
 
         assertThat(result).isNotNull();
         assertThat(result.role()).isEqualTo("STUDENT");
@@ -112,7 +112,7 @@ class DashboardServiceTest {
         mockFetchList(notificationWebClient, Flux.just());
         mockFetchList(notificationWebClient, Flux.just());
 
-        var result = dashboardService.getDashboard(2L).block();
+        var result = dashboardService.getDashboard(2L, "Bearer test-token").block();
 
         assertThat(result).isNotNull();
         assertThat(result.role()).isEqualTo("TEACHER");
@@ -127,7 +127,7 @@ class DashboardServiceTest {
         mockFetchList(academicWebClient, Flux.just());
         mockFetchList(academicWebClient, Flux.just());
 
-        assertThatThrownBy(() -> dashboardService.getDashboard(999L).block())
+        assertThatThrownBy(() -> dashboardService.getDashboard(999L, "Bearer test-token").block())
                 .hasMessageContaining("User not found");
     }
 }

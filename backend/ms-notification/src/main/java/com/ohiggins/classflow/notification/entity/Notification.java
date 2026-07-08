@@ -19,7 +19,8 @@ public class Notification {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(nullable = false)
+    // Sin nullable=false: los correos directos (POST /api/notifications/email) no tienen
+    // un usuario destinatario en el dominio de negocio, a diferencia de las alertas.
     private Long userId;
 
     @Column(nullable = false)

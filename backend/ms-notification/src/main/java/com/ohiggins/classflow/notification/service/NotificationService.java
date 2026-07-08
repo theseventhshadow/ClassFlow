@@ -6,6 +6,7 @@ import org.springframework.stereotype.Service;
 import com.ohiggins.classflow.notification.dto.AlertRequestDTO;
 import com.ohiggins.classflow.notification.dto.NotificationResponseDTO;
 import com.ohiggins.classflow.notification.entity.Notification;
+import com.ohiggins.classflow.notification.enums.NotificationType;
 import com.ohiggins.classflow.notification.repository.NotificationRepository;
 
 import java.time.LocalDateTime;
@@ -56,7 +57,7 @@ public class NotificationService {
 
         Notification notification = new Notification();
         notification.setUserId(null); // email sin userId asociado
-        notification.setType(null);
+        notification.setType(NotificationType.EMAIL);
         notification.setSubject(subject);
         notification.setContent(body);
         notification.setSent(emailSent);

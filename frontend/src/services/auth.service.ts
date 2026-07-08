@@ -69,6 +69,14 @@ class AuthService {
     return this.normalizeUser(response);
   }
 
+  async forgotPassword(email: string): Promise<{ message: string }> {
+    return apiService.post<{ message: string }>('/auth/forgot-password', { email });
+  }
+
+  async resetPassword(token: string, newPassword: string): Promise<{ message: string }> {
+    return apiService.post<{ message: string }>('/auth/reset-password', { token, newPassword });
+  }
+
   async validateToken(token: string): Promise<User> {
     const response = await apiService.get<BackendUser>(
       '/auth/validate',
