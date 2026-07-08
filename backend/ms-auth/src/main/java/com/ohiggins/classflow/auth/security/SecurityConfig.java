@@ -41,6 +41,11 @@ public class SecurityConfig {
                 .requestMatchers(HttpMethod.POST, "/api/auth/login").permitAll()
                 .requestMatchers(HttpMethod.POST, "/api/auth/register").hasRole("ADMINISTRATOR")
                 .requestMatchers("/swagger-ui/**", "/swagger-ui.html", "/v3/api-docs/**").permitAll()
+                // Endpoints públicos para consumo interno del BFF (sin JWT)
+                .requestMatchers(HttpMethod.GET, "/api/auth/users/{id}").permitAll()
+                .requestMatchers(HttpMethod.GET, "/api/auth/users/guardian/{guardianId}").permitAll()
+                .requestMatchers(HttpMethod.GET, "/api/auth/users/email/{email}").permitAll()
+                .requestMatchers(HttpMethod.GET, "/api/auth/users/idnumber/{idNumber}").permitAll()
                 .anyRequest().authenticated()
             )
             .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);

@@ -3,9 +3,9 @@ import { useNavigate } from 'react-router-dom';
 import { useAuth } from '@context';
 import { Loading, Error as ErrorState } from '@components/common';
 import { useDashboardData } from '@hooks';
-import { type UserRole } from '@services';
 import { humanizeRole } from '@utils';
 import {
+  buildCreatedUserRow,
   createAdminCourse,
   registerAdminUser,
   validateCreateCourseForm,
@@ -15,20 +15,6 @@ import {
   type DashboardUserRow,
 } from '../../application/admin-dashboard';
 import './AdminDashboard.css';
-
-const ROL_LABEL: Record<UserRole, string> = {
-  ADMINISTRATOR: 'Administrador',
-  TEACHER: 'Docente',
-  GUARDIAN: 'Apoderado',
-  STUDENT: 'Estudiante',
-};
-
-const ROL_CLASS: Record<UserRole, string> = {
-  ADMINISTRATOR: 'badge--administrador',
-  TEACHER: 'badge--docente',
-  GUARDIAN: 'badge--apoderado',
-  STUDENT: 'badge--estudiante',
-};
 
 const navSections = [
   {
@@ -57,16 +43,7 @@ const navSections = [
   },
 ];
 
-type FormState = {
-  nombres: string;
-  apellidos: string;
-  email: string;
-  password: string;
-  rol: UserRole;
-  idNumber: string;
-};
-
-const EMPTY_FORM: FormState = {
+const EMPTY_FORM: CreateUserFormState = {
   nombres: '',
   apellidos: '',
   email: '',
@@ -83,7 +60,7 @@ export const AdminDashboard: React.FC = () => {
   const [showModal, setShowModal] = useState(false);
   const [showCourseModal, setShowCourseModal] = useState(false);
   const [showLogoutModal, setShowLogoutModal] = useState(false);
-  const [form, setForm] = useState<FormState>(EMPTY_FORM);
+  const [form, setForm] = useState<CreateUserFormState>(EMPTY_FORM);
   const [formError, setFormError] = useState<string | null>(null);
   const [localUsers, setLocalUsers] = useState<DashboardUserRow[]>([]);
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -98,11 +75,6 @@ export const AdminDashboard: React.FC = () => {
 
   const handleLogout = () => {
     logout();
-    localStorage.clear();
-    sessionStorage.clear();
-    document.cookie.split(';').forEach((c) => {
-      document.cookie = c.replace(/^ +/, '').replace(/=.*/, `=;expires=${new Date().toUTCString()};path=/`);
-    });
     navigate('/login', { replace: true });
   };
 
@@ -135,7 +107,7 @@ export const AdminDashboard: React.FC = () => {
 
   const handleFormChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
     const { name, value } = e.target;
-    setForm((prev) => ({ ...prev, [name]: value } as FormState));
+    setForm((prev) => ({ ...prev, [name]: value } as CreateUserFormState));
   };
 
   const handleCourseFormChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>) => {
@@ -158,16 +130,7 @@ export const AdminDashboard: React.FC = () => {
     try {
       await registerAdminUser(form as CreateUserFormState);
 
-      const newUser: DashboardUserRow = {
-        name: `${form.nombres.trim()} ${form.apellidos.trim()}`,
-        rol: ROL_LABEL[form.rol],
-        rolClass: ROL_CLASS[form.rol],
-        estado: 'Activo',
-        estadoClass: 'badge--activo',
-        acceso: 'Ahora',
-      };
-
-      setLocalUsers((prev) => [newUser, ...prev]);
+      setLocalUsers((prev) => [buildCreatedUserRow(form as CreateUserFormState), ...prev]);
       closeModal();
       await refetch();
     } catch (err: any) {

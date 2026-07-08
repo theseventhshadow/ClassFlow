@@ -1,4 +1,4 @@
-import { authService, courseService, userService, type DashboardResponse, type User, type UserRole } from '@services';
+import { authService, courseService, type DashboardResponse, type UserRole } from '@services';
 import { humanizeRole } from '@utils';
 import { buildAlerts, buildAttendance, buildActivity, buildStats, formatRelativeTime, getLatestDate, getUserStatus } from '../domain/admin-dashboard';
 
@@ -10,6 +10,13 @@ export interface DashboardUserRow {
   estadoClass: string;
   acceso: string;
 }
+
+const ROLE_LABEL: Record<UserRole, string> = {
+  ADMINISTRATOR: 'Administrador',
+  TEACHER: 'Docente',
+  GUARDIAN: 'Apoderado',
+  STUDENT: 'Estudiante',
+};
 
 export interface CreateUserFormState {
   nombres: string;
@@ -47,7 +54,7 @@ const STATUS_CLASS: Record<'activo' | 'inactivo' | 'pendiente', string> = {
   pendiente: 'badge--pendiente',
 };
 
-function normalizeStudentNames(response: DashboardResponse): Map<number, string> {
+function extractStudentNames(response: DashboardResponse): Map<number, string> {
   const nameMap = new Map<number, string>();
 
   for (const grade of response.grades) {
@@ -71,17 +78,8 @@ function normalizeStudentNames(response: DashboardResponse): Map<number, string>
   return nameMap;
 }
 
-async function fetchUserProfile(userId: number): Promise<User | null> {
-  try {
-    const response = await userService.getUserById(String(userId));
-    return response.data;
-  } catch {
-    return null;
-  }
-}
-
-export async function buildDashboardUsers(response: DashboardResponse, adminUserId?: string): Promise<DashboardUserRow[]> {
-  const nameMap = normalizeStudentNames(response);
+export function buildDashboardUsers(response: DashboardResponse, adminUserId?: string): DashboardUserRow[] {
+  const nameMap = extractStudentNames(response);
 
   const candidateIds = new Set<number>([
     ...response.grades.map((grade) => grade.studentId),
@@ -95,14 +93,6 @@ export async function buildDashboardUsers(response: DashboardResponse, adminUser
   }
 
   const ids = Array.from(candidateIds).slice(0, 5);
-  const idsToFetch = ids.filter((id) => !nameMap.has(id));
-  const fetchedProfiles = await Promise.all(idsToFetch.map(async (id) => ({ id, profile: await fetchUserProfile(id) })));
-
-  for (const { id, profile } of fetchedProfiles) {
-    if (profile) {
-      nameMap.set(id, profile.nombre);
-    }
-  }
 
   return ids.map((id) => {
     const userDates = [
@@ -169,6 +159,17 @@ export function validateCreateCourseForm(form: CreateCourseFormState): string | 
   }
 
   return null;
+}
+
+export function buildCreatedUserRow(form: CreateUserFormState): DashboardUserRow {
+  return {
+    name: `${form.nombres.trim()} ${form.apellidos.trim()}`,
+    rol: ROLE_LABEL[form.rol],
+    rolClass: ROLE_CLASS[form.rol],
+    estado: 'Activo',
+    estadoClass: 'badge--activo',
+    acceso: 'Ahora',
+  };
 }
 
 export async function registerAdminUser(form: CreateUserFormState): Promise<User> {

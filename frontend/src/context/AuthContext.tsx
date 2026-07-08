@@ -14,6 +14,27 @@ interface AuthContextType {
 
 export const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
+function clearBrowserSession(): void {
+  localStorage.removeItem('user_token');
+  localStorage.removeItem('user_data');
+  sessionStorage.clear();
+
+  if (typeof document === 'undefined') {
+    return;
+  }
+
+  document.cookie.split(';').forEach((cookie) => {
+    const trimmedCookie = cookie.trim();
+    if (!trimmedCookie) {
+      return;
+    }
+
+    const separatorIndex = trimmedCookie.indexOf('=');
+    const cookieName = separatorIndex >= 0 ? trimmedCookie.slice(0, separatorIndex) : trimmedCookie;
+    document.cookie = `${cookieName}=;expires=${new Date(0).toUTCString()};path=/`;
+  });
+}
+
 export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
   const [user, setUser] = useState<User | null>(() => {
     const stored = localStorage.getItem('user_data');
@@ -41,6 +62,7 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
 
   const logout = useCallback(() => {
     authService.logout();
+    clearBrowserSession();
     setUser(null);
     setError(null);
   }, []);

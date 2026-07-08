@@ -38,7 +38,7 @@ export function useDashboardData(): UseDashboardDataResult {
 
     try {
       const response = await dashboardService.getDashboard(user.id);
-      const users = await buildDashboardUsers(response, user.id);
+      const users = buildDashboardUsers(response, user.id);
 
       setData({
         stats: buildStats(response),
