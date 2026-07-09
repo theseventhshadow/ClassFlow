@@ -7,3 +7,4 @@ data:
   SPRING_PROFILES_ACTIVE: "docker"
   MAIL_HOST: "smtp.gmail.com"
   MAIL_PORT: "587"
+  AUTH_SERVICE_URL: "http://ms-auth:8081"

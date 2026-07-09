@@ -16,6 +16,7 @@ import reactor.core.publisher.Mono;
 import java.util.List;
 
 import static org.mockito.Mockito.*;
+import static org.springframework.security.test.web.reactive.server.SecurityMockServerConfigurers.mockUser;
 
 @WebFluxTest(DashboardController.class)
 @DisplayName("DashboardController Tests")
@@ -49,7 +50,9 @@ class DashboardControllerTest {
 
         when(dashboardService.getDashboard(eq(1L), anyString())).thenReturn(Mono.just(response));
 
-        webTestClient.get().uri("/api/bff/dashboard/1")
+        webTestClient
+                .mutateWith(mockUser().roles("ADMINISTRATOR"))
+                .get().uri("/api/bff/dashboard/1")
                 .header("Authorization", "Bearer test-token")
                 .exchange()
                 .expectStatus().isOk()

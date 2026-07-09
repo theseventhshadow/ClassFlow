@@ -56,6 +56,10 @@ spring:
           filters:
             - StripPrefix=0
 
+auth:
+  service:
+    url: ${AUTH_SERVICE_URL:http://localhost:8081}
+
 # Actuator endpoints
 management:
   endpoints:

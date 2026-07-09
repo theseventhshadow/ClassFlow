@@ -23,6 +23,10 @@ spring:
 server:
   port: 8083
 
+auth:
+  service:
+    url: ${AUTH_SERVICE_URL:http://ms-auth:8081}
+
 management:
   endpoints:
     web:

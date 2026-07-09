@@ -33,6 +33,11 @@ spec:
                 secretKeyRef:
                   name: classflow-mail-secret
                   key: MAIL_PASSWORD
+            - name: INTERNAL_API_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: classflow-auth-secret
+                  key: INTERNAL_API_KEY
           readinessProbe:
             tcpSocket:
               port: 8085

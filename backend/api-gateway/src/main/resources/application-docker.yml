@@ -47,6 +47,10 @@ spring:
           filters:
             - StripPrefix=0
 
+auth:
+  service:
+    url: ${AUTH_SERVICE_URL:http://ms-auth:8081}
+
 sentry:
   dsn: ${SENTRY_DSN:}
   environment: docker

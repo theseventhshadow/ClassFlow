@@ -22,6 +22,17 @@ spec:
           envFrom:
             - configMapRef:
                 name: classflow-config
+          env:
+            - name: JWT_SECRET
+              valueFrom:
+                secretKeyRef:
+                  name: classflow-auth-secret
+                  key: JWT_SECRET
+            - name: INTERNAL_API_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: classflow-auth-secret
+                  key: INTERNAL_API_KEY
           readinessProbe:
             tcpSocket:
               port: 8081
