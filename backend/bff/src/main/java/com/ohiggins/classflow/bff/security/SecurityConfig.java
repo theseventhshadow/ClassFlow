@@ -8,6 +8,7 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.core.io.buffer.DataBuffer;
 import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.security.authentication.BadCredentialsException;
@@ -69,6 +70,9 @@ public class SecurityConfig {
         http
             .csrf(ServerHttpSecurity.CsrfSpec::disable)
             .authorizeExchange(exchanges -> exchanges
+                // El preflight CORS del navegador (OPTIONS) nunca lleva Authorization; si no se
+                // permite explícito, el navegador aborta la petición real antes de enviarla.
+                .pathMatchers(HttpMethod.OPTIONS, "/**").permitAll()
                 .pathMatchers(PUBLIC_ENDPOINTS).permitAll()
                 .anyExchange().authenticated())
             .addFilterAt(authenticationWebFilter, SecurityWebFiltersOrder.AUTHENTICATION)

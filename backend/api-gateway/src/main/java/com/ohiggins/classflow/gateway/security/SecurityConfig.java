@@ -75,6 +75,9 @@ public class SecurityConfig {
         http
             .csrf(ServerHttpSecurity.CsrfSpec::disable)
             .authorizeExchange(exchanges -> exchanges
+                // El preflight CORS del navegador (OPTIONS) nunca lleva Authorization; si no se
+                // permite explícito, el navegador aborta la petición real antes de enviarla.
+                .pathMatchers(HttpMethod.OPTIONS, "/**").permitAll()
                 .pathMatchers(HttpMethod.POST, PUBLIC_AUTH_POST_ENDPOINTS).permitAll()
                 .pathMatchers(PUBLIC_ENDPOINTS).permitAll()
                 .anyExchange().authenticated())

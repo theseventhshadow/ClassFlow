@@ -87,7 +87,7 @@ export const GuardianDashboardPage: React.FC = () => {
   if (error) return <div className="dashboard-layout"><div className="dashboard-main"><p style={{ padding: '2rem', color: '#dc2626' }}>{error}</p></div></div>;
 
   return (
-    <div className="dashboard-layout">
+    <div className="dashboard-layout dashboard-layout--guardian">
       <aside className="dashboard-sidebar">
         <div className="sidebar-brand">
           <div className="sidebar-brand-name">
