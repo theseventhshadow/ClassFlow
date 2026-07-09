@@ -1,10 +1,9 @@
 import React, { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
 import { useAuth } from '@context';
-import { Loading, Error as ErrorState } from '@components/common';
-import { useDashboardData } from '@hooks';
+import { Loading, Error as ErrorState, LogoutModal } from '@components/common';
+import { useDashboardData, useLogout } from '@hooks';
 import { UserRole, authService, courseService } from '@services';
-import { humanizeRole } from '@utils';
+import { humanizeRole, getErrorMessage } from '@utils';
 import './AdminDashboard.css';
 
 type TableUser = {
@@ -76,8 +75,8 @@ const EMPTY_FORM: FormState = {
 };
 
 export const AdminDashboard: React.FC = () => {
-  const { user, logout } = useAuth();
-  const navigate = useNavigate();
+  const { user } = useAuth();
+  const handleLogout = useLogout();
   const { stats, users, courseAttendance, activity, alerts, loading, error, refetch } = useDashboardData();
 
   const [showModal, setShowModal] = useState(false);
@@ -95,20 +94,6 @@ export const AdminDashboard: React.FC = () => {
     academicYear: '',
   });
   const [courseFormError, setCourseFormError] = useState<string | null>(null);
-
-  const handleLogout = () => {
-    logout();
-    localStorage.clear();
-    sessionStorage.clear();
-    document.cookie.split(';').forEach((c) => {
-      document.cookie = c.replace(/^ +/, '').replace(/=.*/, `=;expires=${new Date().toUTCString()};path=/`);
-    });
-    navigate('/login', { replace: true });
-  };
-
-  const handleLogoutCancel = () => {
-    setShowLogoutModal(false);
-  };
 
   const initials = user?.nombre
     ? user.nombre
@@ -196,9 +181,8 @@ export const AdminDashboard: React.FC = () => {
       setLocalUsers((prev) => [newUser, ...prev]);
       closeModal();
       await refetch();
-    } catch (err: any) {
-      const msg = err?.details?.message ?? err?.message ?? 'Error al crear el usuario';
-      setFormError(msg);
+    } catch (err) {
+      setFormError(getErrorMessage(err, 'Error al crear el usuario'));
     } finally {
       setIsSubmitting(false);
     }
@@ -230,9 +214,8 @@ export const AdminDashboard: React.FC = () => {
 
       setShowCourseModal(false);
       await refetch();
-    } catch (err: any) {
-      const msg = err?.response?.data?.message ?? err?.message ?? 'Error al crear el curso';
-      setCourseFormError(msg);
+    } catch (err) {
+      setCourseFormError(getErrorMessage(err, 'Error al crear el curso'));
     } finally {
       setIsCreatingCourse(false);
     }
@@ -278,7 +261,7 @@ export const AdminDashboard: React.FC = () => {
               <div className="admin-sidebar-user-role">{humanizeRole(user?.rol) || 'Usuario'}</div>
             </div>
           </div>
-          <button className="admin-logout-btn" onClick={() => setShowLogoutModal(true)} title="Cerrar sesión">
+          <button className="dashboard-logout-btn" onClick={() => setShowLogoutModal(true)} aria-label="Cerrar sesión" title="Cerrar sesión">
             ⏻
           </button>
         </div>
@@ -675,65 +658,11 @@ export const AdminDashboard: React.FC = () => {
         </div>
       )}
 
-      {showLogoutModal && (
-        <div
-          style={{
-            position: 'fixed',
-            top: 0,
-            left: 0,
-            right: 0,
-            bottom: 0,
-            backgroundColor: 'rgba(0, 0, 0, 0.5)',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            zIndex: 9999,
-          }}
-        >
-          <div
-            style={{
-              backgroundColor: 'white',
-              borderRadius: '8px',
-              padding: '2rem',
-              minWidth: '300px',
-              boxShadow: '0 4px 6px rgba(0, 0, 0, 0.1)',
-              textAlign: 'center',
-            }}
-          >
-            <h2 style={{ marginTop: 0, color: '#333' }}>¿Cerrar sesión?</h2>
-            <p style={{ color: '#666', marginBottom: '1.5rem' }}>
-              Se cerrará tu sesión y deberás iniciar sesión nuevamente para acceder a la plataforma.
-            </p>
-            <div style={{ display: 'flex', gap: '1rem', justifyContent: 'center' }}>
-              <button
-                onClick={handleLogoutCancel}
-                style={{
-                  padding: '0.75rem 1.5rem',
-                  backgroundColor: '#f0f0f0',
-                  border: '1px solid #ddd',
-                  borderRadius: '4px',
-                  cursor: 'pointer',
-                }}
-              >
-                No, cancelar
-              </button>
-              <button
-                onClick={handleLogout}
-                style={{
-                  padding: '0.75rem 1.5rem',
-                  backgroundColor: '#dc2626',
-                  color: 'white',
-                  border: 'none',
-                  borderRadius: '4px',
-                  cursor: 'pointer',
-                }}
-              >
-                Sí, cerrar sesión
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
+      <LogoutModal
+        open={showLogoutModal}
+        onCancel={() => setShowLogoutModal(false)}
+        onConfirm={handleLogout}
+      />
     </div>
   );
 };

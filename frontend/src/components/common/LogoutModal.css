@@ -1,0 +1,86 @@
+.logout-modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(0, 0, 0, 0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 9999;
+}
+
+.logout-modal {
+  background-color: #ffffff;
+  border-radius: 8px;
+  padding: 2rem;
+  min-width: 300px;
+  max-width: 90vw;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  text-align: center;
+}
+
+.logout-modal-title {
+  margin-top: 0;
+  color: #333333;
+}
+
+.logout-modal-text {
+  color: #666666;
+  margin-bottom: 1.5rem;
+}
+
+.logout-modal-actions {
+  display: flex;
+  gap: 1rem;
+  justify-content: center;
+}
+
+.logout-modal-btn {
+  padding: 0.75rem 1.5rem;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 1rem;
+  font-weight: 500;
+  border: none;
+}
+
+.logout-modal-btn--cancel {
+  background-color: #f0f0f0;
+  border: 1px solid #dddddd;
+}
+
+.logout-modal-btn--confirm {
+  background-color: #e74c3c;
+  color: #ffffff;
+}
+
+.logout-modal-btn:focus-visible {
+  outline: 2px solid #33488f;
+  outline-offset: 2px;
+}
+
+/* Botón que abre el modal, compartido por los 4 dashboards para que se vean idénticos. */
+.dashboard-logout-btn {
+  background: none;
+  border: none;
+  color: inherit;
+  cursor: pointer;
+  font-size: 1.1rem;
+  padding: 0.4rem;
+  border-radius: 6px;
+  line-height: 1;
+  flex-shrink: 0;
+  transition: color 0.15s, background-color 0.15s;
+}
+
+.dashboard-logout-btn:hover {
+  background: rgba(239, 68, 68, 0.15);
+  color: #dc2626;
+}
+
+.dashboard-logout-btn:focus-visible {
+  outline: 2px solid #33488f;
+  outline-offset: 2px;
+}
