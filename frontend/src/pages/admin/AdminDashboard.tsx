@@ -29,30 +29,44 @@ const ROL_CLASS: Record<UserRole, string> = {
   STUDENT: 'badge--estudiante',
 };
 
+type AdminNavKey = 'dashboard' | 'usuarios' | 'asistencia';
+
+const NAV_KEY_BY_LABEL: Partial<Record<string, AdminNavKey>> = {
+  Dashboard: 'dashboard',
+  Usuarios: 'usuarios',
+  Asistencia: 'asistencia',
+};
+
+const NAV_TITLE: Record<AdminNavKey, string> = {
+  dashboard: 'Panel de Administración',
+  usuarios: 'Gestión de usuarios',
+  asistencia: 'Asistencia por curso',
+};
+
 const navSections = [
   {
     label: 'PRINCIPAL',
-    items: [{ icon: '▣', label: 'Dashboard', active: true, badge: null as number | null }],
+    items: [{ icon: '▣', label: 'Dashboard', badge: null as number | null }],
   },
   {
     label: 'GESTIÓN',
     items: [
-      { icon: '👥', label: 'Usuarios', active: false, badge: 4 as number | null },
-      { icon: '📚', label: 'Gestión Académica', active: false, badge: null as number | null },
-      { icon: '✔', label: 'Asistencia', active: false, badge: null as number | null },
-      { icon: '💬', label: 'Mensajería', active: false, badge: 7 as number | null },
+      { icon: '👥', label: 'Usuarios', badge: 4 as number | null },
+      { icon: '📚', label: 'Gestión Académica', badge: null as number | null },
+      { icon: '✔', label: 'Asistencia', badge: null as number | null },
+      { icon: '💬', label: 'Mensajería', badge: 7 as number | null },
     ],
   },
   {
     label: 'REPORTES',
     items: [
-      { icon: '📄', label: 'Informes', active: false, badge: null as number | null },
-      { icon: '📈', label: 'Rendimiento', active: false, badge: null as number | null },
+      { icon: '📄', label: 'Informes', badge: null as number | null },
+      { icon: '📈', label: 'Rendimiento', badge: null as number | null },
     ],
   },
   {
     label: 'SISTEMA',
-    items: [{ icon: '⚙', label: 'Configuración', active: false, badge: null as number | null }],
+    items: [{ icon: '⚙', label: 'Configuración', badge: null as number | null }],
   },
 ];
 
@@ -78,6 +92,7 @@ export const AdminDashboard: React.FC = () => {
   const { user } = useAuth();
   const handleLogout = useLogout();
   const { stats, users, courseAttendance, activity, alerts, loading, error, refetch } = useDashboardData();
+  const [activeNav, setActiveNav] = useState<AdminNavKey>('dashboard');
 
   const [showModal, setShowModal] = useState(false);
   const [showCourseModal, setShowCourseModal] = useState(false);
@@ -238,17 +253,25 @@ export const AdminDashboard: React.FC = () => {
           {navSections.map((section) => (
             <div key={section.label} className="admin-nav-section">
               <span className="admin-nav-section-label">{section.label}</span>
-              {section.items.map((item) => (
-                <a
-                  key={item.label}
-                  href="#"
-                  className={`admin-nav-item${item.active ? ' admin-nav-item--active' : ''}`}
-                >
-                  <span className="admin-nav-icon">{item.icon}</span>
-                  <span>{item.label}</span>
-                  {item.badge !== null && <span className="admin-nav-badge">{item.badge}</span>}
-                </a>
-              ))}
+              {section.items.map((item) => {
+                const navKey = NAV_KEY_BY_LABEL[item.label];
+                const isActive = navKey ? navKey === activeNav : false;
+                return (
+                  <a
+                    key={item.label}
+                    href="#"
+                    className={`admin-nav-item${isActive ? ' admin-nav-item--active' : ''}`}
+                    onClick={(e) => {
+                      e.preventDefault();
+                      if (navKey) setActiveNav(navKey);
+                    }}
+                  >
+                    <span className="admin-nav-icon">{item.icon}</span>
+                    <span>{item.label}</span>
+                    {item.badge !== null && <span className="admin-nav-badge">{item.badge}</span>}
+                  </a>
+                );
+              })}
             </div>
           ))}
         </nav>
@@ -270,7 +293,7 @@ export const AdminDashboard: React.FC = () => {
       <main className="admin-main">
         <header className="admin-header">
           <div>
-            <h1 className="admin-title">Panel de Administración</h1>
+            <h1 className="admin-title">{NAV_TITLE[activeNav]}</h1>
             <p className="admin-subtitle">
               {new Date().toLocaleDateString('es-CL', {
                 weekday: 'long',
@@ -295,6 +318,71 @@ export const AdminDashboard: React.FC = () => {
 
         {loading ? (
           <Loading size="lg" message="Cargando datos reales del BFF..." />
+        ) : activeNav === 'usuarios' ? (
+          <section className="admin-card">
+            <div className="admin-card-header">
+              <h2 className="admin-card-title">Todos los usuarios</h2>
+            </div>
+            <table className="admin-table">
+              <thead>
+                <tr>
+                  <th>Nombre</th>
+                  <th>Rol</th>
+                  <th>Estado</th>
+                  <th>Último acceso</th>
+                </tr>
+              </thead>
+              <tbody>
+                {mergedUsers.length > 0 ? (
+                  mergedUsers.map((u, index) => (
+                    <tr key={`${u.name}-${index}`}>
+                      <td>{u.name}</td>
+                      <td>
+                        <span className={`admin-badge ${u.rolClass}`}>{u.rol}</span>
+                      </td>
+                      <td>
+                        <span className={`admin-badge ${u.estadoClass}`}>{u.estado}</span>
+                        {u.estado === 'Pendiente' && <button className="admin-approve-btn">Aprobar</button>}
+                      </td>
+                      <td className="admin-table-muted">{u.acceso}</td>
+                    </tr>
+                  ))
+                ) : (
+                  <tr>
+                    <td colSpan={4} className="admin-table-muted">
+                      No hay usuarios recientes para mostrar.
+                    </td>
+                  </tr>
+                )}
+              </tbody>
+            </table>
+          </section>
+        ) : activeNav === 'asistencia' ? (
+          <section className="admin-card">
+            <div className="admin-card-header">
+              <h2 className="admin-card-title">Asistencia por curso</h2>
+            </div>
+            <div className="admin-attendance-list">
+              {courseAttendance.length > 0 ? (
+                courseAttendance.map((course) => (
+                  <div key={course.name} className="admin-attendance-row">
+                    <span className="admin-attendance-name">{course.name}</span>
+                    <div className="admin-progress-bar">
+                      <div
+                        className={`admin-progress-fill ${
+                          course.pct >= 80 ? 'fill--good' : course.pct >= 70 ? 'fill--warn' : 'fill--bad'
+                        }`}
+                        style={{ width: `${Math.max(0, Math.min(100, course.pct))}%` }}
+                      />
+                    </div>
+                    <span className="admin-attendance-pct">{course.pct}%</span>
+                  </div>
+                ))
+              ) : (
+                <p className="admin-table-muted">No hay asistencia suficiente para mostrar cursos.</p>
+              )}
+            </div>
+          </section>
         ) : (
           <>
             <section className="admin-stats">
@@ -321,7 +409,7 @@ export const AdminDashboard: React.FC = () => {
               <section className="admin-card">
                 <div className="admin-card-header">
                   <h2 className="admin-card-title">Gestión de usuarios</h2>
-                  <a href="#" className="admin-card-link">
+                  <a href="#" className="admin-card-link" onClick={(e) => { e.preventDefault(); setActiveNav('usuarios'); }}>
                     Ver todos →
                   </a>
                 </div>
@@ -363,7 +451,7 @@ export const AdminDashboard: React.FC = () => {
               <section className="admin-card">
                 <div className="admin-card-header">
                   <h2 className="admin-card-title">Asistencia por curso</h2>
-                  <a href="#" className="admin-card-link">
+                  <a href="#" className="admin-card-link" onClick={(e) => { e.preventDefault(); setActiveNav('asistencia'); }}>
                     Detalles →
                   </a>
                 </div>
