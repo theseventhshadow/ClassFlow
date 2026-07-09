@@ -13,6 +13,7 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 /**
@@ -121,8 +122,10 @@ public class AuthController {
     @Operation(summary = "Obtener usuario por ID")
     @ApiResponses({
         @ApiResponse(responseCode = "200", description = "Usuario encontrado"),
+        @ApiResponse(responseCode = "403", description = "Solo el dueño de la cuenta o un administrador pueden consultarla"),
         @ApiResponse(responseCode = "404", description = "Usuario no encontrado")
     })
+    @PreAuthorize("#id == authentication.principal.id or hasRole('ADMINISTRATOR')")
     public ResponseEntity<UserResponseDTO> getUserById(@PathVariable Long id) {
         return ResponseEntity.ok(userService.findById(id));
     }
@@ -199,8 +202,10 @@ public class AuthController {
     @Operation(summary = "Actualizar usuario")
     @ApiResponses({
         @ApiResponse(responseCode = "200", description = "Usuario actualizado"),
+        @ApiResponse(responseCode = "403", description = "Solo el dueño de la cuenta o un administrador pueden actualizarla"),
         @ApiResponse(responseCode = "404", description = "Usuario no encontrado")
     })
+    @PreAuthorize("#id == authentication.principal.id or hasRole('ADMINISTRATOR')")
     public ResponseEntity<UserResponseDTO> updateUser(
             @PathVariable Long id,
             @Valid @RequestBody UpdateUserRequestDTO request) {
@@ -217,8 +222,10 @@ public class AuthController {
     @Operation(summary = "Eliminar usuario")
     @ApiResponses({
         @ApiResponse(responseCode = "204", description = "Usuario eliminado"),
+        @ApiResponse(responseCode = "403", description = "Solo el dueño de la cuenta o un administrador pueden eliminarla"),
         @ApiResponse(responseCode = "404", description = "Usuario no encontrado")
     })
+    @PreAuthorize("#id == authentication.principal.id or hasRole('ADMINISTRATOR')")
     public ResponseEntity<Void> deleteUser(@PathVariable Long id) {
         userService.delete(id);
         return ResponseEntity.noContent().build();

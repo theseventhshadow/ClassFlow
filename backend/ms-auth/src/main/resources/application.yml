@@ -28,12 +28,16 @@ server:
   port: 8081
 
 jwt:
-  secret: ${JWT_SECRET:404E635266556A586E3272357538782F413F4428472B4B6250645367566B5970}
+  secret: ${JWT_SECRET}
   expiration: ${JWT_EXPIRATION:86400000}
 
 services:
   notification:
     url: ${NOTIFICATION_SERVICE_URL:http://localhost:8085}
+
+internal:
+  api:
+    key: ${INTERNAL_API_KEY}
 
 app:
   frontend-url: ${FRONTEND_URL:http://localhost:3000}

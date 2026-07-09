@@ -863,6 +863,126 @@ body {
 .tp-icon--positive { color: #10B981; font-weight: 700; }
 .tp-icon--negative { color: #F59E0B; font-weight: 700; }
 
+/* Teacher: course detail (Mis cursos) */
+.tp-course-detail {
+  display: flex;
+  flex-direction: column;
+  gap: 1.25rem;
+}
+
+.tp-back-btn {
+  align-self: flex-start;
+  background: none;
+  border: none;
+  color: #4F46E5;
+  font-size: 0.825rem;
+  font-weight: 500;
+  cursor: pointer;
+  padding: 0.25rem 0;
+}
+
+.tp-back-btn:hover { text-decoration: underline; }
+
+.tp-course-detail-header h2 {
+  font-size: 1.15rem;
+  font-weight: 700;
+  color: #111827;
+  margin: 0 0 0.25rem;
+}
+
+.tp-course-detail-header p {
+  font-size: 0.825rem;
+  color: #6B7280;
+  margin: 0;
+}
+
+.tp-empty-hint {
+  font-size: 0.8rem;
+  color: #6B7280;
+  padding: 0.5rem 0;
+}
+
+.tp-grade-eval-group {
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+  padding: 0.6rem 0;
+  border-bottom: 1px solid #F3F4F6;
+}
+
+.tp-grade-eval-group:last-child { border-bottom: none; }
+
+.tp-grade-eval-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+}
+
+.tp-grade-eval-name {
+  font-size: 0.825rem;
+  font-weight: 600;
+  color: #374151;
+}
+
+.tp-grade-eval-date {
+  font-size: 0.7rem;
+  color: #9CA3AF;
+}
+
+.tp-form {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  margin-top: 1rem;
+  padding-top: 1rem;
+  border-top: 1px solid #E5E7EB;
+}
+
+.tp-form h4 {
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: #111827;
+  margin: 0;
+}
+
+.tp-form-error {
+  font-size: 0.8rem;
+  color: #DC2626;
+  margin: 0;
+}
+
+.tp-field {
+  display: flex;
+  flex-direction: column;
+  gap: 0.3rem;
+}
+
+.tp-field label {
+  font-size: 0.75rem;
+  font-weight: 500;
+  color: #6B7280;
+}
+
+.tp-select {
+  padding: 0.5rem 0.65rem;
+  border-radius: 0.5rem;
+  border: 1px solid #D1D5DB;
+  font-size: 0.825rem;
+  color: #111827;
+  background: white;
+}
+
+.tp-select:disabled {
+  background: #F9FAFB;
+  color: #9CA3AF;
+  cursor: not-allowed;
+}
+
+.tp-form button[type='submit']:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
 /* Teacher Account Page (old profile) */
 .teacher-account-page {
   max-width: 900px;

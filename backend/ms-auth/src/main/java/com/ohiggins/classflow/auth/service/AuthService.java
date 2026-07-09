@@ -4,6 +4,7 @@ import com.ohiggins.classflow.auth.dto.*;
 import com.ohiggins.classflow.auth.entity.Role;
 import com.ohiggins.classflow.auth.entity.User;
 import com.ohiggins.classflow.auth.exception.DuplicateResourceException;
+import com.ohiggins.classflow.auth.exception.InvalidTokenException;
 import com.ohiggins.classflow.auth.repository.UserRepository;
 import com.ohiggins.classflow.auth.security.JwtTokenProvider;
 import lombok.RequiredArgsConstructor;
@@ -90,7 +91,7 @@ public class AuthService {
             String email = tokenProvider.getEmailFromToken(token);
             return userService.findByEmail(email);
         }
-        throw new RuntimeException("Invalid token");
+        throw new InvalidTokenException("Invalid token");
     }
 
     /**

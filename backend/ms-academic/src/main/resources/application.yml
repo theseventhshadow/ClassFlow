@@ -25,6 +25,10 @@ spring:
 server:
   port: 8082
 
+auth:
+  service:
+    url: ${AUTH_SERVICE_URL:http://localhost:8081}
+
 sentry:
   dsn: ${SENTRY_DSN:}
   environment: local

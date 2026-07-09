@@ -27,7 +27,7 @@
   font-size: 0.8rem;
   font-weight: 600;
   letter-spacing: 0.25em;
-  color: #6b21a8;
+  color: #7c3aed;
   text-shadow: none;
 }
 
@@ -35,7 +35,7 @@
   font-size: 5rem;
   font-weight: 300;
   line-height: 1;
-  color: #4a0080;
+  color: #4f46e5;
   text-shadow: none;
 }
 
@@ -50,7 +50,7 @@
 
 .login-right {
   flex: 1;
-  background: linear-gradient(135deg, #4a0080 0%, #6b21a8 40%, #7c3aed 100%);
+  background: linear-gradient(135deg, #4f46e5 0%, #7c3aed 100%);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -123,8 +123,8 @@
 }
 
 .login-input:focus {
-  border-color: #6b21a8;
-  box-shadow: 0 0 0 3px rgba(107, 33, 168, 0.1);
+  border-color: #7c3aed;
+  box-shadow: 0 0 0 3px rgba(124, 58, 237, 0.1);
 }
 
 .login-input::placeholder {
@@ -165,14 +165,14 @@
 }
 
 .login-role-btn:hover {
-  border-color: #a855f7;
+  border-color: #7c3aed;
   background: #faf5ff;
 }
 
 .login-role-btn--active {
-  border-color: #6b21a8;
+  border-color: #7c3aed;
   background: #ede9fe;
-  color: #6b21a8;
+  color: #7c3aed;
   font-weight: 600;
 }
 

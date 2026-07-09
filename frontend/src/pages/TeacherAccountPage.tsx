@@ -1,8 +1,9 @@
-import React, { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
+import React, { useState } from 'react';
 import { useAuth } from '@context';
-import { dashboardService, DashboardResponse } from '@services';
-import { Loading } from '@components/common';
+import { Loading, LogoutModal } from '@components/common';
+import { useRawDashboard, useLogout } from '@hooks';
+import { TeacherCoursesListView } from './teacher/TeacherCoursesListView';
+import { TeacherCourseDetailView } from './teacher/TeacherCourseDetailView';
 
 type NavKey = 'dashboard' | 'courses' | 'attendance' | 'annotations' | 'grades' | 'messages';
 
@@ -16,22 +17,17 @@ const NAV_ITEMS: { key: NavKey; label: string; icon: string; badge?: number }[] 
 ];
 
 export const TeacherAccountPage: React.FC = () => {
-  const { user, logout } = useAuth();
-  const navigate = useNavigate();
+  const { user } = useAuth();
+  const handleLogout = useLogout();
   const [activeNav, setActiveNav] = useState<NavKey>('dashboard');
+  const [selectedCourseId, setSelectedCourseId] = useState<number | null>(null);
   const [showLogoutModal, setShowLogoutModal] = useState(false);
-  const [dashboard, setDashboard] = useState<DashboardResponse | null>(null);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
+  const { dashboard, loading, error, refetch } = useRawDashboard();
 
-  useEffect(() => {
-    if (!user?.id) return;
-    setLoading(true);
-    dashboardService.getDashboard(user.id)
-      .then(setDashboard)
-      .catch((err) => setError(err instanceof Error ? err.message : 'Error al cargar datos'))
-      .finally(() => setLoading(false));
-  }, [user?.id]);
+  const handleNavClick = (key: NavKey) => {
+    setActiveNav(key);
+    if (key !== 'courses') setSelectedCourseId(null);
+  };
 
   const teacherName = user?.nombre || 'Docente';
   const firstName = teacherName.split(' ')[0];
@@ -60,13 +56,13 @@ export const TeacherAccountPage: React.FC = () => {
   // Build student name map from enriched BFF data
   const studentNameMap = new Map<number, string>();
   for (const att of attendances) {
-    if ((att as any).studentName && !studentNameMap.has(att.studentId)) {
-      studentNameMap.set(att.studentId, (att as any).studentName);
+    if (att.studentName && !studentNameMap.has(att.studentId)) {
+      studentNameMap.set(att.studentId, att.studentName);
     }
   }
   for (const ann of annotations) {
-    if ((ann as any).studentName && !studentNameMap.has(ann.studentId)) {
-      studentNameMap.set(ann.studentId, (ann as any).studentName);
+    if (ann.studentName && !studentNameMap.has(ann.studentId)) {
+      studentNameMap.set(ann.studentId, ann.studentName);
     }
   }
 
@@ -74,16 +70,6 @@ export const TeacherAccountPage: React.FC = () => {
   const attendanceRate = attendances.length > 0
     ? Math.round((attendances.filter(a => a.present).length / attendances.length) * 100)
     : 0;
-
-  const handleLogout = () => {
-    logout();
-    localStorage.clear();
-    sessionStorage.clear();
-    document.cookie.split(';').forEach((c) => {
-      document.cookie = c.replace(/^ +/, '').replace(/=.*/, `=;expires=${new Date().toUTCString()};path=/`);
-    });
-    navigate('/login', { replace: true });
-  };
 
   if (loading) return <Loading size="lg" message="Cargando portal docente..." />;
   if (error) return <div className="tp-portal"><main className="tp-main"><p style={{ padding: '2rem', color: '#dc2626' }}>{error}</p></main></div>;
@@ -101,7 +87,7 @@ export const TeacherAccountPage: React.FC = () => {
           <span className="tp-nav-section">PRINCIPAL</span>
           <button
             className={`tp-nav-item ${activeNav === 'dashboard' ? 'tp-nav-item--active' : ''}`}
-            onClick={() => setActiveNav('dashboard')}
+            onClick={() => handleNavClick('dashboard')}
           >
             <span className="tp-nav-icon">⊞</span>
             Dashboard
@@ -112,7 +98,7 @@ export const TeacherAccountPage: React.FC = () => {
             <button
               key={item.key}
               className={`tp-nav-item ${activeNav === item.key ? 'tp-nav-item--active' : ''}`}
-              onClick={() => setActiveNav(item.key)}
+              onClick={() => handleNavClick(item.key)}
             >
               <span className="tp-nav-icon">{item.icon}</span>
               {item.label}
@@ -127,7 +113,7 @@ export const TeacherAccountPage: React.FC = () => {
             <span className="tp-user-name">{teacherName}</span>
             <span className="tp-user-role">DOCENTE</span>
           </div>
-          <button className="tp-logout-btn" onClick={() => setShowLogoutModal(true)} title="Cerrar sesión">
+          <button className="dashboard-logout-btn" onClick={() => setShowLogoutModal(true)} aria-label="Cerrar sesión" title="Cerrar sesión">
             ⏻
           </button>
         </div>
@@ -135,6 +121,24 @@ export const TeacherAccountPage: React.FC = () => {
 
       {/* Main content */}
       <main className="tp-main">
+      {activeNav === 'courses' ? (
+        selectedCourseId == null ? (
+          <TeacherCoursesListView
+            courses={courses}
+            attendances={attendances}
+            onSelectCourse={setSelectedCourseId}
+          />
+        ) : (
+          <TeacherCourseDetailView
+            dashboard={dashboard!}
+            courseId={selectedCourseId}
+            teacherId={Number(user!.id)}
+            onBack={() => setSelectedCourseId(null)}
+            refetch={refetch}
+          />
+        )
+      ) : (
+        <>
         {/* Top bar */}
         <div className="tp-topbar">
           <div>
@@ -319,67 +323,15 @@ export const TeacherAccountPage: React.FC = () => {
             </div>
           </div>
         </div>
+        </>
+      )}
       </main>
 
-      {showLogoutModal && (
-        <div
-          style={{
-            position: 'fixed',
-            top: 0,
-            left: 0,
-            right: 0,
-            bottom: 0,
-            backgroundColor: 'rgba(0, 0, 0, 0.5)',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            zIndex: 9999,
-          }}
-        >
-          <div
-            style={{
-              backgroundColor: 'white',
-              borderRadius: '8px',
-              padding: '2rem',
-              minWidth: '300px',
-              boxShadow: '0 4px 6px rgba(0, 0, 0, 0.1)',
-              textAlign: 'center',
-            }}
-          >
-            <h2 style={{ marginTop: 0, color: '#333' }}>¿Cerrar sesión?</h2>
-            <p style={{ color: '#666', marginBottom: '1.5rem' }}>
-              Se cerrará tu sesión y deberás iniciar sesión nuevamente para acceder a la plataforma.
-            </p>
-            <div style={{ display: 'flex', gap: '1rem', justifyContent: 'center' }}>
-              <button
-                onClick={() => setShowLogoutModal(false)}
-                style={{
-                  padding: '0.75rem 1.5rem',
-                  backgroundColor: '#f0f0f0',
-                  border: '1px solid #ddd',
-                  borderRadius: '4px',
-                  cursor: 'pointer',
-                }}
-              >
-                No, cancelar
-              </button>
-              <button
-                onClick={handleLogout}
-                style={{
-                  padding: '0.75rem 1.5rem',
-                  backgroundColor: '#dc2626',
-                  color: 'white',
-                  border: 'none',
-                  borderRadius: '4px',
-                  cursor: 'pointer',
-                }}
-              >
-                Sí, cerrar sesión
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
+      <LogoutModal
+        open={showLogoutModal}
+        onCancel={() => setShowLogoutModal(false)}
+        onConfirm={handleLogout}
+      />
     </div>
   );
 };

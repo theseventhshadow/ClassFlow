@@ -369,7 +369,7 @@ export function useDashboardData(): UseDashboardDataResult {
     alerts: [],
   });
 
-  const fetchAll = useCallback(async () => {
+  const fetchAll = useCallback(async (signal?: { cancelled: boolean }) => {
     if (!user?.id) {
       setError('No se encontró una sesión activa.');
       setLoading(false);
@@ -386,6 +386,8 @@ export function useDashboardData(): UseDashboardDataResult {
         Promise.resolve(buildStats(response)),
       ]);
 
+      if (signal?.cancelled) return;
+
       setData({
         stats,
         users,
@@ -394,6 +396,7 @@ export function useDashboardData(): UseDashboardDataResult {
         alerts: buildAlerts(response),
       });
     } catch (err) {
+      if (signal?.cancelled) return;
       setError(err instanceof Error ? err.message : 'Error al cargar los datos del panel');
       setData({
         stats: [],
@@ -403,12 +406,16 @@ export function useDashboardData(): UseDashboardDataResult {
         alerts: [],
       });
     } finally {
-      setLoading(false);
+      if (!signal?.cancelled) setLoading(false);
     }
   }, [user?.id]);
 
   useEffect(() => {
-    void fetchAll();
+    const signal = { cancelled: false };
+    void fetchAll(signal);
+    return () => {
+      signal.cancelled = true;
+    };
   }, [fetchAll]);
 
   return { ...data, loading, error, refetch: fetchAll };
