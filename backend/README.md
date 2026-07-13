@@ -26,111 +26,102 @@ Estructura de Carpetas
 ---------------------
 ```
 ClassFlow-Back/
-├── docker-compose.yml                  # Orquestación de servicios y bases de datos
-├── README.md                           # Este archivo
-├── docs/
-│   └── README.md                       # Documentación complementaria
+├── .env                               # Variables de entorno (JWT, API keys, etc.)
+├── docker-compose.yml                 # Orquestación de servicios y bases de datos
+├── README.md                          # Este archivo
 │
-├── api-gateway/                    # API Gateway (Spring Cloud Gateway)
-│   ├── pom.xml
-│   ├── Dockerfile
-│   ├── mvnw / mvnw.cmd
-│   └── src/
-│       ├── main/
-│       │   ├── java/
-│       │   │   └── gateway_service/
-│       │   │       ├── controller/
-│       │   │       └── config/
-│       │   └── resources/
-│       │       ├── application.yml
-│       │       └── application-docker.yml
-│       └── test/
+├── api-gateway/                       # Spring Cloud Gateway (puerto 8080)
+│   ├── pom.xml, Dockerfile, mvnw
+│   └── src/main/java/com/ohiggins/classflow/gateway/
+│       ├── GatewayServiceApplication.java
+│       ├── config/                    # CorsConfig, SwaggerConfig
+│       ├── security/                  # SecurityConfig (filtro JWT)
+│       └── exception/                 # GlobalExceptionHandler, ErrorResponse
 │
-├── ms-auth/                       # Autenticación, Usuarios, JWT
-│   ├── pom.xml
-│   ├── Dockerfile
-│   ├── mvnw / mvnw.cmd
-│   └── src/
-│       ├── main/
-│       │   ├── java/
-│       │   │   └── auth_service/
-│       │   │       ├── controller/
-│       │   │       ├── service/
-│       │   │       ├── repository/
-│       │   │       ├── entity/
-│       │   │       └── security/
-│       │   └── resources/
-│       │       ├── application.yml
-│       │       ├── application-docker.yml
-│       │       ├── application.properties
-│       │       └── db/migration/
-│       │           ├── V1__initial_schema.sql
-│       │           ├── V2__seed_data.sql
-│       │           └── V5__encrypt_seed_passwords.sql
-│       └── test/
+├── bff/                               # Backend-for-Frontend (puerto 8086)
+│   ├── pom.xml, Dockerfile, mvnw
+│   └── src/main/java/com/ohiggins/classflow/bff/
+│       ├── BffServiceApplication.java
+│       ├── controller/                # DashboardController
+│       ├── service/                   # DashboardService
+│       ├── dto/                       # DashboardResponse
+│       ├── config/                    # WebClientConfig, SwaggerConfig
+│       ├── security/                  # SecurityConfig (filtro JWT)
+│       └── exception/                 # GlobalExceptionHandler, ErrorResponse
 │
-├── ms-academic/                   # Cursos, Asignaturas, Evaluaciones, Notas
-│   ├── pom.xml
-│   ├── Dockerfile
-│   ├── mvnw / mvnw.cmd
-│   └── src/
-│       ├── main/
-│       │   ├── java/
-│       │   │   └── academic_service/
-│       │   │       ├── controller/
-│       │   │       ├── service/
-│       │   │       ├── repository/
-│       │   │       ├── entity/
-│       │   │       └── dto/
-│       │   └── resources/
-│       │       ├── application.yml
-│       │       ├── application-docker.yml
-│       │       └── db/migration/
-│       └── test/
+├── ms-auth/                           # Autenticación y usuarios (puerto 8081)
+│   ├── pom.xml, Dockerfile, mvnw
+│   └── src/main/java/com/ohiggins/classflow/auth/
+│       ├── AuthServiceApplication.java
+│       ├── controller/                # AuthController (login, register, validate...)
+│       ├── service/                   # AuthService, UserService, PasswordResetService
+│       ├── repository/                # UserRepository
+│       ├── entity/                    # User, Role
+│       ├── dto/                       # LoginRequestDTO, LoginResponseDTO, etc.
+│       ├── security/                  # JwtTokenProvider, SecurityConfig
+│       ├── config/                    # SwaggerConfig
+│       ├── exception/                 # GlobalExceptionHandler, ErrorResponse
+│       └── resources/db/migration/    # 6 migraciones Flyway (V1–V6)
 │
-├── ms-assistance/                 # Asistencia, Anotaciones
-│   ├── pom.xml
-│   ├── Dockerfile
-│   └── src/
-│       ├── main/java/assistance_service/
-│       │   ├── controller/
-│       │   ├── service/
-│       │   └── repository/
-│       └── main/resources/db/migration/
+├── ms-academic/                       # Cursos, evaluaciones, notas (puerto 8082)
+│   ├── pom.xml, Dockerfile, mvnw
+│   └── src/main/java/com/ohiggins/classflow/academic/
+│       ├── AcademicServiceApplication.java
+│       ├── controller/                # 4 controladores
+│       ├── service/                   # 4 servicios
+│       ├── repository/                # 4 repositorios
+│       ├── entity/                    # Course, Evaluation, Grade, Subject
+│       ├── dto/                       # CourseDTO, EvaluationDTO, GradeDTO, SubjectDTO
+│       ├── config/                    # SwaggerConfig
+│       ├── security/                  # JwtAuthenticationFilter, SecurityConfig
+│       └── exception/                 # GlobalExceptionHandler, ErrorResponse
 │
-├── ms-message/                    # Mensajes, Anuncios
-│   ├── pom.xml
-│   ├── Dockerfile
-│   └── src/
-│       ├── main/java/message_service/
-│       │   ├── controller/
-│       │   ├── service/
-│       │   └── repository/
-│       └── main/resources/db/migration/
+├── ms-assistance/                     # Asistencia y anotaciones (puerto 8083)
+│   ├── pom.xml, Dockerfile, mvnw
+│   └── src/main/java/com/ohiggins/classflow/assistance/
+│       ├── AssistanceServiceApplication.java
+│       ├── controller/                # AttendanceController, AnnotationController
+│       ├── service/                   # AttendanceService, AnnotationService
+│       ├── repository/                # 2 repositorios
+│       ├── entity/                    # Attendance, Annotation
+│       ├── dto/                       # AttendanceDTO, AnnotationDTO, etc.
+│       ├── config/                    # SwaggerConfig
+│       ├── security/                  # JwtAuthenticationFilter, SecurityConfig
+│       └── exception/                 # GlobalExceptionHandler, ErrorResponse
 │
-├── ms-notification/               # Notificaciones, Emails/Alertas
-│   ├── pom.xml
-│   ├── Dockerfile
-│   └── src/
-│       ├── main/java/notification_service/
-│       │   ├── controller/
-│       │   ├── service/
-│       │   └── repository/
-│       └── main/resources/db/migration/
+├── ms-message/                        # Mensajes y anuncios (puerto 8084)
+│   ├── pom.xml, Dockerfile, mvnw
+│   └── src/main/java/com/ohiggins/classflow/message/
+│       ├── MessageServiceApplication.java
+│       ├── controller/                # MessageController, AnnouncementController
+│       ├── service/                   # MessageService, AnnouncementService
+│       ├── repository/                # 2 repositorios
+│       ├── entity/                    # Message, Announcement
+│       ├── dto/                       # MessageDTO, AnnouncementDTO, etc.
+│       ├── config/                    # SwaggerConfig
+│       ├── security/                  # JwtAuthenticationFilter, SecurityConfig
+│       └── exception/                 # GlobalExceptionHandler, ErrorResponse
 │
-└── bff/                        # Backend-for-Frontend, Dashboard
-    ├── pom.xml
-    ├── Dockerfile
-    └── src/
-        ├── main/
-        │   ├── java/bff_service/
-        │   │   ├── controller/
-        │   │   ├── service/
-        │   │   └── dto/
-        │   └── resources/
-        │       ├── application.yml
-        │       └── application-docker.yml
-        └── test/
+├── ms-notification/                   # Notificaciones (puerto 8085)
+│   ├── pom.xml, Dockerfile, mvnw
+│   └── src/main/java/com/ohiggins/classflow/notification/
+│       ├── NotificationServiceApplication.java
+│       ├── controller/                # NotificationController
+│       ├── service/                   # NotificationService, EmailService
+│       ├── repository/                # NotificationRepository
+│       ├── entity/                    # Notification
+│       ├── dto/                       # EmailRequestDTO, AlertRequestDTO, etc.
+│       ├── enums/                     # NotificationType
+│       ├── config/                    # SwaggerConfig
+│       ├── security/                  # JwtAuthenticationFilter, SecurityConfig
+│       └── exception/                 # GlobalExceptionHandler, ErrorResponse
+│
+└── k8s/                               # Manifiestos de Kubernetes
+    ├── namespace.yml, secret.yml, configmap.yml
+    ├── api-gateway.yml, bff.yml, frontend.yml
+    ├── ms-*.yml                       # Un deployment por microservicio
+    ├── ingress-traefik*.yml
+    └── databases/                     # Manifiestos de las 5 bases de datos
 ```
 
 Archivos clave
@@ -215,6 +206,7 @@ Consideraciones de seguridad y configuración
 -------------------------------------------
 - `ms-auth` usa JWT (clave en `application.yml` para desarrollo).
 - `ms-notification` incluye parámetros SMTP de ejemplo en `application.properties` — no dejar credenciales en claro.
+- Glitchtip (http://localhost:8000) es un servicio de error tracking self-hospedado compatible con Sentry. La primera vez que accedas debes crear una cuenta, organización y proyecto, y copiar el DSN generado a `SENTRY_DSN` en `.env`.
 
 Archivos y referencias rápidas
 -----------------------------

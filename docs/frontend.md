@@ -32,11 +32,16 @@ frontend/
   tsconfig.json                 # TypeScript strict: true
   vite.config.ts                # Alias de importacion con @
   public/
-    assets/                     # Recursos estaticos
+    assets/
+      icons/                    # Iconos de la aplicacion
+      images/                   # Imagenes estaticas
+      logos/                    # Logos institucionales
+      placeholders/             # Imagenes placeholder
   src/
     App.tsx                     # Componente raiz
     main.tsx                    # Punto de entrada
     test-setup.ts               # Configuracion de Vitest
+    vite-env.d.ts               # Tipos para variables de entorno Vite
     config/
       index.ts                  # Configuracion global (API base URL, timeout)
     constants/
@@ -52,12 +57,17 @@ frontend/
       user.service.ts           # CRUD de usuarios
       dashboard.service.ts      # Consumo del BFF dashboard
       course.service.ts         # CRUD de cursos
+      grade.service.ts          # Evaluaciones y notas
+      annotation.service.ts     # Anotaciones de conducta
       media.service.ts          # Subida de archivos multimedia
     hooks/
       useDashboardData.ts       # Logica de datos del dashboard admin
       useAsync.ts               # Hook generico para operaciones asincronas
       useFetch.ts               # Hook generico para peticiones GET
       useForm.ts                # Hook para manejo de formularios
+      useLogout.ts              # Cierre de sesion
+      useRawDashboard.ts        # Dashboard sin transformaciones
+      useTeacherCourseDetail.ts # Detalle de curso para docentes
     components/
       common/
         Button.tsx              # Componente boton reutilizable
@@ -70,15 +80,19 @@ frontend/
         Layout.tsx              # Layout principal con Header/Sidebar
     pages/
       LoginPage.tsx             # Pagina de inicio de sesion
+      LoginPage.css
+      ForgotPasswordPage.tsx    # Recuperacion de contrasena
+      ResetPasswordPage.tsx     # Restablecimiento de contrasena
+      HomePage.tsx              # Pagina de inicio
+      AccessDeniedPage.tsx      # Pagina 403
+      NotFoundPage.tsx          # Pagina 404
+      DashboardPage.css
       AdminDashboard.tsx        # Dashboard del administrador
       TeacherAccountPage.tsx    # Portal del docente
       StudentDashboardPage.tsx  # Panel del estudiante
       GuardianDashboardPage.tsx # Panel del apoderado
-      DashboardPage.tsx         # Dashboard generico
-      HomePage.tsx              # Pagina de inicio
-      NotFoundPage.tsx          # Pagina 404
-      AccessDeniedPage.tsx      # Pagina de acceso denegado
       admin/                    # Componentes del dashboard admin
+      teacher/                  # Componentes del dashboard docente
     styles/
       index.css                 # Estilos globales
     utils/
@@ -117,12 +131,14 @@ Definido en `src/router/index.tsx` usando React Router DOM v6.
 |---|---|---|
 | `/` | Redirecciona a `/login` | Publico |
 | `/login` | `LoginPage` | Publico |
+| `/forgot-password` | `ForgotPasswordPage` | Publico |
+| `/reset-password` | `ResetPasswordPage` | Publico |
 | `/access-denied` | `AccessDeniedPage` | Todos |
 | `/dashboard/admin` | `AdminDashboard` | `ADMINISTRATOR` |
 | `/dashboard/teacher` | `TeacherAccountPage` | `TEACHER` |
 | `/dashboard/student` | `StudentDashboardPage` | `STUDENT` |
 | `/dashboard/guardian` | `GuardianDashboardPage` | `GUARDIAN` |
-| `/dashboard` | `DashboardPage` | Autenticado |
+| `/dashboard` | `DashboardRedirect` | Autenticado |
 | `*` | `NotFoundPage` | Publico |
 
 ### Proteccion de rutas
