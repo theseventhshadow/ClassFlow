@@ -1,5 +1,6 @@
 package com.ohiggins.classflow.bff.service;
 
+import com.ohiggins.classflow.bff.config.WebClientConfig;
 import com.ohiggins.classflow.bff.dto.DashboardResponse;
 
 import com.fasterxml.jackson.databind.JsonNode;
@@ -13,6 +14,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.reactive.function.client.WebClient;
 import org.springframework.web.reactive.function.client.WebClientResponseException;
 import reactor.core.publisher.Mono;
+import reactor.util.context.Context;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -23,6 +25,9 @@ import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+/**
+ * Agrega y transforma datos provenientes de los microservicios para el dashboard.
+ */
 @Service
 public class DashboardService {
 
@@ -47,8 +52,17 @@ public class DashboardService {
         this.notificationWebClient = notificationWebClient;
     }
 
+    /**
+     * Construye el dashboard consolidado para un usuario.
+     *
+     * @param userId identificador del usuario.
+     * @param authorization header Authorization de la peticion original. Se deja en el
+     *                      Reactor Context para que todos los WebClient de este arbol
+     *                      reactivo lo reenvien automaticamente (ver WebClientConfig).
+     * @return dashboard enriquecido con datos de los servicios remotos.
+     */
     @SuppressWarnings("unchecked")
-    public Mono<DashboardResponse> getDashboard(Long userId) {
+    public Mono<DashboardResponse> getDashboard(Long userId, String authorization) {
         Mono<JsonNode> userMono = fetchObject(authWebClient, "/api/auth/users/{userId}", userId);
         Mono<List<JsonNode>> coursesMono = fetchList(academicWebClient, "/api/courses");
         Mono<List<JsonNode>> subjectsMono = fetchList(academicWebClient, "/api/subjects");
@@ -111,7 +125,8 @@ public class DashboardService {
                     }
                     return Mono.just(response);
                 })
-                .flatMap(this::enrichWithStudentNames);
+                .flatMap(this::enrichWithStudentNames)
+                .contextWrite(Context.of(WebClientConfig.AUTHORIZATION_CONTEXT_KEY, authorization));
     }
 
     /**

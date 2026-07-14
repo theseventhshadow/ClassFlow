@@ -56,6 +56,10 @@ spring:
           filters:
             - StripPrefix=0
 
+auth:
+  service:
+    url: ${AUTH_SERVICE_URL:http://localhost:8081}
+
 # Actuator endpoints
 management:
   endpoints:
@@ -73,3 +77,8 @@ logging:
   level:
     gateway_service: DEBUG
     org.springframework.cloud.gateway: TRACE
+
+sentry:
+  dsn: ${SENTRY_DSN:}
+  environment: local
+  exception-resolver-order: -2147483648

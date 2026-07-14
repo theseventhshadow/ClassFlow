@@ -23,6 +23,10 @@ spring:
 server:
   port: 8083
 
+auth:
+  service:
+    url: ${AUTH_SERVICE_URL:http://ms-auth:8081}
+
 management:
   endpoints:
     web:
@@ -33,3 +37,8 @@ management:
       probes:
         enabled: true
       show-details: never
+
+sentry:
+  dsn: ${SENTRY_DSN:}
+  environment: docker
+  exception-resolver-order: -2147483648

@@ -4,6 +4,9 @@ import lombok.Builder;
 import lombok.Data;
 import java.time.LocalDate;
 
+/**
+ * Representa una evaluacion academica.
+ */
 @Data
 @Builder
 public class EvaluationDTO {

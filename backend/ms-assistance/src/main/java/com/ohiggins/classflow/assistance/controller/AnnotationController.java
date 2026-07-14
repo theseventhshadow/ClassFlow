@@ -14,6 +14,9 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
+/**
+ * Expone los endpoints REST para gestionar anotaciones conductuales.
+ */
 @RestController
 @RequestMapping("/api/annotations")
 @RequiredArgsConstructor
@@ -22,6 +25,11 @@ public class AnnotationController {
 
     private final AnnotationService annotationService;
 
+    /**
+     * Obtiene el listado completo de anotaciones.
+     *
+     * @return respuesta HTTP con la lista de anotaciones.
+     */
     @GetMapping
     @Operation(summary = "Listar todas las anotaciones")
     @ApiResponse(responseCode = "200", description = "Lista de anotaciones")
@@ -29,6 +37,12 @@ public class AnnotationController {
         return ResponseEntity.ok(annotationService.findAll());
     }
 
+    /**
+     * Obtiene las anotaciones de un estudiante.
+     *
+     * @param studentId identificador del estudiante.
+     * @return respuesta HTTP con las anotaciones del estudiante.
+     */
     @GetMapping("/student/{studentId}")
     @Operation(summary = "Anotaciones por estudiante")
     @ApiResponse(responseCode = "200", description = "Anotaciones del estudiante")
@@ -36,6 +50,13 @@ public class AnnotationController {
         return ResponseEntity.ok(annotationService.findByStudentId(studentId));
     }
 
+    /**
+     * Obtiene las anotaciones de un estudiante filtradas por tipo.
+     *
+     * @param studentId identificador del estudiante.
+     * @param type tipo de anotacion.
+     * @return respuesta HTTP con las anotaciones filtradas.
+     */
     @GetMapping("/student/{studentId}/type/{type}")
     @Operation(summary = "Anotaciones por estudiante y tipo", description = "Filtra por tipo: POSITIVE o NEGATIVE")
     @ApiResponse(responseCode = "200", description = "Anotaciones filtradas")
@@ -43,6 +64,12 @@ public class AnnotationController {
         return ResponseEntity.ok(annotationService.findByStudentIdAndType(studentId, type));
     }
 
+    /**
+     * Crea una nueva anotacion.
+     *
+     * @param request datos de la anotacion a crear.
+     * @return respuesta HTTP con la anotacion creada.
+     */
     @PostMapping
     @Operation(summary = "Crear anotación")
     @ApiResponses({
@@ -53,6 +80,12 @@ public class AnnotationController {
         return new ResponseEntity<>(annotationService.create(request), HttpStatus.CREATED);
     }
 
+    /**
+     * Elimina una anotacion por su identificador.
+     *
+     * @param id identificador de la anotacion.
+     * @return respuesta HTTP sin contenido.
+     */
     @DeleteMapping("/{id}")
     @Operation(summary = "Eliminar anotación")
     @ApiResponses({

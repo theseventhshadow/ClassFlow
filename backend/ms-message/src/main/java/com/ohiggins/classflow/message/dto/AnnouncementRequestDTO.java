@@ -4,6 +4,9 @@ import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import lombok.Data;
 
+/**
+ * Datos de entrada para crear un anuncio.
+ */
 @Data
 public class AnnouncementRequestDTO {
     @NotBlank

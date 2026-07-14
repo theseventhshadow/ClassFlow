@@ -14,6 +14,9 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
+/**
+ * Expone los endpoints REST para anuncios por curso.
+ */
 @RestController
 @RequestMapping("/api/announcements")
 @RequiredArgsConstructor
@@ -22,6 +25,11 @@ public class AnnouncementController {
 
     private final AnnouncementService announcementService;
 
+    /**
+     * Obtiene el listado completo de anuncios.
+     *
+     * @return respuesta HTTP con la lista de anuncios.
+     */
     @GetMapping
     @Operation(summary = "Listar todos los anuncios")
     @ApiResponse(responseCode = "200", description = "Lista de anuncios")
@@ -29,6 +37,11 @@ public class AnnouncementController {
         return ResponseEntity.ok(announcementService.findAll());
     }
 
+    /**
+     * Obtiene los anuncios activos.
+     *
+     * @return respuesta HTTP con los anuncios activos.
+     */
     @GetMapping("/active")
     @Operation(summary = "Listar anuncios activos")
     @ApiResponse(responseCode = "200", description = "Anuncios activos")
@@ -36,6 +49,12 @@ public class AnnouncementController {
         return ResponseEntity.ok(announcementService.findActive());
     }
 
+    /**
+     * Obtiene los anuncios asociados a un curso.
+     *
+     * @param courseId identificador del curso.
+     * @return respuesta HTTP con los anuncios del curso.
+     */
     @GetMapping("/course/{courseId}")
     @Operation(summary = "Anuncios por curso")
     @ApiResponse(responseCode = "200", description = "Anuncios del curso")
@@ -43,6 +62,12 @@ public class AnnouncementController {
         return ResponseEntity.ok(announcementService.findByCourseId(courseId));
     }
 
+    /**
+     * Crea un nuevo anuncio.
+     *
+     * @param request datos del anuncio a crear.
+     * @return respuesta HTTP con el anuncio creado.
+     */
     @PostMapping
     @Operation(summary = "Crear anuncio")
     @ApiResponses({
@@ -53,6 +78,12 @@ public class AnnouncementController {
         return new ResponseEntity<>(announcementService.create(request), HttpStatus.CREATED);
     }
 
+    /**
+     * Desactiva un anuncio por su identificador.
+     *
+     * @param id identificador del anuncio.
+     * @return respuesta HTTP sin contenido.
+     */
     @DeleteMapping("/{id}")
     @Operation(summary = "Eliminar anuncio")
     @ApiResponses({

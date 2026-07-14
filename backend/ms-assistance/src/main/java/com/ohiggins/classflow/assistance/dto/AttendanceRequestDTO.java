@@ -4,6 +4,9 @@ import jakarta.validation.constraints.NotNull;
 import lombok.Data;
 import java.time.LocalDate;
 
+/**
+ * Datos de entrada para registrar o actualizar asistencia.
+ */
 @Data
 public class AttendanceRequestDTO {
     @NotNull

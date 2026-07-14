@@ -8,24 +8,44 @@ import org.springframework.stereotype.Service;
 import java.util.List;
 import java.util.stream.Collectors;
 
+/**
+ * Contiene la logica de negocio para la gestion de cursos.
+ */
 @Service
 @RequiredArgsConstructor
 public class CourseService {
     
     private final CourseRepository courseRepository;
     
+    /**
+     * Obtiene todos los cursos disponibles.
+     *
+     * @return lista de cursos convertidos a DTO.
+     */
     public List<CourseDTO> findAll() {
         return courseRepository.findAll().stream()
                 .map(this::convertToDTO)
                 .collect(Collectors.toList());
     }
     
+    /**
+     * Busca un curso por su identificador.
+     *
+     * @param id identificador del curso.
+     * @return curso encontrado convertido a DTO.
+     */
     public CourseDTO findById(Long id) {
         Course course = courseRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Course not found"));
         return convertToDTO(course);
     }
     
+    /**
+     * Crea un nuevo curso si no existe otro con el mismo nombre.
+     *
+     * @param dto datos del curso a crear.
+     * @return curso guardado convertido a DTO.
+     */
     public CourseDTO create(CourseDTO dto) {
         if (courseRepository.findByName(dto.getName()).isPresent()) {
             throw new RuntimeException("Course already exists");
@@ -41,6 +61,13 @@ public class CourseService {
         return convertToDTO(saved);
     }
     
+    /**
+     * Actualiza los datos de un curso existente.
+     *
+     * @param id identificador del curso.
+     * @param dto datos actualizados del curso.
+     * @return curso actualizado convertido a DTO.
+     */
     public CourseDTO update(Long id, CourseDTO dto) {
         Course course = courseRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Course not found"));
@@ -53,6 +80,11 @@ public class CourseService {
         return convertToDTO(updated);
     }
     
+    /**
+     * Desactiva un curso existente.
+     *
+     * @param id identificador del curso.
+     */
     public void delete(Long id) {
         Course course = courseRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Course not found"));

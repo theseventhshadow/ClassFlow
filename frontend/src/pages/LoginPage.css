@@ -27,7 +27,7 @@
   font-size: 0.8rem;
   font-weight: 600;
   letter-spacing: 0.25em;
-  color: #6b21a8;
+  color: #7c3aed;
   text-shadow: none;
 }
 
@@ -35,7 +35,7 @@
   font-size: 5rem;
   font-weight: 300;
   line-height: 1;
-  color: #4a0080;
+  color: #4f46e5;
   text-shadow: none;
 }
 
@@ -50,7 +50,7 @@
 
 .login-right {
   flex: 1;
-  background: linear-gradient(135deg, #4a0080 0%, #6b21a8 40%, #7c3aed 100%);
+  background: linear-gradient(135deg, #4f46e5 0%, #7c3aed 100%);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -123,8 +123,8 @@
 }
 
 .login-input:focus {
-  border-color: #6b21a8;
-  box-shadow: 0 0 0 3px rgba(107, 33, 168, 0.1);
+  border-color: #7c3aed;
+  box-shadow: 0 0 0 3px rgba(124, 58, 237, 0.1);
 }
 
 .login-input::placeholder {
@@ -165,14 +165,14 @@
 }
 
 .login-role-btn:hover {
-  border-color: #a855f7;
+  border-color: #7c3aed;
   background: #faf5ff;
 }
 
 .login-role-btn--active {
-  border-color: #6b21a8;
+  border-color: #7c3aed;
   background: #ede9fe;
-  color: #6b21a8;
+  color: #7c3aed;
   font-weight: 600;
 }
 
@@ -250,6 +250,49 @@
 
 .login-recover-link:hover {
   text-decoration: underline;
+}
+
+.login-recover-sent {
+  background: rgba(255, 255, 255, 0.12);
+  color: #ffffff;
+  padding: 0.9rem 1rem;
+  border-radius: 10px;
+  font-size: 0.9rem;
+  line-height: 1.5;
+  text-align: center;
+  margin-top: 0.25rem;
+}
+
+.reset-success-illustration {
+  width: 100%;
+  max-width: 280px;
+  margin: 1rem auto 0.5rem;
+  display: block;
+}
+
+.toast-success {
+  position: fixed;
+  top: 1.5rem;
+  left: 50%;
+  transform: translateX(-50%);
+  background: #16a34a;
+  color: #ffffff;
+  padding: 0.85rem 1.5rem;
+  border-radius: 10px;
+  font-size: 0.9rem;
+  font-weight: 600;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.25);
+  z-index: 1000;
+  animation: toast-slide-in 0.25s ease-out;
+}
+
+@keyframes toast-slide-in {
+  from { opacity: 0; transform: translate(-50%, -12px); }
+  to { opacity: 1; transform: translate(-50%, 0); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .toast-success { animation: none; }
 }
 
 @media (max-width: 768px) {

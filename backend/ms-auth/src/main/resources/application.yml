@@ -28,5 +28,26 @@ server:
   port: 8081
 
 jwt:
-  secret: ${JWT_SECRET:404E635266556A586E3272357538782F413F4428472B4B6250645367566B5970}
+  secret: ${JWT_SECRET}
   expiration: ${JWT_EXPIRATION:86400000}
+
+services:
+  notification:
+    url: ${NOTIFICATION_SERVICE_URL:http://localhost:8085}
+
+internal:
+  api:
+    key: ${INTERNAL_API_KEY}
+
+app:
+  frontend-url: ${FRONTEND_URL:http://localhost:3000}
+
+password-reset:
+  expiration-minutes: ${PASSWORD_RESET_EXPIRATION_MINUTES:30}
+
+sentry:
+  dsn: ${SENTRY_DSN:}
+  environment: local
+  # Sin esto, el @RestControllerAdvice del servicio resuelve la excepcion antes de que
+  # el resolver de Sentry tenga oportunidad de capturarla, y nunca se reporta nada.
+  exception-resolver-order: -2147483648

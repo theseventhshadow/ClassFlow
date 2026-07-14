@@ -14,6 +14,9 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
+/**
+ * Expone los endpoints REST para mensajes privados entre usuarios.
+ */
 @RestController
 @RequestMapping("/api/messages")
 @RequiredArgsConstructor
@@ -22,6 +25,11 @@ public class MessageController {
 
     private final MessageService messageService;
 
+    /**
+     * Obtiene el listado completo de mensajes.
+     *
+     * @return respuesta HTTP con la lista de mensajes.
+     */
     @GetMapping
     @Operation(summary = "Listar todos los mensajes")
     @ApiResponse(responseCode = "200", description = "Lista de mensajes")
@@ -29,6 +37,12 @@ public class MessageController {
         return ResponseEntity.ok(messageService.findAll());
     }
 
+    /**
+     * Obtiene los mensajes recibidos por un usuario.
+     *
+     * @param receiverId identificador del receptor.
+     * @return respuesta HTTP con los mensajes recibidos.
+     */
     @GetMapping("/receiver/{receiverId}")
     @Operation(summary = "Mensajes recibidos por usuario")
     @ApiResponse(responseCode = "200", description = "Mensajes del receptor")
@@ -36,6 +50,12 @@ public class MessageController {
         return ResponseEntity.ok(messageService.findByReceiverId(receiverId));
     }
 
+    /**
+     * Obtiene los mensajes enviados por un usuario.
+     *
+     * @param senderId identificador del emisor.
+     * @return respuesta HTTP con los mensajes enviados.
+     */
     @GetMapping("/sender/{senderId}")
     @Operation(summary = "Mensajes enviados por usuario")
     @ApiResponse(responseCode = "200", description = "Mensajes del emisor")
@@ -43,6 +63,12 @@ public class MessageController {
         return ResponseEntity.ok(messageService.findBySenderId(senderId));
     }
 
+    /**
+     * Obtiene los mensajes no leidos de un receptor.
+     *
+     * @param receiverId identificador del receptor.
+     * @return respuesta HTTP con los mensajes no leidos.
+     */
     @GetMapping("/receiver/{receiverId}/unread")
     @Operation(summary = "Mensajes no leídos por receptor")
     @ApiResponse(responseCode = "200", description = "Mensajes no leídos")
@@ -50,6 +76,12 @@ public class MessageController {
         return ResponseEntity.ok(messageService.findUnreadByReceiverId(receiverId));
     }
 
+    /**
+     * Envía un mensaje nuevo.
+     *
+     * @param request datos del mensaje a enviar.
+     * @return respuesta HTTP con el mensaje creado.
+     */
     @PostMapping("/send")
     @Operation(summary = "Enviar mensaje")
     @ApiResponses({
@@ -60,6 +92,12 @@ public class MessageController {
         return new ResponseEntity<>(messageService.send(request), HttpStatus.CREATED);
     }
 
+    /**
+     * Marca un mensaje como leido.
+     *
+     * @param id identificador del mensaje.
+     * @return respuesta HTTP con el mensaje actualizado.
+     */
     @PutMapping("/{id}/read")
     @Operation(summary = "Marcar mensaje como leído")
     @ApiResponses({
@@ -70,6 +108,12 @@ public class MessageController {
         return ResponseEntity.ok(messageService.markAsRead(id));
     }
 
+    /**
+     * Elimina un mensaje por su identificador.
+     *
+     * @param id identificador del mensaje.
+     * @return respuesta HTTP sin contenido.
+     */
     @DeleteMapping("/{id}")
     @Operation(summary = "Eliminar mensaje")
     @ApiResponses({

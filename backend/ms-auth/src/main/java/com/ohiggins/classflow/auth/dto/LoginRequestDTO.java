@@ -5,6 +5,9 @@ import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
 import lombok.Data;
 
+/**
+ * Credenciales para iniciar sesion.
+ */
 @Data
 @Schema(description = "Credenciales para iniciar sesión")
 public class LoginRequestDTO {

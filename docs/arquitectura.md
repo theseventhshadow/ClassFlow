@@ -403,12 +403,14 @@ src/
   constants/        # Rutas, HTTP status, localStorage keys
   types/            # Interfaces globales (ApiResponse, ApiError)
   context/          # AuthContext, ThemeContext
-  services/         # ApiService (Axios), auth, user, dashboard, course
-  hooks/            # useDashboardData, useAsync, useFetch, useForm
+  services/         # api, auth, user, dashboard, course, grade, annotation, media
+  hooks/            # useDashboardData, useAsync, useFetch, useForm,
+                    # useLogout, useRawDashboard, useTeacherCourseDetail
   components/
-    common/         # Button, Input, Loading, Error, ProtectedRoute
+    common/         # Button, Input, Loading, Error, ProtectedRoute, MediaImage
     layout/         # Layout principal
-  pages/            # Login, AdminDashboard, TeacherAccount, etc.
+  pages/            # Login, ForgotPassword, ResetPassword, AdminDashboard,
+                    # TeacherAccount, StudentDashboard, GuardianDashboard, etc.
   styles/           # CSS global
   utils/            # formatters, validators, helpers
   router/           # Configuracion de rutas con react-router-dom

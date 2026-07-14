@@ -3,6 +3,9 @@ package com.ohiggins.classflow.auth.dto;
 import jakarta.validation.constraints.*;
 import lombok.Data;
 
+/**
+ * Datos requeridos para registrar un nuevo usuario.
+ */
 @Data
 public class RegisterRequestDTO {
     @NotBlank(message = "First name is required")

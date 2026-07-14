@@ -10,8 +10,10 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.http.MediaType;
+import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
 
@@ -32,7 +34,11 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
+// addFilters = false: estos tests ejercitan solo el controller (service mockeado), no la
+// cadena de Spring Security que ahora valida el JWT llamando a ms-auth.
 @WebMvcTest(NotificationController.class)
+@AutoConfigureMockMvc(addFilters = false)
+@TestPropertySource(properties = "internal.api.key=test-internal-api-key")
 @DisplayName("NotificationController Tests")
 class NotificationControllerTest {
 

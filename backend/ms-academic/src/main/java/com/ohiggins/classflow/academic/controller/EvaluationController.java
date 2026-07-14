@@ -13,6 +13,9 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
+/**
+ * Expone los endpoints REST para gestionar evaluaciones.
+ */
 @RestController
 @RequestMapping("/api/evaluations")
 @RequiredArgsConstructor
@@ -21,6 +24,11 @@ public class EvaluationController {
 
     private final EvaluationService evaluationService;
 
+    /**
+     * Obtiene el listado completo de evaluaciones.
+     *
+     * @return respuesta HTTP con la lista de evaluaciones.
+     */
     @GetMapping
     @Operation(summary = "Listar todas las evaluaciones")
     @ApiResponse(responseCode = "200", description = "Lista de evaluaciones")
@@ -28,6 +36,12 @@ public class EvaluationController {
         return ResponseEntity.ok(evaluationService.findAll());
     }
 
+    /**
+     * Obtiene las evaluaciones de una asignatura.
+     *
+     * @param subjectId identificador de la asignatura.
+     * @return respuesta HTTP con las evaluaciones de la asignatura.
+     */
     @GetMapping("/subject/{subjectId}")
     @Operation(summary = "Listar evaluaciones por asignatura")
     @ApiResponse(responseCode = "200", description = "Evaluaciones de la asignatura")
@@ -35,6 +49,12 @@ public class EvaluationController {
         return ResponseEntity.ok(evaluationService.findBySubjectId(subjectId));
     }
 
+    /**
+     * Obtiene una evaluacion por su identificador.
+     *
+     * @param id identificador de la evaluacion.
+     * @return respuesta HTTP con la evaluacion encontrada.
+     */
     @GetMapping("/{id}")
     @Operation(summary = "Obtener evaluación por ID")
     @ApiResponses({
@@ -45,6 +65,12 @@ public class EvaluationController {
         return ResponseEntity.ok(evaluationService.findById(id));
     }
 
+    /**
+     * Crea una nueva evaluacion.
+     *
+     * @param dto datos de la evaluacion a crear.
+     * @return respuesta HTTP con la evaluacion creada.
+     */
     @PostMapping
     @Operation(summary = "Crear evaluación")
     @ApiResponses({
@@ -55,6 +81,13 @@ public class EvaluationController {
         return new ResponseEntity<>(evaluationService.create(dto), HttpStatus.CREATED);
     }
 
+    /**
+     * Actualiza una evaluacion existente.
+     *
+     * @param id identificador de la evaluacion.
+     * @param dto datos actualizados de la evaluacion.
+     * @return respuesta HTTP con la evaluacion actualizada.
+     */
     @PutMapping("/{id}")
     @Operation(summary = "Actualizar evaluación")
     @ApiResponses({
@@ -65,6 +98,12 @@ public class EvaluationController {
         return ResponseEntity.ok(evaluationService.update(id, dto));
     }
 
+    /**
+     * Elimina una evaluacion por su identificador.
+     *
+     * @param id identificador de la evaluacion.
+     * @return respuesta HTTP sin contenido.
+     */
     @DeleteMapping("/{id}")
     @Operation(summary = "Eliminar evaluación")
     @ApiResponses({

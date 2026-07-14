@@ -4,6 +4,7 @@ import com.ohiggins.classflow.message.dto.AnnouncementDTO;
 import com.ohiggins.classflow.message.service.AnnouncementService;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.http.MediaType;
@@ -21,7 +22,10 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
+// addFilters = false: estos tests ejercitan solo el controller (service mockeado), no la
+// cadena de Spring Security que ahora valida el JWT llamando a ms-auth.
 @WebMvcTest(AnnouncementController.class)
+@AutoConfigureMockMvc(addFilters = false)
 @TestPropertySource(locations = "classpath:application-test.properties")
 class AnnouncementControllerTest {
 

@@ -584,6 +584,8 @@
 .status-activo::before { background: #16a34a; }
 .status-inactivo { background: #fee2e2; color: #b91c1c; }
 .status-inactivo::before { background: #dc2626; }
+.status-pendiente { background: #fef3c7; color: #92400e; }
+.status-pendiente::before { background: #d97706; }
 
 .access-time {
   color: #94a3b8;
@@ -785,4 +787,68 @@
   .stats-grid {
     grid-template-columns: 1fr;
   }
+}
+
+/* ========================================
+   PORTAL APODERADO — acento morado del proyecto (#4F46E5 → #7C3AED),
+   igual que AdminDashboard y el Portal Docente. Se aplica solo con
+   .dashboard-layout--guardian porque este archivo lo comparte también
+   el Portal Estudiante, que mantiene su acento azul original.
+   ======================================== */
+.dashboard-layout--guardian .sidebar-brand-icon {
+  background: linear-gradient(135deg, #4f46e5 0%, #7c3aed 100%);
+}
+
+.dashboard-layout--guardian .sidebar-nav-item.active {
+  background-color: rgba(124, 58, 237, 0.18);
+}
+
+.dashboard-layout--guardian .sidebar-nav-item.active::before {
+  background: #7c3aed;
+}
+
+.dashboard-layout--guardian .sidebar-nav-item.active .nav-icon {
+  color: #a78bfa;
+}
+
+.dashboard-layout--guardian .nav-badge {
+  background-color: #7c3aed;
+}
+
+.dashboard-layout--guardian .sidebar-avatar {
+  background: linear-gradient(135deg, #4f46e5, #7c3aed);
+}
+
+.dashboard-layout--guardian .btn-primary-dash {
+  background: #7c3aed;
+}
+
+.dashboard-layout--guardian .btn-primary-dash:hover {
+  background: #4f46e5;
+  box-shadow: 0 4px 12px rgba(124, 58, 237, 0.35);
+}
+
+.dashboard-layout--guardian .btn-outline:hover {
+  border-color: #7c3aed;
+  color: #7c3aed;
+  box-shadow: 0 0 0 3px rgba(124, 58, 237, 0.08);
+}
+
+.dashboard-layout--guardian .dash-card-link {
+  color: #7c3aed;
+}
+
+.dashboard-layout--guardian .dash-card-link:hover {
+  color: #4f46e5;
+}
+
+.dashboard-layout--guardian .progress-mid {
+  background: linear-gradient(90deg, #a78bfa, #7c3aed);
+}
+
+/* .role-docente aquí se usa como badge genérico (promedio/asistencia en la
+   tabla "Mis pupilos"), no para mostrar el rol real de un docente. */
+.dashboard-layout--guardian .role-docente {
+  background: #ede9fe;
+  color: #6d28d9;
 }
