@@ -75,7 +75,7 @@ La aplicación estará disponible en `http://localhost:5173`.
 
 ## Variables de Entorno
 
-Las variables de entorno se gestionan a través de archivos `.env`. El repositorio incluye un archivo `.env.example` con todas las claves requeridas sin valores. **Nunca versionar `.env.local` ni ningún archivo que contenga valores reales.**
+Las variables de entorno se gestionan a través de archivos `.env`. El repositorio incluye un archivo `.env.example` con todas las claves requeridas sin valores.
 
 `.env.example`:
 
@@ -136,15 +136,19 @@ npm run audit:a11y
 ## Estructura del Proyecto
 
 ```
-public/                        # Recursos estáticos públicos (favicon, robots.txt)
+public/
+├── assets/
+│   ├── icons/                 # Iconos de la aplicación
+│   ├── images/                # Imágenes estáticas
+│   ├── logos/                 # Logos institucionales
+│   └── placeholders/          # Imágenes placeholder
+└── favicon.ico
 src/
 ├── components/
 │   ├── common/                # Primitivos de UI reutilizables
-│   │   ├── Button.tsx
-│   │   ├── Error.tsx
-│   │   ├── Input.tsx
-│   │   ├── Loading.tsx
-│   │   ├── MediaImage.tsx
+│   │   ├── Button.tsx, Error.tsx, Input.tsx
+│   │   ├── Loading.tsx, MediaImage.tsx
+│   │   ├── ProtectedRoute.tsx # Guard de rutas por rol
 │   │   └── index.ts
 │   └── layout/
 │       ├── Layout.tsx         # Componente raíz de estructura de página
@@ -159,25 +163,44 @@ src/
 │   └── index.ts
 ├── hooks/
 │   ├── useAsync.ts            # Manejo genérico de operaciones asíncronas
-│   ├── useFetch.ts            # Abstracción de peticiones HTTP con estado de carga
+│   ├── useFetch.ts            # Abstracción de peticiones HTTP
 │   ├── useForm.ts             # Manejo de formularios y validación
+│   ├── useDashboardData.ts    # Datos agregados del dashboard
+│   ├── useLogout.ts           # Cierre de sesión
+│   ├── useRawDashboard.ts     # Dashboard sin transformaciones
+│   ├── useTeacherCourseDetail.ts  # Detalle de curso para docentes
 │   └── index.ts
 ├── pages/
-│   ├── DashboardPage.tsx      # Vista principal post-login por rol
-│   ├── HomePage.tsx           # Página de inicio / login
+│   ├── LoginPage.tsx          # Inicio de sesión
+│   ├── LoginPage.css
+│   ├── ForgotPasswordPage.tsx # Recuperación de contraseña
+│   ├── ResetPasswordPage.tsx  # Restablecimiento de contraseña
+│   ├── HomePage.tsx           # Página principal
+│   ├── AccessDeniedPage.tsx   # Vista 403
 │   ├── NotFoundPage.tsx       # Vista 404
+│   ├── DashboardPage.css
+│   ├── StudentDashboardPage.tsx
+│   ├── TeacherAccountPage.tsx
+│   ├── GuardianDashboardPage.tsx
+│   ├── admin/                 # Pantallas de administración
+│   ├── teacher/               # Pantallas de docentes
 │   └── index.ts
 ├── router/
-│   └── index.tsx              # Definición de rutas y guards de autenticación por rol
+│   └── index.tsx              # Definición de rutas y guards por rol
 ├── services/
 │   ├── api.service.ts         # Instancia de Axios e interceptores JWT
-│   ├── media.service.ts       # Integración con el servicio de medios
-│   ├── user.service.ts        # Integración con el Auth Service
+│   ├── auth.service.ts        # Login, register, validate token
+│   ├── user.service.ts        # CRUD de usuarios
+│   ├── dashboard.service.ts   # Dashboard agregado vía BFF
+│   ├── course.service.ts      # Cursos y asignaturas
+│   ├── grade.service.ts       # Evaluaciones y notas
+│   ├── annotation.service.ts  # Anotaciones de conducta
+│   ├── media.service.ts       # Integración con servicio de medios
 │   └── index.ts
 ├── styles/
-│   └── index.css              # Estilos globales y directivas de Tailwind
+│   └── index.css              # Estilos globales
 ├── types/
-│   └── index.ts               # Tipos TypeScript y DTOs compartidos con el backend
+│   └── index.ts               # Tipos TypeScript y DTOs compartidos
 ├── utils/
 │   ├── formatters.ts          # Formateadores de fechas, números y texto
 │   ├── helpers.ts             # Funciones auxiliares de propósito general
@@ -185,7 +208,8 @@ src/
 │   └── index.ts
 ├── App.tsx                    # Componente raíz y árbol de providers
 ├── main.tsx                   # Entry point de la aplicación
-└── vite-env.d.ts              # Declaraciones de tipos para variables de entorno Vite
+├── test-setup.ts              # Configuración de Vitest
+└── vite-env.d.ts              # Tipos para variables de entorno Vite
 ```
 
 ---
@@ -218,10 +242,8 @@ Muestra las alertas del sistema: inasistencias, nuevas calificaciones y mensajes
 
 Todas las peticiones HTTP pasan por el API Gateway en el puerto **8080**. La instancia de Axios configurada en `src/services/` aplica los siguientes interceptores de forma transversal:
 
-- Adjunta el token JWT en el header `Authorization: Bearer <token>` en cada petición saliente.
-- Detecta respuestas `401 Unauthorized` y ejecuta automáticamente el flujo de refresco mediante `POST /api/auth/refresh`.
-- Reintenta la petición original con el token renovado.
-- Redirige al login si el refresh token también ha expirado.
+- **Solicitud:** Adjunta el token JWT del `localStorage` en el header `Authorization: Bearer <token>`, excepto en endpoints públicos (login, forgot-password).
+- **Respuesta:** Los errores se normalizan en un objeto `ApiError` con `message`, `status` y `details`.
 
 ### Tabla de Enrutamiento del Gateway
 
@@ -247,11 +269,11 @@ El BFF en el puerto **8086** agrega respuestas de múltiples microservicios en u
 
 ## Autenticación
 
-El sistema implementa autenticación JWT stateless con las siguientes garantías de seguridad:
+El sistema implementa autenticación JWT stateless con las siguientes características:
 
-- El token de acceso se almacena exclusivamente en memoria, nunca en `localStorage` ni `sessionStorage`, para eliminar la superficie de ataque por XSS.
-- El refresh token se almacena en una cookie `HttpOnly`, inaccesible desde JavaScript.
-- Los guards de ruta (`ProtectedRoute`) validan el rol del usuario autenticado antes de renderizar cada página. Un rol sin permiso recibe una redirección a la vista `403`.
+- El token JWT se almacena en `localStorage` junto con los datos del usuario.
+- Los guards de ruta (`ProtectedRoute`) validan el rol del usuario autenticado antes de renderizar cada página. Un rol sin permiso recibe una redirección a la vista `403` (`AccessDeniedPage`).
+- Al cerrar sesión se eliminan tanto el token como los datos del usuario del `localStorage`.
 
 Los roles del sistema son: `ADMINISTRADOR`, `DOCENTE`, `ESTUDIANTE`, `APODERADO`.
 
